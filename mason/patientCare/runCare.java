@@ -75,8 +75,9 @@ public class runCare {
 			if(!simulation.schedule.step(simulation)) break;
 		while(simulation.schedule.getSteps() < 54);
 		simulation.finish();
-		utils.saveToCSV(simulation.getCareDistribution(), run.getFinalPath());
-		System.out.println("listo");
+		Utils writter = new Utils();
+		String response = writter.saveToCSV(simulation.getCareDistribution(), run.getFinalPath());
+		System.out.println(response);
 		System.exit(0);
 	}
 

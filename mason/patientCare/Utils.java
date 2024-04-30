@@ -7,9 +7,13 @@ import java.util.List;
 
 import com.opencsv.CSVWriter;
 
-public class utils {
+public class Utils {
+	
+	public Utils() {
+		
+	}
 
-	public static void saveToCSV(int[] distr0, String finalPath) {
+	public String saveToCSV(int[] distr0, String finalPath) {
 		System.out.println("Saving the distribution to " + finalPath);
 		List<String[]> list = new ArrayList<>();
 		String[] frequency = {"counts"};
@@ -22,7 +26,9 @@ public class utils {
 			writer.writeAll(list);
 		} catch (IOException e) {
 			System.out.println("Problem in CS Writer "+e);
+			return "Bad";
 		}
+		return "listo";
 	}
 	
 }
