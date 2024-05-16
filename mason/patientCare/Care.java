@@ -6,7 +6,6 @@ import sim.util.*;
 public class Care extends SimState {
 	public int capacity = 500;
 	public int numPatients = 34000;
-	public double serviceTrheshold = 0.7;
 	public double patientCentredness = 0.5;
 	public double effectivennes = 0.1;
 	public double continuity = 0.4;
@@ -25,14 +24,6 @@ public class Care extends SimState {
 
 	public int getNumPatients() {
 		return numPatients;
-	}
-
-	public void setServiceTrheshold(double val) {
-		serviceTrheshold = val;
-	}
-
-	public double getServiceTrheshold() {
-		return serviceTrheshold;
 	}
 
 	public void setPatientCentredness(double val) {
@@ -113,7 +104,7 @@ public class Care extends SimState {
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
 			patient.severity = random.nextDouble();
-			patient.motivation = random.nextDouble();
+			patient.motivation = random.nextDouble()/20;
 			patients.add(patient);
 			schedule.scheduleRepeating(schedule.EPOCH, 1, patient);
 		}

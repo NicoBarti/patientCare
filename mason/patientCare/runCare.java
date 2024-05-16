@@ -60,9 +60,6 @@ public class runCare {
 					case "patientCentredness":
 						simulation.setPatientCentredness(Double.valueOf(args[i + 1]));
 						break;
-					case "serviceThreshold":
-						simulation.setServiceTrheshold(Double.valueOf(args[i + 1]));
-						break;
 					case "capacity":
 						simulation.setCapacity(Integer.valueOf(args[i + 1]));
 						break;

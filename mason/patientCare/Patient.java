@@ -6,6 +6,7 @@ public class Patient implements Steppable {
 	private int receivedCare = 0;
 	protected double severity;
 	protected double motivation;
+	private double S_p;
 
 	public void step(SimState state) {
 		Care care = (Care) state;
@@ -14,31 +15,29 @@ public class Patient implements Steppable {
 
 		// excecute SEEK sub-model
 		if (seek(care)) {
-			// if received care update patient visit counter
-			this.receivedCare += 1;
 			// if received care excecute RECEIVE CARE sub-model
 			receiveCare(care);
-		}
+		} 
 	}
 
 	private void progress(Care care) {
-		this.severity += care.random.nextGaussian() * 0.1;
-		this.motivation += care.random.nextGaussian() * 0.1;
+		this.severity += care.random.nextGaussian() * 0.01;
+		this.motivation += care.random.nextGaussian() * 0.01;
 	}
 
 	private boolean seek(Care care) {
-		// check threshold
-		if ((1 - care.patientCentredness) * severity + care.patientCentredness * motivation > care.serviceTrheshold) {
-			// check doctor availability
+		// compute the patient`s seek probability
+		S_p = ((1 - care.patientCentredness) * severity + care.patientCentredness * motivation)/2;
+		// a random draw from a Bernoully (its CDF) to determine seek behaviour
+		if(care.random.nextDouble() < S_p) {
 			if (care.askAppointment()) {
 				return true;
-			} else
-				return false;
-		} else
-			return false;
+			} else return false;
+		} return false;
 	}
 
 	private void receiveCare(Care care) {
+		receivedCare += 1;
 		severity -= care.effectivennes * care.random.nextDouble();
 		motivation += care.continuity * care.random.nextDouble();
 	}
