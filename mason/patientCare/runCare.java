@@ -45,7 +45,7 @@ public class runCare {
 
 		// pass parameters to simulation
 		// create list of parameters
-		String[] pars = { "capacity", "numPatients", "effectiveness","continuity" };
+		String[] pars = { "capacity", "numPatients", "effectiveness","continuity", "patientCentredness" };
 		for (int a = 0; a < pars.length; a++) {
 			for (int i = 0; i < args.length; i++) { // loops through args to find parameters
 				if (args[i].equals(pars[a])) {
