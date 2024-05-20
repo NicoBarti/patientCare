@@ -4,6 +4,7 @@ import sim.engine.*;
 import sim.util.*;
 
 public class Care extends SimState {
+	//params
 	public int capacity = 500;
 	public int numPatients = 34000;
 	public double patientCentredness = 0.5;

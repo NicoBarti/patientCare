@@ -45,8 +45,7 @@ public class runCare {
 
 		// pass parameters to simulation
 		// create list of parameters
-		String[] pars = { "patientCentredness", "serviceThreshold", "capacity", "numPatients", "effectiveness",
-				"continuity" };
+		String[] pars = { "capacity", "numPatients", "effectiveness","continuity" };
 		for (int a = 0; a < pars.length; a++) {
 			for (int i = 0; i < args.length; i++) { // loops through args to find parameters
 				if (args[i].equals(pars[a])) {
@@ -57,9 +56,6 @@ public class runCare {
 						return;
 					}
 					switch (pars[a]) { // adds the parameters to simulation
-					case "patientCentredness":
-						simulation.setPatientCentredness(Double.valueOf(args[i + 1]));
-						break;
 					case "capacity":
 						simulation.setCapacity(Integer.valueOf(args[i + 1]));
 						break;
