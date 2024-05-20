@@ -68,6 +68,9 @@ public class runCare {
 					case "continuity":
 						simulation.setContinuity(Double.valueOf(args[i + 1]));
 						break;
+					case "patientCentredness":
+						simulation.setPatientCentredness(Double.valueOf(args[i + 1]));
+						break;
 					}
 					run.addName(pars[a] + args[i + 1].replaceAll("[^0-9]", "")); // add parameter to name
 				}
