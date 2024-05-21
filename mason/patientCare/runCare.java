@@ -12,9 +12,9 @@ public class runCare {
 
 	private void addName(String name) {
 		if (this.fileName.equals("")) {
-			this.fileName = name;
+			this.fileName = name + "_";
 		} else {
-			this.fileName = this.fileName + name;
+			this.fileName = this.fileName + name + "_";
 		}
 	}
 
