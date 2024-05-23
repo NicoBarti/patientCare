@@ -19,7 +19,7 @@ public class runCare {
 	}
 
 	private String getFinalPath() {
-		return this.path + "/" + this.fileName + ".csv";
+		return this.path + "/" + this.fileName.substring(0, this.fileName.length() - 1) + ".csv";
 	}
 
 	public static void main(String[] args) {
@@ -72,7 +72,7 @@ public class runCare {
 						simulation.setPatientCentredness(Double.valueOf(args[i + 1]));
 						break;
 					}
-					run.addName(pars[a] + args[i + 1].replaceAll("[^0-9]", "")); // add parameter to name
+					run.addName(pars[a] + "_" + args[i + 1].replaceAll("[^0-9]", "")); // add parameter to name
 				}
 			}
 		}
