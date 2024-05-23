@@ -105,7 +105,8 @@ public class Care extends SimState {
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
 			patient.severity = random.nextDouble();
-			patient.motivation = random.nextDouble()/20;
+			//patient.motivation = random.nextDouble()/20;
+			patient.motivation = 1;
 			patients.add(patient);
 			schedule.scheduleRepeating(schedule.EPOCH, 1, patient);
 		}
