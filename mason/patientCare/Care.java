@@ -3,11 +3,10 @@ import sim.engine.*;
 import sim.util.*;
 
 public class Care extends SimState {
-	public int numPatients = 34062;
-	public int careValue = 1;	
-	public double severityTrheshold =0.7;
+	public int numPatients = 34000;
+	public double severityTrheshold =0;
 	public double motivationTrheshold = 1.8;
-	public int capacity = 481;
+	public int capacity = 400;
 	
 	private int doctorAvailability;
 	public Bag patients = new Bag(numPatients);
@@ -45,17 +44,20 @@ public class Care extends SimState {
 		super.start();
 
 		// set initial capacity
-		//setCapacity(capacity); //Don´t need this line, try erase it
 		resetDoctorAvailability();
 
 		//add patients
 		for(int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
-			patient.severity = random.nextDouble();
-			patient.baselineMotivation = random.nextDouble()*2;
+			patient.severity = Math.abs(random.nextGaussian() * 0.5);
+			patient.baselineMotivation = random.nextDouble();
 			patients.add(patient);
-			schedule.scheduleRepeating(schedule.EPOCH, 1, patient);
-		}
+			//schedule.scheduleRepeating(schedule.EPOCH, 1, patient);
+			patient.id = i;
+			schedule.scheduleOnce(patient,1);
+			}
+
+		
 		//add anonymus agent that resets availability to 1
 		schedule.scheduleRepeating(schedule.EPOCH, 2, new Steppable() {
 			public void step(SimState state) {resetDoctorAvailability();}
@@ -68,6 +70,7 @@ public class Care extends SimState {
 	public void finish() {}
 		
 	public static void main(String[] args) {
+		System.out.println("Iniciando desde Care");
 		doLoop(Care.class, args);
 		System.exit(0);	
 	}
