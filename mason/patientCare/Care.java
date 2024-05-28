@@ -1,5 +1,8 @@
 package patientCare;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sim.engine.*;
 import sim.util.*;
 
@@ -78,9 +81,10 @@ public class Care extends SimState {
 	}
 	
 	public double[] getMotivationDistribution() {
-		double[] distro = new double[patients.numObjs];
+		List<double[]> list = new List<double[]>();
+		//double[] distro = new double[patients.numObjs];
 		for (int i = 0; i < patients.numObjs; i++)
-			distro[i] = ((Patient) (patients.objs[i])).getCurrentMotivation();
+			list[i] = ((Patient) (patients.objs[i])).patientMotDist;
 		return distro;
 	}
 	

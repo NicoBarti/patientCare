@@ -7,6 +7,8 @@ public class Patient implements Steppable {
 	protected double severity;
 	protected double motivation;
 	private double S_p;
+	protected double[] patientMotDist = new double[53];
+	protected double[] patientSevDist = new double[53];
 
 	public void step(SimState state) {
 		Care care = (Care) state;
@@ -18,6 +20,13 @@ public class Patient implements Steppable {
 			// if received care excecute RECEIVE CARE sub-model
 			receiveCare(care);
 		} 
+		
+		//save current motivation and severity
+		if(care.schedule.getSteps() < 53) {
+			patientMotDist[(int)care.schedule.getSteps()] = motivation;
+			patientSevDist[(int)care.schedule.getSteps()] = severity;
+		} else {System.out.println("52 weeks reached, patients are not registering their severity and motivation any longer");}
+		
 	}
 
 	private void progress(Care care) {
