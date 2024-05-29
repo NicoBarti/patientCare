@@ -13,6 +13,7 @@ public class Care extends SimState {
 	public double patientCentredness = 0.5;
 	public double effectivennes = 0.1;
 	public double continuity = 0.4;
+	public short weeks = 52;
 
 	public void setCapacity(int val) {
 		capacity = val;
@@ -80,18 +81,23 @@ public class Care extends SimState {
 		return distro;
 	}
 	
-	public double[] getMotivationDistribution() {
-		List<double[]> list = new List<double[]>();
-		//double[] distro = new double[patients.numObjs];
-		for (int i = 0; i < patients.numObjs; i++)
-			list[i] = ((Patient) (patients.objs[i])).patientMotDist;
+	public double[][] getMotivationDistribution() {
+		double[][] distro = new double[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = ((Patient) (patients.objs[i])).patientMotDist[ii];
+			}
+		}
 		return distro;
 	}
 	
-	public double[] getSeverityDistribution() {
-		double[] distro = new double[patients.numObjs];
-		for (int i = 0; i < patients.numObjs; i++)
-			distro[i] = ((Patient) (patients.objs[i])).getCurrentSeverity();
+	public double[][] getSeverityDistribution() {
+		double[][] distro = new double[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = ((Patient) (patients.objs[i])).patientMotDist[ii];
+			}
+		}
 		return distro;
 	}
 

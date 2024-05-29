@@ -84,6 +84,7 @@ public class runCare {
 		while (simulation.schedule.getSteps() < 53);
 		simulation.finish();
 		Utils writter = new Utils();
+		writter.buildHeader();
 		String response = writter.saveToCSV(simulation.getCareDistribution(), 
 				simulation.getMotivationDistribution(), simulation.getSeverityDistribution(), run.getFinalPath());
 		System.out.println(response);
