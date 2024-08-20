@@ -25,7 +25,8 @@ public class Patient implements Steppable {
 		if(care.schedule.getSteps() < 53) {
 			patientMotDist[(int)care.schedule.getSteps()] = motivation;
 			patientSevDist[(int)care.schedule.getSteps()] = severity;
-		} else {System.out.println("52 weeks reached, patients are not registering their severity and motivation any longer");}
+		} 
+		//else {System.out.println("52 weeks reached, patients are not registering their severity and motivation any longer");}
 		
 	}
 
