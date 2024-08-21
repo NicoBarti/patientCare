@@ -45,7 +45,8 @@ public class runCare {
 
 		// pass parameters to simulation
 		// create list of parameters
-		String[] pars = { "capacity", "numPatients", "effectiveness","continuity", "patientCentredness" };
+		String[] pars = { "capacity", "numPatients", "E", "RCpos", "RCneg", 
+				"Gd", "RLow", "RUp", "CLow", "CUp" };
 		for (int a = 0; a < pars.length; a++) {
 			for (int i = 0; i < args.length; i++) { // loops through args to find parameters
 				if (args[i].equals(pars[a])) {
@@ -62,14 +63,29 @@ public class runCare {
 					case "numPatients":
 						simulation.setNumPatients(Integer.valueOf(args[i + 1]));
 						break;
-					case "effectiveness":
-						simulation.setEffectiveness(Double.valueOf(args[i + 1]));
+					case "E":
+						simulation.setE(Double.valueOf(args[i + 1]));
 						break;
-					case "continuity":
-						simulation.setContinuity(Double.valueOf(args[i + 1]));
+					case "RCpos":
+						simulation.setRCpos(Double.valueOf(args[i + 1]));
 						break;
-					case "patientCentredness":
-						simulation.setPatientCentredness(Double.valueOf(args[i + 1]));
+					case "RCneg":
+						simulation.setRCneg(Double.valueOf(args[i + 1]));
+						break;
+					case "Gd":
+						simulation.setGd(Integer.valueOf(args[i + 1]));
+						break;
+					case "RLow":
+						simulation.setRLow(Double.valueOf(args[i + 1]));
+						break;
+					case "RUp":
+						simulation.setRUp(Double.valueOf(args[i + 1]));
+						break;
+					case "CLow":
+						simulation.setCLow(Integer.valueOf(args[i + 1]));
+						break;
+					case "CUp":
+						simulation.setCUp(Integer.valueOf(args[i + 1]));
 						break;
 					}
 					run.addName(pars[a] + "_" + args[i + 1].replaceAll("[^0-9]", "")); // add parameter to name
@@ -89,8 +105,13 @@ public class runCare {
 		simulation.finish();
 		Utils writter = new Utils();
 		writter.buildHeader();
-		String response = writter.saveToCSV(simulation.getCareDistribution(), 
-				simulation.getMotivationDistribution(), simulation.getSeverityDistribution(), run.getFinalPath());
+		String response = writter.saveToCSV(
+				simulation.getCareDistribution(), //serviceDist
+				simulation.getCapacityDistribution(), //capacityDist
+				simulation.getProbabilityDistribution(), // probabilityDist
+				simulation.getExpectationDistribution(), //expectationDist
+				simulation.getSatisfactionDistribution(), //satisfactionDist
+				run.getFinalPath());
 		System.out.println(response);
 		System.exit(0);
 	}
