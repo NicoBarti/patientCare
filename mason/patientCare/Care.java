@@ -7,7 +7,6 @@ import sim.engine.*;
 import sim.util.*;
 
 public class Care extends SimState {
-	//params
 	public int capacity = 500;
 	public int numPatients = 34000;
 	public double E = 0.1;
@@ -15,10 +14,13 @@ public class Care extends SimState {
 	public double RCneg = -0.4;
 	public short weeks = 52;
 	public double Gd = 1;
-	public double RLow = -3;
-	public double RUp = 3;
-	public int CLow = 3;
-	public int CUp = 100;
+	public double RLow;
+	public double RUp;
+	public int CLow;
+	public int CUp;
+	public double k = 1;
+	public double m0 = 0;
+	public int[] capUse = new int[53];
 	
 	private int doctorAvailability;
 	public Bag patients = new Bag(numPatients);
@@ -46,6 +48,7 @@ public class Care extends SimState {
 		// add anonymus agent that resets doctor availability at each week
 		schedule.scheduleRepeating(schedule.EPOCH, 0, new Steppable() {
 			public void step(SimState state) {
+				capUse[(int)schedule.getSteps()] = capacity-doctorAvailability;
 				resetDoctorAvailability();
 			}
 		});
@@ -56,50 +59,38 @@ public class Care extends SimState {
 			if (i < numPatients/3) {
 					patient.S = 2*Gd; // the level of satisfaction for G1
 					if (i < numPatients/(3*2)) {
-						patient.R = RLow;
-						patient.C = CLow;
+						patient.R = getRLow();
+						patient.C = getCLow();
 					} else {
-						patient.R = RUp;
-						patient.C = CLow;
+						patient.R = getRUp();
+						patient.C = getCUp();
 					}
 				} else 
 			if (i < 2*numPatients/3) {
 					patient.S = Gd; // the level of satisfaction for G2
 					if (i < numPatients/3 + numPatients/6) {
-						patient.R = RLow;
-						patient.C = CLow;
+						patient.R = getRLow();
+						patient.C = getCLow();
 					} else {
-						patient.R = RUp;
-						patient.C = CUp;
+						patient.R = getRUp();
+						patient.C = getCUp();
 					}
 			} else {
 					patient.S = 0; // the level of satisfaction for G3
 					if (i < 2*numPatients/3 + numPatients/6) {
-						patient.R = RLow;
-						patient.C = CLow;
+						patient.R = getRLow();
+						patient.C = getCLow();
 					} else {
-						patient.R = RUp;
-						patient.C = CUp;
+						patient.R = getRUp();
+						patient.C = getCUp();
 					}
 				}
-			patient.R = random.nextDouble() * 6 - 3;
 			patients.add(patient);
 			schedule.scheduleRepeating(schedule.EPOCH, 1, patient);
 		}
 
 	}
 	
-
-	
-//	public double[][] getSeverityDistribution() {
-//		double[][] distro = new double[patients.numObjs][weeks];
-//		for (int i = 0; i < patients.numObjs; i++) {
-//			for (int ii = 0; ii < weeks; ii++) {
-//				distro[i][ii] = ((Patient) (patients.objs[i])).patientSevDist[ii];
-//			}
-//		}
-//		return distro;
-//	}
 
 
 
@@ -120,7 +111,7 @@ public class Care extends SimState {
 		Gd = val;
 	}
 	
-	public double getgd() {
+	public double getGd() {
 		return Gd;
 	}
 	
@@ -188,6 +179,22 @@ public class Care extends SimState {
 	public int getCUp() {
 		return CUp;
 	}
+	public void setk(double val) {
+		k = val;
+	}
+	public double getk() {
+		return k;
+	}
+	public void setm0(double val) {
+		m0 = val;
+	}
+	public double getm0() {
+		return m0;
+	}
+	
+	public int[] getcapUse() {
+		return capUse;
+	}
 	
 	public int[] getCareDistribution() {
 		int[] distro = new int[patients.numObjs];
@@ -224,11 +231,21 @@ public class Care extends SimState {
 	double[][] distro = new double[patients.numObjs][weeks];
 	for (int i = 0; i < patients.numObjs; i++) {
 		for (int ii = 0; ii < weeks; ii++) {
-			distro[i][ii] = ((Patient) (patients.objs[i])).patientExpDist[ii];
+			distro[i][ii] = ((Patient) (patients.objs[i])).patientSatDist[ii];
 		}
 	}
 	return distro;	
 	}
+	
+	public double[][] getPDistribution() {
+		double[][] distro = new double[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = ((Patient) (patients.objs[i])).patientPDist[ii];
+			}
+		}
+		return distro;	
+		}
 
 
 }

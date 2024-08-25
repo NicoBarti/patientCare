@@ -10,12 +10,22 @@ public class Patient implements Steppable {
 	protected double P; // the probability of seeking care
 	protected double[] patientExpDist = new double[53];
 	protected double[] patientSatDist = new double[53];
+	protected double[] patientPDist = new double[53];
 
 	public void step(SimState state) {
 		Care care = (Care) state;
+		//save current motivation and severity
+		if(care.schedule.getSteps() < care.weeks+1) {
+			patientExpDist[(int)care.schedule.getSteps()] = R;
+			patientSatDist[(int)care.schedule.getSteps()] = S;
+			patientPDist[(int)care.schedule.getSteps()] = P;
+		} 
 		// excecute PROGRESSION sub-model
 		//progress(care);
-
+		//if(care.schedule.getSteps() == 0) { // save initial conditions for output
+		//	patientExpDist[(int)care.schedule.getSteps()] = R;
+		//	patientSatDist[(int)care.schedule.getSteps()] = S;
+		//}
 		// excecute SEEK sub-model
 		if (seek(care)) {
 			// ask for an appoitnment and EXPERIENCE CARE:
@@ -28,12 +38,8 @@ public class Patient implements Steppable {
 			};
 
 		} 
-		
-		//save current motivation and severity
-		if(care.schedule.getSteps() < 53) {
-			patientExpDist[(int)care.schedule.getSteps()] = R;
-			patientSatDist[(int)care.schedule.getSteps()] = S;
-		} 
+
+
 		//else {System.out.println("52 weeks reached, patients are not registering their severity and motivation any longer");}
 	}
 
@@ -44,7 +50,7 @@ public class Patient implements Steppable {
 			return false;
 		}
 		// compute the patient`s seek probability	
-		P = 1/(1 + Math.exp(this.R - this.S));
+		P = 1/(1 + Math.exp(-care.k*(this.R - this.S - care.m0)));
 		// a random draw from a Bernoully (its CDF) to determine seek behaviour
 		if(care.random.nextDouble() < P) {
 			return true;
