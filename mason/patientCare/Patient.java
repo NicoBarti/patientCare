@@ -3,15 +3,23 @@ package patientCare;
 import sim.engine.*;
 
 public class Patient implements Steppable {
-	private int receivedCare = 0; // counts the number of visits
+	private int receivedCare; // counts the number of visits
 	protected double S; // the current satisfaction level
 	protected double R; // expected Reward from visiting the doctor 
 	protected int C; // the maximum number of consultations a patient can make in a period
 	protected double P; // the probability of seeking care
-	protected double[] patientExpDist = new double[53];
-	protected double[] patientSatDist = new double[53];
-	protected double[] patientPDist = new double[53];
+	protected double[] patientExpDist; 
+	protected double[] patientSatDist; 
+	protected double[] patientPDist;
+	protected double strat;
 
+	public void initialize(int weeks) {
+		receivedCare = 0;
+		patientExpDist = new double[weeks];
+		patientSatDist = new double[weeks];
+		patientPDist = new double[weeks];
+	}
+	
 	public void step(SimState state) {
 		Care care = (Care) state;
 		//save current motivation and severity
@@ -21,7 +29,7 @@ public class Patient implements Steppable {
 			patientPDist[(int)care.schedule.getSteps()] = P;
 		} 
 		// excecute PROGRESSION sub-model
-		//progress(care);
+		progress(care);
 		//if(care.schedule.getSteps() == 0) { // save initial conditions for output
 		//	patientExpDist[(int)care.schedule.getSteps()] = R;
 		//	patientSatDist[(int)care.schedule.getSteps()] = S;
@@ -62,23 +70,27 @@ public class Patient implements Steppable {
 
 	private void receiveCare(Care care) {
 		receivedCare += 1;
-		this.S += care.E;
-		this.R = care.RCpos/2 + this.R/2;
+		//this.S += care.E;
+		this.S = (this.S + care.E)/2 + this.S/2;
+		//this.R = care.RCpos/2 + this.R/2;
+		this.R = (this.R + care.RCpos)/2 + this.R/2;
 	}
 	
 	private void notCare(Care care) {
-		this.R = care.RCneg/2 + this.R/2;
+		//this.R = care.RCneg/2 + this.R/2;
+		this.R = (this.R + care.RCneg)/2 + this.R/2;
 	}
 
 	public int getReceivedCare() {
 		return receivedCare;
 	}
 	
-//	private void progress(Care care) {
+private void progress(Care care) {
 		//this.severity += care.random.nextGaussian() * 0.01;
 		//this.motivation += care.random.nextGaussian() * 0.01;
+		this.S = (this.S - this.strat*0.05)/2 + this.S/2;
 		//this.S = care.random.nextGaussian() + S_0; // = sample from ~N(S_0,1)
-//	}
+	}
 	
 	//public double getCurrentMotivation() {
 	//	return P;

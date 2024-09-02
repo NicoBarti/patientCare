@@ -8,17 +8,19 @@ import java.util.List;
 import com.opencsv.CSVWriter;
 
 public class Utils {
-	int weeks = 52;
+	int weeks;
 
 	public Utils() {
 
 	}
 
-	public String saveToCSV(int[] serviceDist, int[] capacityDist, //double[] probabilityDist,
+	public String saveToCSV(int weeks,
+			int[] serviceDist, int[] capacityDist, //double[] probabilityDist,
 			int[] capUse,
 			double[][] expectationDist, 
 			double[][] satisfactionDist, double[][] PDist,
 			String finalPath) {
+		setweeks(weeks);
 		System.out.println("Saving the distribution to " + finalPath);
 		List<String[]> list = new ArrayList<>();
 		String[] frequency = buildHeader();
@@ -77,6 +79,10 @@ public class Utils {
 			r += 1;
 		}
 		return head;
+	}
+	
+	public void setweeks(int val) {
+		weeks = val;
 	}
 	
 	

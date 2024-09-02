@@ -7,20 +7,20 @@ import sim.engine.*;
 import sim.util.*;
 
 public class Care extends SimState {
-	public int capacity = 500;
-	public int numPatients = 34000;
-	public double E = 0.1;
-	public double RCpos = 0.4;
-	public double RCneg = -0.4;
-	public short weeks = 52;
-	public double Gd = 1;
-	public double RLow;
-	public double RUp;
-	public int CLow;
-	public int CUp;
+	public int capacity = 25;
+	public int numPatients = 1000;
+	public double E = 0;
+	public double RCpos = 0;
+	public double RCneg = 0;
+	public int weeks;
+	public double Gd = 0;
+	public double RLow = 0;
+	public double RUp = 0;
+	public int CLow = 2000;
+	public int CUp = 2000;
 	public double k = 1;
 	public double m0 = 0;
-	public int[] capUse = new int[53];
+	public int[] capUse;
 	
 	private int doctorAvailability;
 	public Bag patients = new Bag(numPatients);
@@ -43,12 +43,19 @@ public class Care extends SimState {
 
 	
 	public void start() {
+		if(weeks < 1) {
+			System.out.println("!! weeks parameter: " + weeks);
+		}
+		
 		super.start();
+		
+		//initialize capacity counter
+		capUse = new int[weeks];
 
 		// add anonymus agent that resets doctor availability at each week
 		schedule.scheduleRepeating(schedule.EPOCH, 0, new Steppable() {
 			public void step(SimState state) {
-				capUse[(int)schedule.getSteps()] = capacity-doctorAvailability;
+				capUse[(int)schedule.getSteps()] = doctorAvailability;
 				resetDoctorAvailability();
 			}
 		});
@@ -56,8 +63,10 @@ public class Care extends SimState {
 		// initialize patients
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
+			patient.initialize(weeks);
 			if (i < numPatients/3) {
 					patient.S = 2*Gd; // the level of satisfaction for G1
+					patient.strat = Gd;
 					if (i < numPatients/(3*2)) {
 						patient.R = getRLow();
 						patient.C = getCLow();
@@ -68,6 +77,7 @@ public class Care extends SimState {
 				} else 
 			if (i < 2*numPatients/3) {
 					patient.S = Gd; // the level of satisfaction for G2
+					patient.strat = Gd*2;
 					if (i < numPatients/3 + numPatients/6) {
 						patient.R = getRLow();
 						patient.C = getCLow();
@@ -77,6 +87,7 @@ public class Care extends SimState {
 					}
 			} else {
 					patient.S = 0; // the level of satisfaction for G3
+					patient.strat = Gd*3;
 					if (i < 2*numPatients/3 + numPatients/6) {
 						patient.R = getRLow();
 						patient.C = getCLow();
@@ -191,10 +202,17 @@ public class Care extends SimState {
 	public double getm0() {
 		return m0;
 	}
-	
 	public int[] getcapUse() {
 		return capUse;
 	}
+	public void setweeks(int val) {
+		weeks = val;
+	}
+	public int getweeks() {
+		return weeks;
+	}
+	
+	
 	
 	public int[] getCareDistribution() {
 		int[] distro = new int[patients.numObjs];

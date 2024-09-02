@@ -10,7 +10,7 @@ public class CareWithUI extends GUIState {
 		CareWithUI vid = new CareWithUI();
 		Console c = new Console(vid);
 		c.setVisible(true);
-		c.setWhenShouldPause(53);
+		c.setWhenShouldPause(52);
 		// .setWhenShouldEndTime(53);
 	}
 
@@ -39,6 +39,7 @@ public class CareWithUI extends GUIState {
 	}
 
 	public void start() {
+		care.setweeks(52);
 		super.start();
 	}
 

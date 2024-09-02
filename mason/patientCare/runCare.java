@@ -46,7 +46,7 @@ public class runCare {
 		// pass parameters to simulation
 		// create list of parameters
 		String[] pars = { "capacity", "numPatients", "E", "RCpos", "RCneg", 
-				"Gd", "RLow", "RUp", "CLow", "CUp", "k", "m0" };
+				"Gd", "RLow", "RUp", "CLow", "CUp", "k", "m0", "weeks" };
 		for (int a = 0; a < pars.length; a++) {
 			for (int i = 0; i < args.length; i++) { // loops through args to find parameters
 				if (args[i].equals(pars[a])) {
@@ -93,6 +93,9 @@ public class runCare {
 					case "m0":
 						simulation.setm0(Double.valueOf(args[i + 1]));
 						break;
+					case "weeks":
+						simulation.setweeks(Integer.valueOf(args[i+1]));
+						break;
 					}
 					
 					// this line adds the passed argument to the file name
@@ -109,7 +112,7 @@ public class runCare {
 				System.out.println("algo falso en schedule.step");
 				break;}
 		}
-		while (simulation.schedule.getSteps() < simulation.weeks +1);
+		while (simulation.schedule.getSteps() < simulation.weeks );
 		simulation.finish();
 		
 		// add the actual values of parameters used in the model to the name:
@@ -130,6 +133,7 @@ public class runCare {
 		Utils writter = new Utils();
 		writter.buildHeader();
 		String response = writter.saveToCSV(
+				simulation.getweeks(),
 				simulation.getCareDistribution(), //serviceDist
 				simulation.getCapacityDistribution(), //capacityDist
 				//simulation.getProbabilityDistribution(), // probabilityDist
