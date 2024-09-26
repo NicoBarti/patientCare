@@ -4,8 +4,7 @@ import sim.engine.*;
 
 public class Patient implements Steppable {
 	private int receivedCare = 0;
-	protected double severity;
-	protected double motivation;
+	protected int d;
 	private double S_p;
 	protected double[] patientMotDist = new double[53];
 	protected double[] patientSevDist = new double[53];
@@ -23,15 +22,22 @@ public class Patient implements Steppable {
 		
 		//save current motivation and severity
 		if(care.schedule.getSteps() < 53) {
-			patientMotDist[(int)care.schedule.getSteps()] = motivation;
-			patientSevDist[(int)care.schedule.getSteps()] = severity;
+			/*
+			 * patientMotDist[(int)care.schedule.getSteps()] = motivation;
+			 * patientSevDist[(int)care.schedule.getSteps()] = severity;
+			 */
 		} else {System.out.println("52 weeks reached, patients are not registering their severity and motivation any longer");}
 		
 	}
+	
+	public void initializePatient(double severity) {
+		if(severity < 0.33) {d = 1;} 
+		else if(severity < 0.66) {d = 2;}
+		else {d = 3;}
+	}
 
 	private void progress(Care care) {
-		this.severity += care.random.nextGaussian() * 0.01;
-		this.motivation += care.random.nextGaussian() * 0.01;
+		
 	}
 
 	private boolean seek(Care care) {

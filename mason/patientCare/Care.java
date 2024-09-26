@@ -10,9 +10,6 @@ public class Care extends SimState {
 	//params
 	public int capacity = 500;
 	public int numPatients = 34000;
-	public double patientCentredness = 0.5;
-	public double effectivennes = 0.1;
-	public double continuity = 0.4;
 	public short weeks = 52;
 
 	public void setCapacity(int val) {
@@ -31,29 +28,7 @@ public class Care extends SimState {
 		return numPatients;
 	}
 
-	public void setPatientCentredness(double val) {
-		patientCentredness = val;
-	}
-
-	public double getPatientCentredness() {
-		return patientCentredness;
-	}
-
-	public void setEffectiveness(double val) {
-		effectivennes = val;
-	}
-
-	public double getEffectiveness() {
-		return effectivennes;
-	}
-
-	public void setContinuity(double val) {
-		continuity = val;
-	}
-
-	public double getContinuity() {
-		return continuity;
-	}
+	
 
 	private int doctorAvailability;
 	public Bag patients = new Bag(numPatients);
@@ -114,8 +89,7 @@ public class Care extends SimState {
 		// initialize patients
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
-			patient.severity = random.nextDouble();
-			patient.motivation = random.nextDouble()/20;
+			patient.initializePatient(random.nextDouble());
 			//patient.motivation = 1;
 			patients.add(patient);
 			schedule.scheduleRepeating(schedule.EPOCH, 1, patient);
