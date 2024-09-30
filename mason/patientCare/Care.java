@@ -14,14 +14,12 @@ public class Care extends SimState {
 	public double RCneg = 0;
 	public int weeks;
 	public double Gd = 0;
-	public double RLow = 0;
-	public double RUp = 0;
-	public int CLow = 2000;
-	public int CUp = 2000;
 	public double k = 1;
 	public double m0 = 0;
 	public int[] capUse;
-	
+	private double stratInitializer;
+	private int strat3 = 0;
+	private int strat2 = 0;
 	private int doctorAvailability;
 	public Bag patients = new Bag(numPatients);
 
@@ -29,12 +27,14 @@ public class Care extends SimState {
 		super(seed);
 	}
 
-	public boolean askAppointment() {
+	public int askAppointment(double strat) {
+
 		if (this.doctorAvailability > 0) {
 			provideTreatment();
-			return (true);
-		}
-		return (false);
+			return (1);
+		} else {
+			return (0);
+		}	
 	}
 
 	public void provideTreatment() {
@@ -52,7 +52,7 @@ public class Care extends SimState {
 		//initialize capacity counter
 		capUse = new int[weeks];
 
-		// add anonymus agent that resets doctor availability at each week
+		// add anonumus agent that resets doctor availability at each week
 		schedule.scheduleRepeating(schedule.EPOCH, 0, new Steppable() {
 			public void step(SimState state) {
 				capUse[(int)schedule.getSteps()] = doctorAvailability;
@@ -63,39 +63,17 @@ public class Care extends SimState {
 		// initialize patients
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
-			patient.initialize(weeks);
-			if (i < numPatients/3) {
-					patient.S = 2*Gd; // the level of satisfaction for G1
-					patient.strat = Gd;
-					if (i < numPatients/(3*2)) {
-						patient.R = getRLow();
-						patient.C = getCLow();
-					} else {
-						patient.R = getRUp();
-						patient.C = getCUp();
-					}
+			if (i < numPatients/3) { //first stratum
+				stratInitializer = Gd;
 				} else 
-			if (i < 2*numPatients/3) {
-					patient.S = Gd; // the level of satisfaction for G2
-					patient.strat = Gd*2;
-					if (i < numPatients/3 + numPatients/6) {
-						patient.R = getRLow();
-						patient.C = getCLow();
-					} else {
-						patient.R = getRUp();
-						patient.C = getCUp();
-					}
-			} else {
-					patient.S = 0; // the level of satisfaction for G3
-					patient.strat = Gd*3;
-					if (i < 2*numPatients/3 + numPatients/6) {
-						patient.R = getRLow();
-						patient.C = getCLow();
-					} else {
-						patient.R = getRUp();
-						patient.C = getCUp();
-					}
+			if (i < 2*numPatients/3) { // second stratum
+				stratInitializer = Gd*2;
+			} else { //third stratum
+				stratInitializer = Gd*3;
 				}
+			patient.initialize(weeks, stratInitializer);
+			patient.R = random.nextGaussian()/100;
+			patient.S = random.nextGaussian()/100;
 			patients.add(patient);
 			schedule.scheduleRepeating(schedule.EPOCH, 1, patient);
 		}
@@ -118,7 +96,7 @@ public class Care extends SimState {
 		System.exit(0);
 	}
 	
-	public void setGd(int val) {
+	public void setGd(double val) {
 		Gd = val;
 	}
 	
@@ -166,30 +144,30 @@ public class Care extends SimState {
 		return RCneg;
 	}
 	
-	public void setRUp(double val) {
-		RUp = val;
-	}
-	public double getRUp() {
-		return RUp;
-	}
-	public void setRLow(double val) {
-		RLow = val;
-	}
-	public double getRLow() {
-		return RLow;
-	}
-	public void setCLow(int val) {
-		CLow = val;
-	}
-	public int getCLow() {
-		return CLow;
-	}
-	public void setCUp(int val) {
-		CUp = val;
-	}
-	public int getCUp() {
-		return CUp;
-	}
+//	public void setRUp(double val) {
+	//		RUp = val;
+	//	}
+	//	public double getRUp() {
+	//		return RUp;
+	//}
+	//public void setRLow(double val) {
+	//		RLow = val;
+	//}
+	//public double getRLow() {
+	//		return RLow;
+	//}
+	//public void setCLow(int val) {
+	//		CLow = val;
+	//}
+	//public int getCLow() {
+	//		return CLow;
+	//}
+	//public void setCUp(int val) {
+	//		CUp = val;
+	//}
+	//public int getCUp() {
+	//		return CUp;
+	//}
 	public void setk(double val) {
 		k = val;
 	}
@@ -221,12 +199,27 @@ public class Care extends SimState {
 		return distro;
 	}
 	
-	public int[] getCapacityDistribution() {
-		int[] distro = new int[patients.numObjs];
+	public double[] getProgressionDistribution() {
+		double[] distro = new double[patients.numObjs];
 		for (int i = 0; i < patients.numObjs; i++)
-			distro[i] = ((Patient) (patients.objs[i])).C;
+			distro[i] = ((Patient) (patients.objs[i])).getProgression();
+		return distro;
+	}
+	
+	public double[] getStratDistribution() {
+		double[] distro = new double[patients.numObjs];
+		for (int i = 0; i < patients.numObjs; i++)
+			distro[i] = ((Patient) (patients.objs[i])).getStrat();
 		return distro;		
 	}
+	
+	
+	//	public int[] getCapacityDistribution() {
+	//		int[] distro = new int[patients.numObjs];
+	//		for (int i = 0; i < patients.numObjs; i++)
+	//			distro[i] = ((Patient) (patients.objs[i])).C;
+	//		return distro;		
+	//	}
 	
 	public double[] getProbabilityDistribution() {
 		double[] distro = new double[patients.numObjs];
@@ -253,6 +246,7 @@ public class Care extends SimState {
 		}
 	}
 	return distro;	
+	
 	}
 	
 	public double[][] getPDistribution() {
@@ -260,6 +254,16 @@ public class Care extends SimState {
 		for (int i = 0; i < patients.numObjs; i++) {
 			for (int ii = 0; ii < weeks; ii++) {
 				distro[i][ii] = ((Patient) (patients.objs[i])).patientPDist[ii];
+			}
+		}
+		return distro;	
+		}
+
+	public double[][] getPatientProgress() {
+		double[][] distro = new double[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = ((Patient) (patients.objs[i])).patientProgress[ii];
 			}
 		}
 		return distro;	

@@ -73,19 +73,7 @@ public class runCare {
 						simulation.setRCneg(Double.valueOf(args[i + 1]));
 						break;
 					case "Gd":
-						simulation.setGd(Integer.valueOf(args[i + 1]));
-						break;
-					case "RLow":
-						simulation.setRLow(Double.valueOf(args[i + 1]));
-						break;
-					case "RUp":
-						simulation.setRUp(Double.valueOf(args[i + 1]));
-						break;
-					case "CLow":
-						simulation.setCLow(Integer.valueOf(args[i + 1]));
-						break;
-					case "CUp":
-						simulation.setCUp(Integer.valueOf(args[i + 1]));
+						simulation.setGd(Double.valueOf(args[i + 1]));
 						break;
 					case "k":
 						simulation.setk(Double.valueOf(args[i + 1]));
@@ -135,12 +123,12 @@ public class runCare {
 		String response = writter.saveToCSV(
 				simulation.getweeks(),
 				simulation.getCareDistribution(), //serviceDist
-				simulation.getCapacityDistribution(), //capacityDist
-				//simulation.getProbabilityDistribution(), // probabilityDist
 				simulation.getcapUse(), // percentaje of capacity used
 				simulation.getExpectationDistribution(), //expectationDist
 				simulation.getSatisfactionDistribution(), //satisfactionDist
 				simulation.getPDistribution(),
+				simulation.getStratDistribution(),
+				simulation.getPatientProgress(),
 				run.getFinalPath());
 		System.out.println(response);
 		System.exit(0);
