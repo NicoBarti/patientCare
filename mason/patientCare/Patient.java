@@ -17,6 +17,21 @@ public class Patient implements Steppable {
 	public void step(SimState state) {
 		Care care = (Care) state;
 		current_week = (int)care.schedule.getSteps() + 1;
+
+		//disease progression
+		biologicalMechanism(care);
+		
+		//internal agent events
+		expectationFormation();
+		behaviouralRule(care);
+		
+		//agent action
+		if(B[current_week] == 1) {
+			// get appointment
+			// receive prescription
+			care.askAppointment(d, C); // must return if appointmend and treatment
+		}
+		
 		} 
 
 	//First mechanism to be activated
