@@ -11,6 +11,7 @@ public class Patient implements Steppable {
 	private double[] expectation; // expectation of outcomes for next appointment
 	private double[] T; //treatment effect
 	private int[] B;
+	private int id;
 	
 	//Convenience variables
 	private int current_week; //is the step + 1
@@ -27,23 +28,23 @@ public class Patient implements Steppable {
 		behaviouralRule(care);
 		
 		//agent action
-		if(B[current_week] == 1) {
-			// get appointment
-			// receive prescription
-			care.askAppointment(d, C); // must return if appointmend and treatment
-		}
-		
+		if(B[current_week] == 1 & care.doctor.isAvailable()) {
+				C[current_week] = 1;
+				T[current_week] = care.doctor.interactWithPatient(id, d);
+			} else {
+				C[current_week] = 0;
+				T[current_week] = 0;
+				}
 		} 
 
-	//First mechanism to be activated
+	
 	private void biologicalMechanism(Care care) {	
 		// changes H
 		double progress = care.random.nextDouble()/d;
 		H[current_week] = H[current_week-1] + progress - T[current_week-1];
 	}
 	
-	//Second mechanism to be activated
-	private void expectationFormation(boolean careReceived) {
+	private void expectationFormation() {
 		//forms the expectation for the next consultation based on previous experience
 		if(B[current_week-1] == 1 & C[current_week-1] == 1) { 
 				expectation[current_week] = 0.5*expectation[current_week-1] + 0.5;}
@@ -53,7 +54,6 @@ public class Patient implements Steppable {
 			expectation[current_week] = expectation[current_week-1];}	
 	}
 	
-	//Third mechanism to be activated
 	private void behaviouralRule(Care care) {
 		// returns false if patient won't seek care
 		// returns true if patient will seek care
@@ -66,7 +66,7 @@ public class Patient implements Steppable {
 	}
 	
 
-	public void initializePatient(double severity, int weeks) {
+	public void initializePatient(double severity, int weeks, int id) {
 		if(severity < 0.33) {d = 1;} 
 		else if(severity < 0.66) {d = 2;}
 		else {d = 3;}
@@ -81,6 +81,7 @@ public class Patient implements Steppable {
 			C[0] = 0;
 		B = new int[weeks+1];
 			B[0] = 0;
+		id = id;
 	}
 	
 

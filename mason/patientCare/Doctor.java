@@ -11,6 +11,7 @@ public class Doctor implements Steppable {
 
 	@Override
 	public void step(SimState state) {
+		openAgenda();
 		// TODO Auto-generated method stub
 
 	}
