@@ -3,92 +3,93 @@ package patientCare;
 import sim.engine.*;
 
 public class Patient implements Steppable {
-	private int receivedCare = 0;
-	protected int d;
-	private double expectation;
-	private double healthStatus;
-	private int progress;
-	private int Id;
-	private double B;
-	protected double[] patientMotDist = new double[53];
-	protected double[] patientSevDist = new double[53];
-	
 
+	//Internals to agent:
+	private int[] C; // received care
+	protected int d; // risk stratification {1, 2, 3}
+	private double[] H; // health status [0,+]
+	private double[] expectation; // expectation of outcomes for next appointment
+	private double[] T; //treatment effect
+	private int[] B;
+	
+	//Convenience variables
+	private int current_week; //is the step + 1
+	
 	public void step(SimState state) {
 		Care care = (Care) state;
-		// excecute PROGRESSION sub-model
-		progress(care);
+		current_week = (int)care.schedule.getSteps() + 1;
 
-		// excecute SEEK sub-model
-		if (seek(care)) {
-			// if received care excecute RECEIVE CARE sub-model
-			receiveCare(care);
+		//disease progression
+		biologicalMechanism(care);
+		
+		//internal agent events
+		expectationFormation();
+		behaviouralRule(care);
+		
+		//agent action
+		if(B[current_week] == 1) {
+			// get appointment
+			// receive prescription
+			care.askAppointment(d, C); // must return if appointmend and treatment
+		}
+		
 		} 
-		
-		//save current motivation and severity
-		if(care.schedule.getSteps() < 53) {
-			/*
-			 * patientMotDist[(int)care.schedule.getSteps()] = motivation;
-			 * patientSevDist[(int)care.schedule.getSteps()] = severity;
-			 */
-		} else {System.out.println("52 weeks reached, patients are not registering their severity and motivation any longer");}
-		
+
+	//First mechanism to be activated
+	private void biologicalMechanism(Care care) {	
+		// changes H
+		double progress = care.random.nextDouble()/d;
+		H[current_week] = H[current_week-1] + progress - T[current_week-1];
 	}
 	
-	public void initializePatient(double severity, int id) {
+	//Second mechanism to be activated
+	private void expectationFormation(boolean careReceived) {
+		//forms the expectation for the next consultation based on previous experience
+		if(B[current_week-1] == 1 & C[current_week-1] == 1) { 
+				expectation[current_week] = 0.5*expectation[current_week-1] + 0.5;}
+		if(B[current_week-1] == 1 & C[current_week-1] == 0) {
+				expectation[current_week] = 0.5*expectation[current_week-1] - 0.5;}
+		if(B[current_week-1] == 0) { 
+			expectation[current_week] = expectation[current_week-1];}	
+	}
+	
+	//Third mechanism to be activated
+	private void behaviouralRule(Care care) {
+		// returns false if patient won't seek care
+		// returns true if patient will seek care
+		double m = 1/(1 + Math.exp(-care.k*(expectation[current_week] + H[current_week])));
+		if(care.random.nextDouble() < m) {
+			B[current_week] = 1;
+		} else {
+			B[current_week] = 0;
+		}	
+	}
+	
+
+	public void initializePatient(double severity, int weeks) {
 		if(severity < 0.33) {d = 1;} 
 		else if(severity < 0.66) {d = 2;}
 		else {d = 3;}
-		healthStatus = 0;
-		progress = 0;
-		Id = id;
-		B = 0.5;
-		expectation = 0.5;
-	}
-
-	private void progress(Care care) {
-		if(care.random.nextDouble()<d/52) {
-			progress = 1;
-		} else {progress = 0;}
-		healthStatus = healthStatus + progress;
-	}
-	
-	private int behaviouralRule(Care care) {
-		final double m = 
-		if(care.random.nextDouble() < (expectation + healthStatus)){
-			return 1;
-		} else {return 0;}
-	}
-	
-	private void expectationFormation(boolean receivedT) {
-		if(receivedT) {
-			expectation = expectation/2 + 0.5;
-		} else {
-			expectation = expectation/2 - 0.5;
-		}
-	}
-
-	private boolean seek(Care care) {
-		// compute the patient`s seek probability
-		//S_p = ((1 - care.patientCentredness) * severity + care.patientCentredness * motivation)/2;
-		// a random draw from a Bernoully (its CDF) to determine seek behaviour
-		if(care.random.nextDouble() < S_p) {
-			if (care.askAppointment()) {
-				return true;
-			} else return false;
-		} return false;
-	}
-
-	private void receiveCare(Care care) {
-		receivedCare += 1;
-		healthStatus = 
-		severity -= care.effectivennes * care.random.nextDouble();
-		motivation += care.continuity * care.random.nextDouble();
-	}
-
-	public int getReceivedCare() {
-		return receivedCare;
+		
+		H = new double[weeks+1];
+			H[0] = 0;
+		expectation = new double[weeks+1];
+			expectation[0] = 0.5;
+		T = new double[weeks+1];
+			T[0] = 0;
+		C = new int[weeks+1];
+			C[0] = 0;
+		B = new int[weeks+1];
+			B[0] = 0;
 	}
 	
 
+	public int[] getReceivedCare() {
+		return C;
+	}
+	
+	public int getD() {
+		return d;
+	}
+	
 }

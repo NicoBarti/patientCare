@@ -78,9 +78,13 @@ public class runCare {
 		}
 
 		simulation.start();
-		do
-			if (!simulation.schedule.step(simulation))
-				break;
+		//System.out.println("iniciando");
+		do			{
+		//	System.out.println(simulation.schedule.getSteps());
+			if (!simulation.schedule.step(simulation)) {
+				System.out.println("algo falso en schedule.step");
+				break;}
+		}
 		while (simulation.schedule.getSteps() < 53);
 		simulation.finish();
 		Utils writter = new Utils();
