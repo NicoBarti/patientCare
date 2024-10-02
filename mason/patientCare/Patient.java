@@ -19,6 +19,7 @@ public class Patient implements Steppable {
 	public void step(SimState state) {
 		Care care = (Care) state;
 		current_week = (int)care.schedule.getSteps() + 1;
+		System.out.println(current_week);
 
 		//disease progression
 		biologicalMechanism(care);
@@ -85,12 +86,11 @@ public class Patient implements Steppable {
 	}
 	
 
-	public int[] getReceivedCare() {
-		return C;
-	}
-	
-	public int getD() {
-		return d;
-	}
+	public int[] getReceivedCare() {return C;}
+	public int getd(){ return d;}
+	public double[] getH() {return H;}
+	public double[] getexpectation() {return expectation;}
+	public double[] getT() {return T;}
+	public int[] getB() {return B;}
 	
 }

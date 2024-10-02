@@ -8,9 +8,9 @@ import sim.util.*;
 
 public class Care extends SimState {
 	//params
-	public int capacity = 500;
-	public int numPatients = 34000;
-	public int weeks = 52;
+	public int capacity = 1;
+	public int numPatients = 1;
+	public int weeks = 10;
 	
 	// HYPERPARAMETERS:
 	public double k = 1;
