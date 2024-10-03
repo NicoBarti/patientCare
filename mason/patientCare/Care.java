@@ -77,34 +77,69 @@ public class Care extends SimState {
 		return weeks;
 	}
 	
-	public int[] getCareDistribution() {
-		int[] distro = new int[patients.numObjs];
-		for (int i = 0; i < patients.numObjs; i++)
-			distro[i] = 0;
-			//distro[i] = ((Patient) (patients.objs[i])).getReceivedCare();
-		return distro;
-	}
-	
-	public double[][] getMotivationDistribution() {
-		double[][] distro = new double[patients.numObjs][weeks];
-		for (int i = 0; i < patients.numObjs; i++) {
-			for (int ii = 0; ii < weeks; ii++) {
-				distro[i][ii] = 0;
-				//distro[i][ii] = ((Patient) (patients.objs[i])).patientMotDist[ii];
-			}
-		}
-		return distro;
-	}
-	
-	public double[][] getSeverityDistribution() {
-		double[][] distro = new double[patients.numObjs][weeks];
-		for (int i = 0; i < patients.numObjs; i++) {
-			for (int ii = 0; ii < weeks; ii++) {
-				distro[i][ii] = 0;
-				//distro[i][ii] = ((Patient) (patients.objs[i])).patientSevDist[ii];
-			}
-		}
-		return distro;
-	}
 
+	
+	public int[][] getCs() {
+		int[][] distro = new int[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			int[] data = ((Patient) (patients.objs[i])).getReceivedCare();
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = data[ii];
+			}
+		}
+		return distro;
+	}
+	
+	public int[] getds() {
+		int[] distro = new int[patients.numObjs];
+		for (int i = 0; i < patients.numObjs; i++) {
+			distro[i] = ((Patient) (patients.objs[i])).getd();
+		}
+		return distro;
+	}
+	
+	public double[][] getHs() {
+		double[][] distro = new double[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			double[] data = ((Patient) (patients.objs[i])).getH();
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = data[ii];
+			}
+		}
+		return distro;
+	}
+	
+	public double[][] getexpectations() {
+		double[][] distro = new double[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			double[] data = ((Patient) (patients.objs[i])).getexpectation();
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = data[ii];
+			}
+		}
+		return distro;
+	}
+	
+	public double[][] getTs() {
+		double[][] distro = new double[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			double[] data = ((Patient) (patients.objs[i])).getT();
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = data[ii];
+			}
+		}
+		return distro;
+	}
+	
+	public int[][] getBs() {
+		int[][] distro = new int[patients.numObjs][weeks];
+		for (int i = 0; i < patients.numObjs; i++) {
+			int[] data = ((Patient) (patients.objs[i])).getB();
+			for (int ii = 0; ii < weeks; ii++) {
+				distro[i][ii] = data[ii];
+			}
+		}
+		return distro;
+	}
+	
 }

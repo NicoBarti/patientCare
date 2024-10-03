@@ -24,6 +24,7 @@ public class Doctor implements Steppable {
 		T = prescribeTreatment(visitCounter[id], d);
 		visitCounter[id] =+ 1;
 		A = A - 1; 
+		
 		return(T);
 	}
 	
