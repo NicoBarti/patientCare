@@ -46,7 +46,7 @@ public class Care extends SimState {
 		}
 
 	}
-
+	
 
 	public void finish() {
 	}
@@ -80,10 +80,10 @@ public class Care extends SimState {
 
 	
 	public int[][] getCs() {
-		int[][] distro = new int[patients.numObjs][weeks];
+		int[][] distro = new int[patients.numObjs][weeks+1];
 		for (int i = 0; i < patients.numObjs; i++) {
 			int[] data = ((Patient) (patients.objs[i])).getReceivedCare();
-			for (int ii = 0; ii < weeks; ii++) {
+			for (int ii = 0; ii < weeks+1; ii++) {
 				distro[i][ii] = data[ii];
 			}
 		}
@@ -99,10 +99,10 @@ public class Care extends SimState {
 	}
 	
 	public double[][] getHs() {
-		double[][] distro = new double[patients.numObjs][weeks];
+		double[][] distro = new double[patients.numObjs][weeks+1];
 		for (int i = 0; i < patients.numObjs; i++) {
 			double[] data = ((Patient) (patients.objs[i])).getH();
-			for (int ii = 0; ii < weeks; ii++) {
+			for (int ii = 0; ii < weeks+1; ii++) {
 				distro[i][ii] = data[ii];
 			}
 		}
@@ -110,10 +110,10 @@ public class Care extends SimState {
 	}
 	
 	public double[][] getexpectations() {
-		double[][] distro = new double[patients.numObjs][weeks];
+		double[][] distro = new double[patients.numObjs][weeks+1];
 		for (int i = 0; i < patients.numObjs; i++) {
 			double[] data = ((Patient) (patients.objs[i])).getexpectation();
-			for (int ii = 0; ii < weeks; ii++) {
+			for (int ii = 0; ii < weeks+1; ii++) {
 				distro[i][ii] = data[ii];
 			}
 		}
@@ -121,10 +121,10 @@ public class Care extends SimState {
 	}
 	
 	public double[][] getTs() {
-		double[][] distro = new double[patients.numObjs][weeks];
+		double[][] distro = new double[patients.numObjs][weeks+1];
 		for (int i = 0; i < patients.numObjs; i++) {
 			double[] data = ((Patient) (patients.objs[i])).getT();
-			for (int ii = 0; ii < weeks; ii++) {
+			for (int ii = 0; ii < weeks+1; ii++) {
 				distro[i][ii] = data[ii];
 			}
 		}
@@ -136,14 +136,14 @@ public class Care extends SimState {
 	}
 	
 	public int[][] getBs() {
-		int[][] distro = new int[patients.numObjs][weeks];
+		int[][] distro = new int[patients.numObjs][weeks+1];
 		for (int i = 0; i < patients.numObjs; i++) {
 			int[] data = ((Patient) (patients.objs[i])).getB();
-			for (int ii = 0; ii < weeks; ii++) {
+			for (int ii = 0; ii < weeks+1; ii++) {
 				distro[i][ii] = data[ii];
 			}
 		}
 		return distro;
-	}
+	}	
 	
 }

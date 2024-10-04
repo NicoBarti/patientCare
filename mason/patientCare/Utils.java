@@ -39,7 +39,8 @@ public class Utils {
 			int q = 3*timeLength+simpleVars;
 			int t = 4*timeLength + simpleVars;
 			a[0] = Integer.toString(ds[i]);
-			for (int ii = 0; ii< weeks ; ii++) {
+			for (int ii = 0; ii< timeLength ; ii++) {
+//				a[p] = "p";
 				a[p] = Integer.toString(Cs[i][ii]);
 				a[h] = Double.toString(Hs[i][ii]);
 				a[r] = Double.toString(expectations[i][ii]);

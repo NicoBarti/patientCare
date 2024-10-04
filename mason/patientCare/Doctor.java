@@ -8,6 +8,7 @@ public class Doctor implements Steppable {
 	private int Capacity;
 	private int[] visitCounter; //an index of patients and number of consultations
 	double T;
+	private double policy;
 
 	@Override
 	public void step(SimState state) {
@@ -35,6 +36,7 @@ public class Doctor implements Steppable {
 	public void initializeDoctor(int capacity, int nPatients) {
 		Capacity = capacity;
 		visitCounter = new int[nPatients];
+		policy = 1/3;
 	}
 	
 	public boolean isAvailable() {

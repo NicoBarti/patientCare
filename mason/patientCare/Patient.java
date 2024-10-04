@@ -35,19 +35,12 @@ public class Patient implements Steppable {
 				C[current_week] = 0;
 				T[current_week] = 0;
 				}
-//		if(id == 0) {
-//			for(int i = 0; i < care.getweeks(); i++) {
-//				System.out.print(T[i] + " ");
-//			}
-//			System.out.println("");
-//			
-//		}
 		} 
 
 	
 	private void biologicalMechanism(Care care) {	
 		// changes H
-		double progress = care.random.nextDouble()/d;
+		double progress = care.random.nextDouble()*d/5;
 		H[current_week] = H[current_week-1] + progress - T[current_week-1];
 	}
 	
