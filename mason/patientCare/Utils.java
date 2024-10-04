@@ -33,17 +33,19 @@ public class Utils {
 		int timeLength = weeks+1;
 		for (int i = 0; i < ds.length; i++) {
 			String[] a = new String[timeLength*arrVars+simpleVars];
+			int p = 0*timeLength+simpleVars;
 			int h = timeLength+simpleVars;
 			int r = 2*timeLength+simpleVars;
 			int q = 3*timeLength+simpleVars;
 			int t = 4*timeLength + simpleVars;
 			a[0] = Integer.toString(ds[i]);
 			for (int ii = 0; ii< weeks ; ii++) {
-				a[ii+simpleVars] = Integer.toString(Cs[i][ii]);
+				a[p] = Integer.toString(Cs[i][ii]);
 				a[h] = Double.toString(Hs[i][ii]);
 				a[r] = Double.toString(expectations[i][ii]);
 				a[q] = Double.toString(Ts[i][ii]);
 				a[t] = Integer.toString(Bs[i][ii]);
+				h += 1;r += 1;q += 1;t += 1;p +=1;
 			}
 			list.add(a);
 		}

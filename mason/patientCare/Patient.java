@@ -35,9 +35,13 @@ public class Patient implements Steppable {
 				C[current_week] = 0;
 				T[current_week] = 0;
 				}
-		if(id == 1) {
-			System.out.println(T);
-		}
+//		if(id == 0) {
+//			for(int i = 0; i < care.getweeks(); i++) {
+//				System.out.print(T[i] + " ");
+//			}
+//			System.out.println("");
+//			
+//		}
 		} 
 
 	
@@ -85,6 +89,9 @@ public class Patient implements Steppable {
 		B = new int[weeks+1];
 			B[0] = 0;
 		id = i;
+//		if(id == 0) {
+//			System.out.println(d);
+//		}
 	}
 	
 

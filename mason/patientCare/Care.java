@@ -128,6 +128,10 @@ public class Care extends SimState {
 				distro[i][ii] = data[ii];
 			}
 		}
+//		System.out.println("Ts Distribution obtained ar Care.java");
+//		for(int i = 0; i < weeks; i++) {
+//			System.out.print(distro[0][i] + " ");
+//		}
 		return distro;
 	}
 	
