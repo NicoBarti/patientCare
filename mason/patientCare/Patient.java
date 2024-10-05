@@ -33,14 +33,14 @@ public class Patient implements Steppable {
 				T[current_week] = care.doctor.interactWithPatient(id, d);
 			} else {
 				C[current_week] = 0;
-				T[current_week] = 0;
+				T[current_week] = T[current_week-1]*0.95;
 				}
 		} 
 
 	
 	private void biologicalMechanism(Care care) {	
 		// changes H
-		double progress = care.random.nextDouble()*d/5;
+		double progress = (care.random.nextDouble()-0.1)*d/8;
 		H[current_week] = H[current_week-1] + progress - T[current_week-1];
 	}
 	
