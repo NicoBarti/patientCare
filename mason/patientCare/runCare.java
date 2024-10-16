@@ -45,7 +45,7 @@ public class runCare {
 
 		// pass parameters to simulation
 		// create list of parameters
-		String[] pars = { "capacity", "numPatients", "k","weeks" };
+		String[] pars = { "capacity", "numPatients", "k","weeks", "CONTINUITY@ALLOCATION", "SEVERITY@ALLOCATION" };
 		for (int a = 0; a < pars.length; a++) {
 			for (int i = 0; i < args.length; i++) { // loops through args to find parameters
 				if (args[i].equals(pars[a])) {
@@ -68,6 +68,12 @@ public class runCare {
 					case "weeks":
 						simulation.setweeks(Integer.valueOf(args[i + 1]));
 						break;
+					case "CONTINUITY@ALLOCATION":
+						simulation.setCONTINUITY_ALLOCATION(Double.valueOf(args[i +1]));
+						break;
+					case "SEVERITY@ALLOCATION":
+						simulation.setSEVERITY_ALLOCATION(Double.valueOf(args[i+1]));
+						break;
 					}
 					run.addName(pars[a] + "_" + args[i + 1].replaceAll("[^0-9]", "")); // add parameter to name
 				}
@@ -87,7 +93,12 @@ public class runCare {
 		
 		Utils writter = new Utils();
 		writter.buildHeader();
-		String response = writter.saveToCSV(simulation.getweeks(), simulation.getds(),simulation.getCs(),  simulation.getHs(),
+		String response = writter.saveToCSV(simulation.getweeks(), 
+				//simple variables
+				simulation.getds(),
+				//simulation.getCONTINUITY_ALLOCATION(),simulation.getSEVERITY_ALLOCATION(),
+				//double array variables
+				simulation.getCs(),  simulation.getHs(),
 				simulation.getexpectations(), simulation.getTs(), simulation.getBs(), run.getFinalPath());
 		System.out.println(response);
 		System.exit(0);

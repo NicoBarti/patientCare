@@ -7,11 +7,15 @@ import sim.engine.*;
 import sim.util.*;
 
 public class Care extends SimState {
-	//params
+	//constrains
 	public int capacity = 1;
-	public int numPatients = 1;
+	public int numPatients = 5;
 	public int weeks = 10;
 	
+	// PARAMS:
+	public double SEVERITY_ALLOCATION = 0;
+	public double CONTINUITY_ALLOCATION = 0;
+ 	
 	// HYPERPARAMETERS:
 	public double k = 1;
 	
@@ -42,9 +46,33 @@ public class Care extends SimState {
 			Patient patient = new Patient();
 			patient.initializePatient(random.nextDouble(), weeks, i);
 			patients.add(patient);
-			schedule.scheduleRepeating(schedule.EPOCH, 1, patient);
+			allocationRule(patient.getReceivedCare(), patient.getd(), i);
+			//schedule.scheduleOnce(schedule.EPOCH, 1, patient);
 		}
 
+	}
+	
+	public void allocationRule(int[] C_i, int d, int id) {
+		// The schedule priorities are like this:
+		// 0 for the doctor to reopen their agendas
+		// 1,..,6 for the priorities of patients
+		int priority = 6;
+		int visit_counter = 0;
+		if(random.nextDouble() < SEVERITY_ALLOCATION) {
+			priority = priority-d+1; //d 1 doents get promoted, 2 gets one, 3 gets 2 promotions
+		}
+		if(random.nextDouble() < CONTINUITY_ALLOCATION) {
+			
+			for (int i =0; i < weeks+1; i++) {
+				visit_counter = visit_counter + C_i[i];
+			}
+			if(visit_counter > 0) {
+				priority = priority - 1;
+			}
+		}
+		
+		schedule.scheduleOnce((Patient)patients.objs[id],priority);
+		//System.out.println("Patient d = "+d+" counter = "+ visit_counter+" priority "+priority);
 	}
 	
 
@@ -76,8 +104,18 @@ public class Care extends SimState {
 	public int getweeks() {
 		return weeks;
 	}
-	
-
+	public void setSEVERITY_ALLOCATION(double val) {
+		SEVERITY_ALLOCATION = val;
+	}
+	public double getSEVERITY_ALLOCATION() {
+		return SEVERITY_ALLOCATION;
+	}
+	public void setCONTINUITY_ALLOCATION(double val) {
+		CONTINUITY_ALLOCATION = val;
+	}
+	public double getCONTINUITY_ALLOCATION() {
+		return CONTINUITY_ALLOCATION;
+	}
 	
 	public int[][] getCs() {
 		int[][] distro = new int[patients.numObjs][weeks+1];

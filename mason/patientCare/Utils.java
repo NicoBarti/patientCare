@@ -15,7 +15,9 @@ public class Utils {
 	}
 	
 	public String saveToCSV(int weeks,
+			//simple variables
 			int[] ds, 
+			//double array series
 			int[][] Cs,
 			double[][] Hs,
 			double[][] expectations,

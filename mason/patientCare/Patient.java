@@ -35,6 +35,7 @@ public class Patient implements Steppable {
 				C[current_week] = 0;
 				T[current_week] = T[current_week-1]*0.95;
 				}
+		care.allocationRule(C, d, id);
 		} 
 
 	

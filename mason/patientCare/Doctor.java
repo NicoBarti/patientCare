@@ -23,7 +23,7 @@ public class Doctor implements Steppable {
 	
 	public double interactWithPatient(int id, double d) {
 		T = prescribeTreatment(visitCounter[id], d);
-		visitCounter[id] =+ 1;
+		visitCounter[id] += 1;
 		A = A - 1; 
 		
 		return(T);
