@@ -5,12 +5,14 @@ package patientCare;
 
 import sim.engine.*;
 import sim.util.*;
+import sim.field.continuous.*;
+import sim.field.network.*;
 
 public class Care extends SimState {
 	//constrains
-	public int capacity = 1;
-	public int numPatients = 5;
-	public int weeks = 10;
+	public int capacity = 5;
+	public int numPatients = 200;
+	public int weeks = 52;
 	
 	// PARAMS:
 	public double SEVERITY_ALLOCATION = 0;
@@ -22,6 +24,16 @@ public class Care extends SimState {
 	// internals
 	public Doctor doctor;
 	public Bag patients = new Bag(numPatients);
+	
+	// VISUALIZATION
+	//I'll implement all the objects for visualization here and control them from here
+	//so I don't interfere with the other uses of the simulation, and don't touch patients and docs
+	// some methods will only be called if there is a visualization
+	public boolean visual = true;
+	public Continuous2D center = new Continuous2D(1.0,100,100);
+    public Network visualPatients = new Network(false);
+    // eventually the Bag patients could be substituted for the Network visualPatients
+	
 
 	public Care(long seed) {
 		super(seed);
@@ -36,8 +48,22 @@ public class Care extends SimState {
 	public void start() {
 		super.start();
 		
+		// clear the center
+        center.clear();
+        // clear the visualPatients
+        visualPatients.clear();
+        
+        // should i clear the Bag? I think so, add in the other branches
+        patients.clear();
+		
 		// initialize and add Doctor
 		doctor = new Doctor();
+		if(visual) { // add doctor to  visualization: TO DO!!
+			//visualPatients.addNode(doctor);
+			Double2D docPos = new Double2D(center.getWidth() * 0.5,
+	        		center.getHeight() * 0.5);
+			center.setObjectLocation(doctor, docPos);
+		}
 		doctor.initializeDoctor(capacity, numPatients);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, doctor);
 
@@ -48,9 +74,24 @@ public class Care extends SimState {
 			patients.add(patient);
 			allocationRule(patient.getReceivedCare(), patient.getd(), i);
 			//schedule.scheduleOnce(schedule.EPOCH, 1, patient);
+			if(visual) { // add this patient for visualization:
+				//visualPatients.addNode(patient);
+				visualPatients.addEdge(doctor,patient, 1);
+			}
 		}
-
+		updatePositions(0);
+		
+		  if (visual) 		// anonymus agent that actualizes network positions
+		  {schedule.scheduleRepeating(schedule.EPOCH, 0, new Steppable()
+		  {public void step(SimState state) {updatePositions((int)state.schedule.getSteps());}});}
+	
+		  for(int i = 0; i < 1; i++) {
+			  //System.out.println(visualPatients);
+		  }
+		  
 	}
+	
+
 	
 	public void allocationRule(int[] C_i, int d, int id) {
 		// The schedule priorities are like this:
@@ -76,6 +117,23 @@ public class Care extends SimState {
 	}
 	
 
+	public void updatePositions(int week) {
+		int diameter = 4;
+		int doctorMargin = 0;
+		double movement = 7;
+		for(int i = 0; i < numPatients; i++) {
+			Patient patient = (Patient) (patients.objs[i]);
+			double angle = (2*Math.PI)/numPatients * patient.id;
+			double distanceFromDoctor = Math.max(doctorMargin, (diameter - patient.getcurrentMot()+doctorMargin)*movement);
+			//double distanceFromDoctor = (diameter - patient.getexpectation()[week]+doctorMargin)*movement;
+			Double2D newposition = new Double2D(center.getWidth() * 0.5 + Math.cos(angle) * distanceFromDoctor,
+	        		center.getHeight() * 0.5 + Math.sin(angle)* distanceFromDoctor);
+			center.setObjectLocation(patient, newposition);
+			//System.out.println(newposition);
+		}	
+	}
+	
+	
 	public void finish() {
 	}
 	

@@ -5,16 +5,20 @@ import sim.engine.*;
 public class Patient implements Steppable {
 
 	//Internals to agent:
-	private int[] C; // received care
+	protected int[] C; // received care
 	protected int d; // risk stratification {1, 2, 3}
-	private double[] H; // health status [0,+]
-	private double[] expectation; // expectation of outcomes for next appointment
+	protected double[] H; // health status [0,+]
+	protected double[] expectation; // expectation of outcomes for next appointment
 	private double[] T; //treatment effect
 	private int[] B;
-	private int id;
+	protected int id;
+	private double currentMot;
 	
 	//Convenience variables
 	private int current_week; //is the step + 1
+	
+	//FOR TESTING-ANALYSIS ONLY
+	//private int enableTreatment = 0; // change to 0 to see disease progress without treatment
 	
 	public void step(SimState state) {
 		Care care = (Care) state;
@@ -42,7 +46,7 @@ public class Patient implements Steppable {
 	private void biologicalMechanism(Care care) {	
 		// changes H
 		double progress = (care.random.nextDouble()-0.1)*d/8;
-		H[current_week] = H[current_week-1] + progress - T[current_week-1];
+		H[current_week] = H[current_week-1] + progress - T[current_week-1];//*enableTreatment;
 	}
 	
 	private void expectationFormation() {
@@ -58,8 +62,8 @@ public class Patient implements Steppable {
 	private void behaviouralRule(Care care) {
 		// returns false if patient won't seek care
 		// returns true if patient will seek care
-		double m = 1/(1 + Math.exp(-care.k*(expectation[current_week] + H[current_week])));
-		if(care.random.nextDouble() < m) {
+		currentMot = 1/(1 + Math.exp(-care.k*(expectation[current_week] + H[current_week])));
+		if(care.random.nextDouble() < currentMot) {
 			B[current_week] = 1;
 		} else {
 			B[current_week] = 0;
@@ -95,5 +99,13 @@ public class Patient implements Steppable {
 	public double[] getexpectation() {return expectation;}
 	public double[] getT() {return T;}
 	public int[] getB() {return B;}
+	public int getTotalCare() {
+		int total = 0;
+		for(int i =0; i < C.length ; i++) {
+			total = total + C[i];
+		}
+		return total;
+	}
+	public double getcurrentMot() {return currentMot;}
 	
 }
