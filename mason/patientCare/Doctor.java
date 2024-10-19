@@ -21,16 +21,21 @@ public class Doctor implements Steppable {
 		A = Capacity;
 	}
 	
-	public double interactWithPatient(int id, double d) {
-		T = prescribeTreatment(visitCounter[id], d);
+	public double interactWithPatient(int id, double d, double H) {
 		visitCounter[id] += 1;
+		T = prescribeTreatment(visitCounter[id], H);
 		A = A - 1; 
 		
 		return(T);
 	}
 	
-	public double prescribeTreatment(int n_visits, double d) {
-		return(Math.min(n_visits/d, 1));
+	public double prescribeTreatment(int n_visits, double H) {
+		//int treatment = (int)Math.min((n_visits/H),2);
+		/*
+		 * if(H == 0) { return(0); } int treatment = (int)Math.min((int)(n_visits/H),H);
+		 * return(treatment);
+		 */
+		return(1);
 	}
 	
 	public void initializeDoctor(int capacity, int nPatients) {

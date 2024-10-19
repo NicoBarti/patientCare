@@ -17,9 +17,6 @@ public class Patient implements Steppable {
 	//Convenience variables
 	private int current_week; //is the step + 1
 	
-	//FOR TESTING-ANALYSIS ONLY
-	//private int enableTreatment = 0; // change to 0 to see disease progress without treatment
-	
 	public void step(SimState state) {
 		Care care = (Care) state;
 		current_week = (int)care.schedule.getSteps() + 1;
@@ -27,26 +24,34 @@ public class Patient implements Steppable {
 		//disease progression
 		biologicalMechanism(care);
 		
+		//test treatment efficacy at different needs
+		//testTreatmentMec();
+		
 		//internal agent events
 		expectationFormation();
 		behaviouralRule(care);
 		
 		//agent action
-		if(B[current_week] == 1 & care.doctor.isAvailable()) {
-				C[current_week] = 1;
-				T[current_week] = care.doctor.interactWithPatient(id, d);
-			} else {
-				C[current_week] = 0;
-				T[current_week] = T[current_week-1]*0.95;
-				}
+		if(B[current_week] == 1 & care.doctor.isAvailable()) { 
+			C[current_week] = 1;
+		    T[current_week] = care.doctor.interactWithPatient(id, d, H[current_week]); 
+		}
+		  else { 
+			  C[current_week] = 0; 
+			  T[current_week] = T[current_week-1]*0.95; 
+		  }
+		 
 		care.allocationRule(C, d, id);
 		} 
 
 	
 	private void biologicalMechanism(Care care) {	
 		// changes H
-		double progress = (care.random.nextDouble()-0.1)*d/8;
-		H[current_week] = H[current_week-1] + progress - T[current_week-1];//*enableTreatment;
+		int progress = 0;
+		if(care.random.nextBoolean((double)2*d/(care.weeks))){
+			progress = 1;
+		}
+		H[current_week] = Math.min(5,Math.max(0,H[current_week-1] + progress - T[current_week-1]));
 	}
 	
 	private void expectationFormation() {
@@ -90,6 +95,8 @@ public class Patient implements Steppable {
 //		if(id == 0) {
 //			System.out.println(d);
 //		}
+		//System.out.println(id);
+
 	}
 	
 
@@ -107,5 +114,10 @@ public class Patient implements Steppable {
 		return total;
 	}
 	public double getcurrentMot() {return currentMot;}
+	
+	public void testTreatmentMec(){
+		H[current_week] = id;
+		//System.out.println(id);
+	}
 	
 }
