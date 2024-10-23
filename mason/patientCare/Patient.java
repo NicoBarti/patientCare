@@ -97,7 +97,7 @@ public class Patient implements Steppable {
 		H = new double[weeks+1];
 			H[0] = 0;
 		expectation = new double[weeks+1];
-			expectation[0] = 0.5;
+			expectation[0] = 2.5;
 		T = new double[weeks+1];
 			T[0] = 0;
 		C = new int[weeks+1];
