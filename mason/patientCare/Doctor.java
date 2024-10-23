@@ -13,8 +13,6 @@ public class Doctor implements Steppable {
 	@Override
 	public void step(SimState state) {
 		openAgenda();
-		// TODO Auto-generated method stub
-
 	}
 
 	public void openAgenda() {
@@ -22,10 +20,9 @@ public class Doctor implements Steppable {
 	}
 	
 	public double interactWithPatient(int id, double d) {
-		T = prescribeTreatment(visitCounter[id], d);
 		visitCounter[id] += 1;
+		T = prescribeTreatment(visitCounter[id], d);
 		A = A - 1; 
-		
 		return(T);
 	}
 	
@@ -44,7 +41,5 @@ public class Doctor implements Steppable {
 		} else {return(false);
 		}
 	}
-	
-	
-	
+		
 }

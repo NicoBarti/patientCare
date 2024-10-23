@@ -9,17 +9,14 @@ public class Patient implements Steppable {
 	protected int d; // risk stratification {1, 2, 3}
 	protected double[] H; // health status [0,+]
 	protected double[] expectation; // expectation of outcomes for next appointment
-	private double[] T; //treatment effect
-	private int[] B;
+	protected double[] T; //treatment effect
+	protected int[] B;
 	protected int id;
-	private double currentMot;
+	protected double currentMot;
 	
 	//Convenience variables
-	private int current_week; //is the step + 1
-	
-	//FOR TESTING-ANALYSIS ONLY
-	//private int enableTreatment = 0; // change to 0 to see disease progress without treatment
-	
+	protected int current_week; //is the step + 1
+		
 	public void step(SimState state) {
 		Care care = (Care) state;
 		current_week = (int)care.schedule.getSteps() + 1;
@@ -29,7 +26,10 @@ public class Patient implements Steppable {
 		
 		//internal agent events
 		expectationFormation();
-		behaviouralRule(care);
+		behaviouralRule(care.k, care.random.nextDouble());
+		
+		//TESTING, ALWAYS RECEIVE TREATMENT
+		//B[current_week] = 1;
 		
 		//agent action
 		if(B[current_week] == 1 & care.doctor.isAvailable()) {
@@ -37,7 +37,7 @@ public class Patient implements Steppable {
 				T[current_week] = care.doctor.interactWithPatient(id, d);
 			} else {
 				C[current_week] = 0;
-				T[current_week] = T[current_week-1]*0.95;
+				T[current_week] = 0;
 				}
 		care.allocationRule(C, d, id);
 		} 
@@ -45,11 +45,15 @@ public class Patient implements Steppable {
 	
 	private void biologicalMechanism(Care care) {	
 		// changes H
-		double progress = (care.random.nextDouble()-0.1)*d/8;
-		H[current_week] = H[current_week-1] + progress - T[current_week-1];//*enableTreatment;
+		//double progress = care.random.nextGaussian() + d/care.weeks;
+		int progress = 0;
+		if(care.random.nextBoolean((double) d/52)) {
+			progress = 1;
+		}
+		H[current_week] = Math.max(0, Math.min(H[current_week-1] + progress - T[current_week-1], 5));
 	}
 	
-	private void expectationFormation() {
+	protected void expectationFormation() {
 		//forms the expectation for the next consultation based on previous experience
 		if(B[current_week-1] == 1 & C[current_week-1] == 1) { 
 				expectation[current_week] = 0.5*expectation[current_week-1] + 0.5;}
@@ -59,11 +63,25 @@ public class Patient implements Steppable {
 			expectation[current_week] = expectation[current_week-1];}	
 	}
 	
-	private void behaviouralRule(Care care) {
+	protected void behaviouralRule(double k, double ran) {
 		// returns false if patient won't seek care
 		// returns true if patient will seek care
-		currentMot = 1/(1 + Math.exp(-care.k*(expectation[current_week] + H[current_week])));
-		if(care.random.nextDouble() < currentMot) {
+		/*
+		 * currentMot = 1/(1 + Math.exp(-k * (expectation[current_week] +
+		 * H[current_week] - 5)));
+		 * 
+		 * //necesary discontinuities: if(expectation[current_week] == 0) { currentMot =
+		 * 0; } if(H[current_week] == 0) { currentMot = 0; }
+		 */
+		  if(expectation[current_week] == 0 | H[current_week] == 0){
+			  currentMot = 0;
+		  } else {
+			  currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
+		  }
+		  
+		  
+		  
+		if(ran < currentMot) {
 			B[current_week] = 1;
 		} else {
 			B[current_week] = 0;

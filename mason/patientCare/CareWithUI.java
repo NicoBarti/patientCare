@@ -24,8 +24,6 @@ public class CareWithUI extends GUIState {
 		CareWithUI vid = new CareWithUI();
 		Console c = new Console(vid);
 		c.setVisible(true);
-		//c.setWhenShouldPause(10);
-		//c.setWhenShouldEndTime(10);
 	}
 
 	public CareWithUI() {super(new Care(System.currentTimeMillis()));}
