@@ -70,7 +70,7 @@ public class Care extends SimState {
 		// initialize and add patients
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
-			patient.initializePatient(random.nextDouble(), weeks, i);
+			patient.initializePatient(random.nextDouble(), weeks, i, this);
 			patients.add(patient);
 			allocationRule(patient.getReceivedCare(), patient.getd(), i);
 			//schedule.scheduleOnce(schedule.EPOCH, 1, patient);
@@ -115,19 +115,19 @@ public class Care extends SimState {
 	
 
 	public void updatePositions(int week) {
-		int diameter = 4;
+		int diameter = 35;
 		double doctorMargin = 0.1;
-		double movement = 10;
+		//double movement = 10;
 		for(int i = 0; i < numPatients; i++) {
 			Patient patient = (Patient) (patients.objs[i]);
 			double angle = (2*Math.PI)/numPatients * patient.id;
-			double distanceFromDoctor = 1-patient.getcurrentMot();
+			double distanceFromDoctor = doctorMargin+(1-patient.getcurrentMot())*diameter;
 
 			//double distanceFromDoctor = Math.max(doctorMargin, (diameter - patient.getcurrentMot())*diameter);
 			//double distanceFromDoctor = (diameter - patient.getexpectation()[week]+doctorMargin)*movement;
 			Double2D newposition = new Double2D(
-					center.getWidth() * 0.5 + Math.cos(angle) * distanceFromDoctor*10,
-	        		center.getHeight() * 0.5 + Math.sin(angle)* distanceFromDoctor*10);
+					center.getWidth() * 0.5 + Math.cos(angle) * distanceFromDoctor,
+	        		center.getHeight() * 0.5 + Math.sin(angle)* distanceFromDoctor);
 			center.setObjectLocation(patient, newposition);
 			//System.out.println(newposition);
 		}	

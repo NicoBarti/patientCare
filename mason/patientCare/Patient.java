@@ -13,6 +13,8 @@ public class Patient implements Steppable {
 	protected int[] B;
 	protected int id;
 	protected double currentMot;
+	protected boolean excluido = false;
+	protected int failedAttempts;
 	
 	//Convenience variables
 	protected int current_week; //is the step + 1
@@ -34,33 +36,58 @@ public class Patient implements Steppable {
 		//agent action
 		if(B[current_week] == 1 & care.doctor.isAvailable()) {
 				C[current_week] = 1;
-				T[current_week] = care.doctor.interactWithPatient(id, d);
+				T[current_week] = care.doctor.interactWithPatient(id, H[current_week]);
 			} else {
 				C[current_week] = 0;
 				T[current_week] = 0;
 				}
-		care.allocationRule(C, d, id);
+		care.allocationRule(C, d, id); //scheddule patient for the next week according to the rules
 		} 
 
 	
 	private void biologicalMechanism(Care care) {	
 		// changes H
-		//double progress = care.random.nextGaussian() + d/care.weeks;
 		int progress = 0;
 		if(care.random.nextBoolean((double) d/52)) {
 			progress = 1;
 		}
-		H[current_week] = Math.max(0, Math.min(H[current_week-1] + progress - T[current_week-1], 5));
+		double noise = care.random.nextGaussian()*0.1;
+		double finalProgress = noise + progress;
+		H[current_week] = Math.max(0, Math.min(H[current_week-1] + finalProgress - T[current_week-1], 5));
 	}
 	
 	protected void expectationFormation() {
 		//forms the expectation for the next consultation based on previous experience
+		// got the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 1) { 
-				expectation[current_week] = 0.5*expectation[current_week-1] + 0.5;}
-		if(B[current_week-1] == 1 & C[current_week-1] == 0) {
-				expectation[current_week] = 0.5*expectation[current_week-1] - 0.5;}
+				expectation[current_week] = expectation[current_week-1] + 0.2;
+				//limit to expecations
+				if(expectation[current_week] >5) {expectation[current_week] = 5;}
+		}
+		//didn't get the visit last week
+		if(B[current_week-1] == 1 & C[current_week-1] == 0) { 
+				expectation[current_week] = expectation[current_week-1] - 0.2;
+				failedAttempts += 1;
+				//limit to expecations
+				if(expectation[current_week] <= 0) {expectation[current_week] = 0;}
+				//exclusion from participation
+				if(current_week >3) {
+					if(expectation[current_week] == 0 & expectation[current_week-1] == 0 
+							& expectation[current_week-2] == 0 & expectation[current_week-3] == 0 &
+							failedAttempts > 3) {
+						excluido = true;
+					}
+				}
+
+				} 
+		//didn't ask for a visit
 		if(B[current_week-1] == 0) { 
-			expectation[current_week] = expectation[current_week-1];}	
+			expectation[current_week] = expectation[current_week-1];
+			}	
+		
+		//Conterfactual: patients don't form expectations
+		//expectation[current_week] = 0;
+
 	}
 	
 	protected void behaviouralRule(double k, double ran) {
@@ -73,33 +100,48 @@ public class Patient implements Steppable {
 		 * //necesary discontinuities: if(expectation[current_week] == 0) { currentMot =
 		 * 0; } if(H[current_week] == 0) { currentMot = 0; }
 		 */
-		  if(expectation[current_week] == 0 | H[current_week] == 0){
+		//conuter factual check: expectations reamain high and the same:
+		//expectation[current_week] = 0.5;
+		
+		  if( H[current_week] == 0){
 			  currentMot = 0;
 		  } else {
 			  currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
+			  //All motivation from Healthneeds
+			  //currentMot = H[current_week]/5;
+			  //conuter factual check: patients allways motivated
+			  //currentMot=1;
 		  }
-		  
-		  
+		  if(excluido){
+			 currentMot = -0.3;
+		  }
 		  
 		if(ran < currentMot) {
 			B[current_week] = 1;
 		} else {
 			B[current_week] = 0;
 		}	
+		
 	}
 	
 
-	public void initializePatient(double severity, int weeks, int i) {
+	public void initializePatient(double severity, int weeks, int i, Care care) {
 		if(severity < 0.33) {d = 1;} 
 		else if(severity < 0.66) {d = 2;}
 		else {d = 3;}
 		
 		H = new double[weeks+1];
-			H[0] = 0;
+			if(care.random.nextBoolean((double) d/20)) {
+				H[0] = 1;
+			} else {H[0] = 0;}
+			
 		expectation = new double[weeks+1];
-			expectation[0] = 2.5;
+			double exp = care.random.nextGaussian()*Math.sqrt(2)+2.5;
+			expectation[0] = Math.min(5, Math.max(0.1, exp));
 		T = new double[weeks+1];
 			T[0] = 0;
+		
+			
 		C = new int[weeks+1];
 			C[0] = 0;
 		B = new int[weeks+1];
