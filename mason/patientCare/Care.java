@@ -10,8 +10,8 @@ import sim.field.network.*;
 
 public class Care extends SimState {
 	//constrains
-	public int capacity = 5;
-	public int numPatients = 200;
+	public int capacity = 1;
+	public int numPatients = 1;
 	public int weeks = 52;
 	
 	// PARAMS:
@@ -115,13 +115,13 @@ public class Care extends SimState {
 	
 
 	public void updatePositions(int week) {
-		int diameter = 35;
+		int diameter = 7;
 		double doctorMargin = 0.1;
 		//double movement = 10;
 		for(int i = 0; i < numPatients; i++) {
 			Patient patient = (Patient) (patients.objs[i]);
 			double angle = (2*Math.PI)/numPatients * patient.id;
-			double distanceFromDoctor = doctorMargin+(1-patient.getcurrentMot())*diameter;
+			double distanceFromDoctor = doctorMargin+(5-patient.getExpectativas())*diameter;
 
 			//double distanceFromDoctor = Math.max(doctorMargin, (diameter - patient.getcurrentMot())*diameter);
 			//double distanceFromDoctor = (diameter - patient.getexpectation()[week]+doctorMargin)*movement;

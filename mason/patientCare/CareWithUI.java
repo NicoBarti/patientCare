@@ -76,6 +76,8 @@ public class CareWithUI extends GUIState {
 	    			 int colIntensity = 15;
 	    			 int miColor = (int)Math.min(Math.max(0, (healthStatus*colIntensity+100)), 250); 
 	    			 paint = new Color(miColor, 250-miColor,60); 
+	    			 //System.out.println(miColor);
+	       			 scale = 2;
 	    			 super.draw(object, graphics, info); } 	
 	    	});
 	    }
@@ -104,7 +106,7 @@ public class CareWithUI extends GUIState {
 	    display.setClipping(false);
 	    
 	    displayFrame = display.createFrame();
-	    displayFrame.setTitle("One doctor many patients");
+	    displayFrame.setTitle("One doctor and one patient");
 	    c.registerFrame(displayFrame); // so the frame appears in the "Display" list displayFrame.setVisible(true);
 	    displayFrame.setVisible(true);
 	    display.attach( centerPortrayal, "Center" );
