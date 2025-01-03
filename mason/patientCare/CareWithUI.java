@@ -106,7 +106,7 @@ public class CareWithUI extends GUIState {
 	    display.setClipping(false);
 	    
 	    displayFrame = display.createFrame();
-	    displayFrame.setTitle("One doctor and one patient");
+	    displayFrame.setTitle("Un doctor y 30 pacientes");
 	    c.registerFrame(displayFrame); // so the frame appears in the "Display" list displayFrame.setVisible(true);
 	    displayFrame.setVisible(true);
 	    display.attach( centerPortrayal, "Center" );
