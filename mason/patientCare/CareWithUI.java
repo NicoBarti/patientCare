@@ -73,7 +73,7 @@ public class CareWithUI extends GUIState {
 	    		 public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 	    			 Patient patient = (Patient)object; 
 	    			 double healthStatus = patient.H[(int)state.schedule.getSteps()]; 
-	    			 int colIntensity = 15;
+	    			 int colIntensity = 25;
 	    			 int miColor = (int)Math.min(Math.max(0, (healthStatus*colIntensity+100)), 250); 
 	    			 paint = new Color(miColor, 250-miColor,60); 
 	    			 //System.out.println(miColor);

@@ -11,7 +11,7 @@ import sim.field.network.*;
 public class Care extends SimState {
 	//constrains
 	public int capacity = 1;
-	public int numPatients = 1;
+	public int numPatients = 30;
 	public int weeks = 52;
 	
 	// PARAMS:
@@ -20,6 +20,7 @@ public class Care extends SimState {
  	
 	// HYPERPARAMETERS:
 	public double k = 1;
+	public double t = 1;
 	
 	// internals
 	public Doctor doctor;
@@ -64,7 +65,7 @@ public class Care extends SimState {
 	        		center.getHeight() * 0.5);
 			center.setObjectLocation(doctor, docPos);
 		}
-		doctor.initializeDoctor(capacity, numPatients);
+		doctor.initializeDoctor(capacity, numPatients, t);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, doctor);
 
 		// initialize and add patients
@@ -155,6 +156,12 @@ public class Care extends SimState {
 	}
 	public double getk() {
 		return k;
+	}
+	public void sett(double val) {
+		t = val;
+	}
+	public double gett() {
+		return t;
 	}
 	public void setweeks(int val) {
 		weeks = val;

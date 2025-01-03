@@ -39,7 +39,7 @@ public class Patient implements Steppable {
 		
 		//agent action
 
-		if(B[current_week] == 1 & care.doctor.isAvailable(care.random.nextBoolean(0.3))) { //doctor available 1/3 times
+		if(B[current_week] == 1 & care.doctor.isAvailable()) { 
 				C[current_week] = 1;
 				T[current_week] = care.doctor.interactWithPatient(id, H[current_week]);
 			} else {
@@ -58,8 +58,6 @@ public class Patient implements Steppable {
 			progress = 1;
 		}
 		double noise = care.random.nextGaussian()*0.05;
-		//fix noise to 0
-		noise = 0;
 		double finalProgress = noise + progress;
 		H[current_week] = Math.max(0, Math.min(H[current_week-1] + finalProgress - T[current_week-1], 5));
 	}
@@ -68,7 +66,7 @@ public class Patient implements Steppable {
 		//forms the expectation for the next consultation based on previous experience
 		// got the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 1) { 
-				expectation[current_week] = expectation[current_week-1] + 0.2;
+				expectation[current_week] = expectation[current_week-1] + 1;
 				//limit to expecations
 				if(expectation[current_week] >5) {expectation[current_week] = 5;}
 		}
@@ -138,24 +136,17 @@ public class Patient implements Steppable {
 		else if(severity < 0.66) {d = 2;}
 		else {d = 3;}
 		
-		// fix complexity to 4
-		d = 3;
-		
 		H = new double[weeks+1];
 			if(care.random.nextBoolean((double) d/20)) {
 				H[0] = 1;
 			} else {H[0] = 0;}
-		
-		// fix initial needs:
-			H[0] = 1;
 			
 		expectation = new double[weeks+1];
 			double exp = care.random.nextGaussian()*Math.sqrt(2)+2.5;
-			expectation[0] = Math.min(5, Math.max(0.1, exp));
-			
-			//fix expectation to 2.5
+			expectation[0] = Math.min(4, Math.max(1, exp));
+		
+		//fix initial expectation:
 			expectation[0] = 2.5;
-					
 		T = new double[weeks+1];
 			T[0] = 0;
 		
@@ -192,6 +183,13 @@ public class Patient implements Steppable {
 	}
 	public double getNecesidades() {
 		return H[current_week];
+	}
+	public double getBusquedaCuidado() {
+		double total = 0;
+		for(int i=0; i < B.length; i++) {
+			total = total + B[i];
+		}
+		return total;
 	}
 	
 	public void testTreatmentMec(){

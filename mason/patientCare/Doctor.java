@@ -8,7 +8,7 @@ public class Doctor implements Steppable {
 	private int Capacity;
 	private int[] visitCounter; //an index of patients and number of consultations
 	double T;
-	double t = 0.5; //max treatment
+	double t; //max treatment
 	//private double policy;
 
 	@Override
@@ -36,21 +36,16 @@ public class Doctor implements Steppable {
 		return(Math.min(n_visits/(2*complexity), t));
 	}
 	
-	public void initializeDoctor(int capacity, int nPatients) {
+	public void initializeDoctor(int capacity, int nPatients, double tto) {
 		Capacity = capacity;
 		visitCounter = new int[nPatients];
+		t = tto;
 		//policy = 1/3;
 	}
 	
-	public boolean isAvailable(boolean a) {
-		//implemented with a as random availability
-		if(a) {return(true);
+	public boolean isAvailable() {		
+		if(A > 0) {return(true);
 		} else {return(false);}
-		}
-		
-		//if(A > 0) {return(true);
-		//} else {return(false);
-		//}
-	//}
+	}
 		
 }
