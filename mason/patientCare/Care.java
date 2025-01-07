@@ -25,6 +25,9 @@ public class Care extends SimState {
 	// internals
 	public Doctor doctor;
 	public Bag patients = new Bag(numPatients);
+	public int totalProgress = 0;
+	public int totalInteractions = 0;
+	private int d;
 	
 	// VISUALIZATION
 	//I'll implement all the objects for visualization here and control them from here
@@ -67,11 +70,13 @@ public class Care extends SimState {
 		}
 		doctor.initializeDoctor(capacity, numPatients, t);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, doctor);
-
 		// initialize and add patients
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
-			patient.initializePatient(random.nextDouble(), weeks, i, this);
+			if(i < numPatients/3) {d = 1;} 
+			else if (i < 2*numPatients/3) {d = 2;}
+			else {d = 3;}
+			patient.initializePatient(d, weeks, i, this);
 			patients.add(patient);
 			allocationRule(patient.getReceivedCare(), patient.getd(), i);
 			//schedule.scheduleOnce(schedule.EPOCH, 1, patient);
@@ -136,6 +141,7 @@ public class Care extends SimState {
 	
 	
 	public void finish() {
+		//System.out.println(totalProgress);
 	}
 	
 	// setters and getters

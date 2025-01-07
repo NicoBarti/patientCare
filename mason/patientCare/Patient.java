@@ -40,8 +40,10 @@ public class Patient implements Steppable {
 		//agent action
 
 		if(B[current_week] == 1 & care.doctor.isAvailable()) { 
+			care.totalInteractions = care.totalInteractions +1;
 				C[current_week] = 1;
 				T[current_week] = care.doctor.interactWithPatient(id, H[current_week]);
+				if(H[current_week] == 0) {System.out.println("ERROR, patients can't interact when H = 0");}
 			} else {
 				C[current_week] = 0;
 				T[current_week] = 0;
@@ -56,6 +58,7 @@ public class Patient implements Steppable {
 
 		if(care.random.nextBoolean((double) d/care.weeks)) {
 			progress = 1;
+			care.totalProgress = care.totalProgress + 1;
 		}
 		double noise = care.random.nextGaussian()*0.05;
 		double finalProgress = noise + progress;
@@ -66,13 +69,13 @@ public class Patient implements Steppable {
 		//forms the expectation for the next consultation based on previous experience
 		// got the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 1) { 
-				expectation[current_week] = expectation[current_week-1] + 1;
+				expectation[current_week] = expectation[current_week-1] + 3;
 				//limit to expecations
 				if(expectation[current_week] >5) {expectation[current_week] = 5;}
 		}
 		//didn't get the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 0) { 
-				expectation[current_week] = expectation[current_week-1] - 0.2;
+				expectation[current_week] = expectation[current_week-1] - 3;
 				failedAttempts += 1;
 				//limit to expecations
 				if(expectation[current_week] <= 0) {expectation[current_week] = 0;}
@@ -107,7 +110,7 @@ public class Patient implements Steppable {
 		 * 0; } if(H[current_week] == 0) { currentMot = 0; }
 		 */
 		//conuter factual check: expectations reamain high and the same:
-		//expectation[current_week] = 0.5;
+		//expectation[current_week] = 0;
 		
 		  if( H[current_week] == 0){
 			  currentMot = 0;
@@ -131,10 +134,8 @@ public class Patient implements Steppable {
 	}
 	
 
-	public void initializePatient(double severity, int weeks, int i, Care care) {
-		if(severity < 0.33) {d = 1;} 
-		else if(severity < 0.66) {d = 2;}
-		else {d = 3;}
+	public void initializePatient(int severity, int weeks, int i, Care care) {
+		d = severity;
 		
 		H = new double[weeks+1];
 			if(care.random.nextBoolean((double) d/20)) {

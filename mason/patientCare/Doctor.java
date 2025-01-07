@@ -33,7 +33,7 @@ public class Doctor implements Steppable {
 
 	public double prescribeTreatment(int n_visits, double complexity) {
 		//return(1);
-		return(Math.min(n_visits/(2*complexity), t));
+		return(Math.min(n_visits/(3*complexity), t));
 	}
 	
 	public void initializeDoctor(int capacity, int nPatients, double tto) {

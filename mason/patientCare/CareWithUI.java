@@ -122,6 +122,11 @@ public class CareWithUI extends GUIState {
 	public void finish() {
 		super.quit();
 		care.patients.clear();
+		System.out.println("Total needs: "+care.totalProgress);
+		System.out.println("Total interactions: "+care.totalInteractions);
+		//System.out.println("Capacity usage " + care.capacity*care.weeks/care.totalInteractions);
+		care.totalProgress = 0;
+		care.totalInteractions = 0;
 		System.out.println("Stopping simmulation");
 	}
 	
