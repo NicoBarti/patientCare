@@ -22,13 +22,14 @@ public class Care extends SimState {
  	
 	// HYPERPARAMETERS:
 	public double k = 1;
-	public double t = 1;
+	public double t = 1; // treatment effectivennes
 	
 	// internals
 	public Doctor doctor;
 	public Bag patients = new Bag(numPatients);
-	public int totalProgress = 0;
+	public int totalProgress = 0; // The total number of needs during the simulation including initialization
 	public int totalInteractions = 0;
+	public int totalTreatment = 0;
 	private int d;
 	
 	// VISUALIZATION
