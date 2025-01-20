@@ -12,11 +12,13 @@ public class Care extends SimState {
 	//constrains
 	public int capacity = 1;
 	public int numPatients = 30;
-	public int weeks = 52;
+	public int weeks = 2252;
 	
 	// PARAMS:
 	public double SEVERITY_ALLOCATION = 0;
 	public double CONTINUITY_ALLOCATION = 0;
+	public double EXP_POS = 1;
+	public double EXP_NEG = 1;
  	
 	// HYPERPARAMETERS:
 	public double k = 1;

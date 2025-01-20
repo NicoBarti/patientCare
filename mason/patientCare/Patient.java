@@ -31,7 +31,7 @@ public class Patient implements Steppable {
 		//testTreatmentMec();
 		
 		//internal agent events
-		expectationFormation();
+		expectationFormation(care);
 		behaviouralRule(care.k, care.random.nextDouble());
 		
 		//TESTING, ALWAYS RECEIVE TREATMENT
@@ -43,7 +43,6 @@ public class Patient implements Steppable {
 			care.totalInteractions = care.totalInteractions +1;
 				C[current_week] = 1;
 				T[current_week] = care.doctor.interactWithPatient(id, H[current_week]);
-				if(H[current_week] == 0) {System.out.println("ERROR, patients can't interact when H = 0");}
 			} else {
 				C[current_week] = 0;
 				T[current_week] = 0;
@@ -61,38 +60,38 @@ public class Patient implements Steppable {
 			care.totalProgress = care.totalProgress + 1;
 		}
 		double noise = care.random.nextGaussian()*0.05;
-		double finalProgress = noise + progress;
+		double finalProgress =  progress + noise;
 		H[current_week] = Math.max(0, Math.min(H[current_week-1] + finalProgress - T[current_week-1], 5));
 	}
 	
-	protected void expectationFormation() {
+	protected void expectationFormation(Care care) {
+		double noise = care.random.nextGaussian()*0.05;
 		//forms the expectation for the next consultation based on previous experience
+		
 		// got the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 1) { 
-				expectation[current_week] = expectation[current_week-1] + 3;
-				//limit to expecations
-				if(expectation[current_week] >5) {expectation[current_week] = 5;}
-		}
+				expectation[current_week] = expectation[current_week-1] + care.EXP_POS + noise;}
 		//didn't get the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 0) { 
-				expectation[current_week] = expectation[current_week-1] - 3;
-				failedAttempts += 1;
-				//limit to expecations
-				if(expectation[current_week] <= 0) {expectation[current_week] = 0;}
+				expectation[current_week] = expectation[current_week-1] - care.EXP_NEG + noise;
+				
 				//exclusion from participation
-				if(current_week >3) {
-					if(expectation[current_week] == 0 & expectation[current_week-1] == 0 
-							& expectation[current_week-2] == 0 & expectation[current_week-3] == 0 &
-							failedAttempts > 3) {
-						excluido = true;
-					}
-				}
+//				if(current_week >3) {
+//					if(expectation[current_week] == 0 & expectation[current_week-1] == 0 
+//							& expectation[current_week-2] == 0 & expectation[current_week-3] == 0 &
+//							failedAttempts > 3) {
+//						excluido = true;
+//					}
+//				}
 
 				} 
 		//didn't ask for a visit
 		if(B[current_week-1] == 0) { 
-			expectation[current_week] = expectation[current_week-1];
+			expectation[current_week] = expectation[current_week-1] + noise;
 			}	
+		//limit to expecations
+		if(expectation[current_week] >5) {expectation[current_week] = 5;}
+		if(expectation[current_week] <= 0) {expectation[current_week] = 0;}
 		
 		//Conterfactual: patients don't form expectations
 		//expectation[current_week] = 0;
@@ -112,7 +111,7 @@ public class Patient implements Steppable {
 		//conuter factual check: expectations reamain high and the same:
 		//expectation[current_week] = 0;
 		
-		  if( H[current_week] == 0){
+		  if( H[current_week] == 0 || expectation[current_week] == 0){
 			  currentMot = 0;
 		  } else {
 			  currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
@@ -139,6 +138,7 @@ public class Patient implements Steppable {
 		
 		H = new double[weeks+1];
 			if(care.random.nextBoolean((double) d/20)) {
+				care.totalProgress = care.totalProgress + 1;
 				H[0] = 1;
 			} else {H[0] = 0;}
 			
@@ -147,7 +147,7 @@ public class Patient implements Steppable {
 			expectation[0] = Math.min(4, Math.max(1, exp));
 		
 		//fix initial expectation:
-			expectation[0] = 2.5;
+			//expectation[0] = 2.5;
 		T = new double[weeks+1];
 			T[0] = 0;
 		
