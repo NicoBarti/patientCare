@@ -59,13 +59,13 @@ public class Patient implements Steppable {
 			progress = 1;
 			care.totalProgress = care.totalProgress + 1;
 		}
-		double noise = 0; //care.random.nextGaussian()*0.05 NEED TO ADJUST NOISE PER STEPS
+		double noise = 0;//care.random.nextGaussian()*0.05; //NEED TO ADJUST NOISE PER STEPS
 		double finalProgress =  progress + noise;
 		H[current_week] = Math.max(0, Math.min(H[current_week-1] + finalProgress - T[current_week-1], 5));
 	}
 	
 	protected void expectationFormation(Care care) {
-		double noise = 0; //care.random.nextGaussian() *0.05 NEED TO ADJUST NOISE PER STEPS
+		double noise = 0;//care.random.nextGaussian() *0.05;// NEED TO ADJUST NOISE PER STEPS
 		//forms the expectation for the next consultation based on previous experience
 		
 		// got the visit last week
@@ -112,7 +112,9 @@ public class Patient implements Steppable {
 		//expectation[current_week] = 0;
 		
 		  if( H[current_week] == 0 || expectation[current_week] == 0){
-			  currentMot = 0;
+			  //currentMot = 0;
+			  currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
+
 		  } else {
 			  currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
 			  //All motivation from Healthneeds
@@ -141,7 +143,8 @@ public class Patient implements Steppable {
 				care.totalProgress = care.totalProgress + 1;
 				H[0] = 1;
 			} else {H[0] = 0;}
-			
+		// initialization with everybody high needs
+		//H[0] = 1;	
 		expectation = new double[weeks+1];
 			double exp = care.random.nextGaussian()*Math.sqrt(2)+2.5;
 			expectation[0] = Math.min(4, Math.max(1, exp));
