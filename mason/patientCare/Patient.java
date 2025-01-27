@@ -137,7 +137,7 @@ public class Patient implements Steppable {
 		d = severity;
 		
 		H = new double[weeks+1];
-			if(care.random.nextBoolean((double) d/20)) {
+			if(care.random.nextBoolean((double) d/weeks)) {
 				care.totalProgress = care.totalProgress + 1;
 				H[0] = 1;
 			} else {H[0] = 0;}
