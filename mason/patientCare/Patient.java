@@ -55,7 +55,7 @@ public class Patient implements Steppable {
 		// changes H
 		int progress = 0;
 
-		if(care.random.nextBoolean((double) d/care.weeks)) {
+		if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/care.weeks)) {
 			progress = 1;
 			care.totalProgress = care.totalProgress + 1;
 		}
@@ -74,16 +74,6 @@ public class Patient implements Steppable {
 		//didn't get the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 0) { 
 				expectation[current_week] = expectation[current_week-1] - care.EXP_NEG + noise;
-				
-				//exclusion from participation
-//				if(current_week >3) {
-//					if(expectation[current_week] == 0 & expectation[current_week-1] == 0 
-//							& expectation[current_week-2] == 0 & expectation[current_week-3] == 0 &
-//							failedAttempts > 3) {
-//						excluido = true;
-//					}
-//				}
-
 				} 
 		//didn't ask for a visit
 		if(B[current_week-1] == 0) { 
@@ -99,32 +89,11 @@ public class Patient implements Steppable {
 	}
 	
 	protected void behaviouralRule(double k, double ran) {
-		// returns false if patient won't seek care
-		// returns true if patient will seek care
-		/*
-		 * currentMot = 1/(1 + Math.exp(-k * (expectation[current_week] +
-		 * H[current_week] - 5)));
-		 * 
-		 * //necesary discontinuities: if(expectation[current_week] == 0) { currentMot =
-		 * 0; } if(H[current_week] == 0) { currentMot = 0; }
-		 */
-		//conuter factual check: expectations reamain high and the same:
-		//expectation[current_week] = 0;
-		
-		  if( H[current_week] == 0 || expectation[current_week] == 0){
-			  //currentMot = 0;
-			  currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
+	// sets the value of B[current_week] to 0  won't seek care during this week
+	// or B[curent_week] = 1 if patient will seek care this week
 
-		  } else {
-			  currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
-			  //All motivation from Healthneeds
-			  //currentMot = H[current_week]/5;
-			  //conuter factual check: patients allways motivated
-			  //currentMot=1;
-		  }
-		  if(excluido){
-			 currentMot = -0.3;
-		  }
+	currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
+
 		  
 		if(ran < currentMot) {
 			B[current_week] = 1;
@@ -139,7 +108,7 @@ public class Patient implements Steppable {
 		d = severity;
 		
 		H = new double[weeks+1];
-			if(care.random.nextBoolean((double) d/weeks)) {
+			if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/weeks)) {
 				care.totalProgress = care.totalProgress + 1;
 				H[0] = 1;
 			} else {H[0] = 0;}
@@ -150,7 +119,7 @@ public class Patient implements Steppable {
 			expectation[0] = Math.min(4, Math.max(1, exp));
 		
 		//fix initial expectation:
-			//expectation[0] = 2.5;
+			//expectation[0] = 0;
 		T = new double[weeks+1];
 			T[0] = 0;
 		

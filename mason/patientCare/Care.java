@@ -19,6 +19,7 @@ public class Care extends SimState {
 	public double CONTINUITY_ALLOCATION = 0;
 	public double EXP_POS = 1;
 	public double EXP_NEG = 1;
+	public double DISEASE_VELOCITY = 1;
  	
 	// HYPERPARAMETERS:
 	public double k = 1;
