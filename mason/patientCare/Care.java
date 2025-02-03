@@ -191,6 +191,12 @@ public class Care extends SimState {
 	public double getCONTINUITY_ALLOCATION() {
 		return CONTINUITY_ALLOCATION;
 	}
+	public void setDISEASE_VELOCITY(double val) {
+		DISEASE_VELOCITY = val;
+	}
+	public double getDISEASE_VELOCITY() {
+		return DISEASE_VELOCITY;
+	}
 	
 	public int[][] getCs() {
 		int[][] distro = new int[patients.numObjs][weeks+1];
