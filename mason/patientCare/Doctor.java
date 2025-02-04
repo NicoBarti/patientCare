@@ -9,6 +9,7 @@ public class Doctor implements Steppable {
 	private int[] visitCounter; //an index of patients and number of consultations
 	double T;
 	double t; //max treatment
+	double LEARNING_RATE;
 	//private double policy;
 
 	@Override
@@ -33,13 +34,18 @@ public class Doctor implements Steppable {
 
 	public double prescribeTreatment(int n_visits, double needs) {
 		//return(1);
-		return(Math.min(Math.min(n_visits/(3*needs), t), needs));
+		// First compute the maximum learned treatment, bounded by needs and by t
+		double learned_treatment = Math.min(Math.min(n_visits/(3*needs), t), needs);
+		// Then compute the treatment mix using the learning parameter
+		double treatment_mix = (LEARNING_RATE * learned_treatment) + ((1-LEARNING_RATE) * t);
+		return(treatment_mix);
 	}
 	
-	public void initializeDoctor(int capacity, int nPatients, double tto) {
+	public void initializeDoctor(int capacity, int nPatients, double tto, double LEARNING_RATE) {
 		Capacity = capacity;
 		visitCounter = new int[nPatients];
 		t = tto;
+		LEARNING_RATE = LEARNING_RATE;
 		//policy = 1/3;
 	}
 	

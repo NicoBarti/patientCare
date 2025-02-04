@@ -46,7 +46,7 @@ public class runCare {
 
 		// pass parameters to simulation
 		// create list of parameters
-		String[] pars = { "capacity", "numPatients", "k","weeks", "CONTINUITY@ALLOCATION", "SEVERITY@ALLOCATION", "DISEASE_VELOCITY" };
+		String[] pars = { "capacity", "numPatients", "k","weeks", "CONTINUITY@ALLOCATION", "SEVERITY@ALLOCATION", "DISEASE_VELOCITY", "LEARNING_RATE" };
 		for (int a = 0; a < pars.length; a++) {
 			for (int i = 0; i < args.length; i++) { // loops through args to find parameters
 				if (args[i].equals(pars[a])) {
@@ -78,6 +78,8 @@ public class runCare {
 					case "DISEASE_VELOCITY":
 						simulation.setDISEASE_VELOCITY(Double.valueOf(args[i+1]));
 						break;
+					case "LEARNING_RATE":
+						simulation.setLEARNING_RATE(Double.valueOf(args[i+1]));
 					}
 					run.addName(pars[a] + "_" + args[i + 1].replaceAll("[^0-9]", "")); // add parameter to name
 				}

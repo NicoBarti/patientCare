@@ -20,10 +20,11 @@ public class Care extends SimState {
 	public double EXP_POS = 1;
 	public double EXP_NEG = 1;
 	public double DISEASE_VELOCITY = 1;
+	public double LEARNING_RATE = 1;
  	
 	// HYPERPARAMETERS:
 	public double k = 1;
-	public double t = 1; // treatment effectivennes
+	public double t = 1; // max treatment effectivennes
 	
 	// internals
 	public Doctor doctor;
@@ -72,7 +73,7 @@ public class Care extends SimState {
 	        		center.getHeight() * 0.5);
 			center.setObjectLocation(doctor, docPos);
 		}
-		doctor.initializeDoctor(capacity, numPatients, t);
+		doctor.initializeDoctor(capacity, numPatients, t, LEARNING_RATE);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, doctor);
 		// initialize and add patients
 		for (int i = 0; i < numPatients; i++) {
@@ -196,6 +197,12 @@ public class Care extends SimState {
 	}
 	public double getDISEASE_VELOCITY() {
 		return DISEASE_VELOCITY;
+	}
+	public void setLEARNING_RATE(double val) {
+		LEARNING_RATE = val;
+	}
+	public double getLEARNING_RATE() {
+		return LEARNING_RATE;
 	}
 	
 	public int[][] getCs() {
