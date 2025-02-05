@@ -134,9 +134,6 @@ public class Patient implements Steppable {
 //		}
 		//System.out.println(id);
 		
-		
-		H[0] = 3;
-		
 	}
 	
 

@@ -47,7 +47,6 @@ public class Doctor implements Steppable {
 		t = tto;
 		LEARNING_RATE = RATE;
 		//policy = 1/3;
-		System.out.print("learning rate: " +LEARNING_RATE);
 	}
 	
 	public boolean isAvailable() {		
