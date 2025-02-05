@@ -21,6 +21,7 @@ public class Care extends SimState {
 	public double EXP_NEG = 1;
 	public double DISEASE_VELOCITY = 1;
 	public double LEARNING_RATE = 1;
+	public double SUBJECTIVE_INITIATIVE = 0.5;
  	
 	// HYPERPARAMETERS:
 	public double k = 1;
@@ -203,6 +204,12 @@ public class Care extends SimState {
 	}
 	public double getLEARNING_RATE() {
 		return LEARNING_RATE;
+	}
+	public void setSUBJECTIVE_INITIATIVE(double val) {
+		SUBJECTIVE_INITIATIVE = val;
+	}
+	public double getSUBJECTIVE_INITIATIVE() {
+		return SUBJECTIVE_INITIATIVE;
 	}
 	
 	public int[][] getCs() {

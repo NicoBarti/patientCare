@@ -32,7 +32,7 @@ public class Patient implements Steppable {
 		
 		//internal agent events
 		expectationFormation(care);
-		behaviouralRule(care.k, care.random.nextDouble());
+		behaviouralRule(care.k, care.random.nextDouble(), care.SUBJECTIVE_INITIATIVE);
 		
 		//TESTING, ALWAYS RECEIVE TREATMENT
 		//B[current_week] = 1;
@@ -88,11 +88,11 @@ public class Patient implements Steppable {
 
 	}
 	
-	protected void behaviouralRule(double k, double ran) {
+	protected void behaviouralRule(double k, double ran, double SUBJECTIVE_INITIATIVE) {
 	// sets the value of B[current_week] to 0  won't seek care during this week
 	// or B[curent_week] = 1 if patient will seek care this week
 
-	currentMot = 0.1*expectation[current_week] + 0.1*H[current_week];
+	currentMot = SUBJECTIVE_INITIATIVE*(0.1*expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*0.1*H[current_week];
 
 		  
 		if(ran < currentMot) {
