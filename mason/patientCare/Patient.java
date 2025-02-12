@@ -92,8 +92,8 @@ public class Patient implements Steppable {
 	// sets the value of B[current_week] to 0  won't seek care during this week
 	// or B[curent_week] = 1 if patient will seek care this week
 
-	//currentMot = SUBJECTIVE_INITIATIVE*(0.1*expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*0.1*H[current_week];
-	currentMot = (SUBJECTIVE_INITIATIVE*(expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*H[current_week])*0.1;
+	currentMot = (SUBJECTIVE_INITIATIVE*(expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*H[current_week])*0.2;
+	// very careful, the multiplier here is 0.2, and not 0.1, because there is a 1/2 factor inside!
 
 		  
 		if(ran < currentMot) {
