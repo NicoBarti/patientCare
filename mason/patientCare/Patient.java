@@ -92,7 +92,8 @@ public class Patient implements Steppable {
 	// sets the value of B[current_week] to 0  won't seek care during this week
 	// or B[curent_week] = 1 if patient will seek care this week
 
-	currentMot = SUBJECTIVE_INITIATIVE*(0.1*expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*0.1*H[current_week];
+	//currentMot = SUBJECTIVE_INITIATIVE*(0.1*expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*0.1*H[current_week];
+	currentMot = (SUBJECTIVE_INITIATIVE*(expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*H[current_week])*0.1;
 
 		  
 		if(ran < currentMot) {
@@ -108,7 +109,9 @@ public class Patient implements Steppable {
 		d = severity;
 		
 		H = new double[weeks+1];
-			if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/weeks)) {
+//			if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/weeks)) {
+				if(care.random.nextBoolean((double) (d)/weeks)) {
+
 				care.totalProgress = care.totalProgress + 1;
 				H[0] = 1;
 			} else {H[0] = 0;}
