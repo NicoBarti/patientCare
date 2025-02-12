@@ -17,8 +17,8 @@ public class Care extends SimState {
 	// PARAMS:
 	public double SEVERITY_ALLOCATION = 0;
 	public double CONTINUITY_ALLOCATION = 0;
-	public double EXP_POS = 1;
-	public double EXP_NEG = 1;
+	public double EXP_POS = 0.2;
+	public double EXP_NEG = 0.2;
 	public double DISEASE_VELOCITY = 1;
 	public double LEARNING_RATE = 1;
 	public double SUBJECTIVE_INITIATIVE = 0.5;
