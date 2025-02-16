@@ -81,8 +81,10 @@ public class runCare {
 						break;
 					case "LEARNING_RATE":
 						simulation.setLEARNING_RATE(Double.valueOf(args[i+1]));
+						break;
 					case "SUBJECTIVE_INITIATIVE":
 						simulation.setSUBJECTIVE_INITIATIVE(Double.valueOf(args[i+1]));
+						break;
 					}
 					run.addName(pars[a] + "_" + args[i + 1].replaceAll("[^0-9]", "")); // add parameter to name
 				}

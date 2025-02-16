@@ -37,6 +37,7 @@ public class Doctor implements Steppable {
 		// First compute the maximum learned treatment, bounded by needs and by t
 		double learned_treatment = Math.min(Math.min(n_visits/(3*needs), t), needs);
 		// Then compute the treatment mix using the learning parameter
+		//System.out.println(LEARNING_RATE);
 		double treatment_mix = (LEARNING_RATE * learned_treatment) + ((1-LEARNING_RATE) * t);
 		return(Math.min(treatment_mix, needs));
 	}
