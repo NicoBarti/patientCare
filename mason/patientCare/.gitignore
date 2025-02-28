@@ -13,3 +13,12 @@
 /Testcare.class
 /TestExpectationFormation$1.class
 /TestExpectationFormation.class
+/EchoClient.class
+/EchoServer.class
+/KnockKnockClient.class
+/KnockKnockServer.class
+/KnockKnockProtocol.class
+/TestJSON.class
+/JSONResponse.class
+/ResponseProtocol.class
+/RunWithParams.class
