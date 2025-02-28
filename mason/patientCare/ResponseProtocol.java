@@ -14,15 +14,13 @@ public class ResponseProtocol {
 	public String comunicate(String com) {
 		if(status == WAITING) {
 			status = PARAMCHECK;
-			params = com;
-			System.out.println(params);
+			System.out.println(com);
 			//TODO call simulation from here?
-			RunWithParams run = new RunWithParams(params);
-			
-			JSONResponse resutlsFetcher = new JSONResponse(params);
+			RunWithParams run = new RunWithParams(com);			
+			JSONResponse resutlsFetcher = new JSONResponse(com);
 			results =  resutlsFetcher.result();
 			// comunicates what parameter values were used by the simulation
-			return com;
+			return run.getParams();
 		}
 		if(status == PARAMCHECK & com.equals("OK_params")) {
 			//TODO check params

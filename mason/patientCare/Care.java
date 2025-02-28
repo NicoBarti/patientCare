@@ -2,6 +2,8 @@ package patientCare;
 
 //import java.util.ArrayList;
 //import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import sim.engine.*;
 import sim.util.*;
@@ -151,65 +153,48 @@ public class Care extends SimState {
 	}
 	
 	// setters and getters
-	public void setCapacity(int val) {
-		capacity = val;
-	}
-	public int getCapacity() {
-		return capacity;
-	}
-	public void setNumPatients(int val) {
-		numPatients = val;
-	}
-	public int getNumPatients() {
-		return numPatients;
-	}
-	public void setk(double val) {
-		k = val;
-	}
-	public double getk() {
-		return k;
-	}
-	public void sett(double val) {
-		t = val;
-	}
-	public double gett() {
-		return t;
-	}
-	public void setweeks(int val) {
-		weeks = val;
-	}
-	public int getweeks() {
-		return weeks;
-	}
-	public void setSEVERITY_ALLOCATION(double val) {
-		SEVERITY_ALLOCATION = val;
-	}
-	public double getSEVERITY_ALLOCATION() {
-		return SEVERITY_ALLOCATION;
-	}
-	public void setCONTINUITY_ALLOCATION(double val) {
-		CONTINUITY_ALLOCATION = val;
-	}
-	public double getCONTINUITY_ALLOCATION() {
-		return CONTINUITY_ALLOCATION;
-	}
-	public void setDISEASE_VELOCITY(double val) {
-		DISEASE_VELOCITY = val;
-	}
-	public double getDISEASE_VELOCITY() {
-		return DISEASE_VELOCITY;
-	}
-	public void setLEARNING_RATE(double val) {
-		LEARNING_RATE = val;
-	}
-	public double getLEARNING_RATE() {
-		return LEARNING_RATE;
-	}
-	public void setSUBJECTIVE_INITIATIVE(double val) {
-		SUBJECTIVE_INITIATIVE = val;
-	}
-	public double getSUBJECTIVE_INITIATIVE() {
-		return SUBJECTIVE_INITIATIVE;
+	public void setCapacity(int val) {capacity = val;}
+	public void setNumPatients(int val) {numPatients = val;}
+	public void setk(double val) {k = val;}
+	public void sett(double val) {t = val;}
+	public void setweeks(int val) {weeks = val;}
+	public void setSEVERITY_ALLOCATION(double val) {SEVERITY_ALLOCATION = val;}
+	public void setCONTINUITY_ALLOCATION(double val) {CONTINUITY_ALLOCATION = val;}
+	public void setDISEASE_VELOCITY(double val) {DISEASE_VELOCITY = val;}
+	public void setLEARNING_RATE(double val) {LEARNING_RATE = val;}
+	public void setSUBJECTIVE_INITIATIVE(double val) {SUBJECTIVE_INITIATIVE = val;}
+	public void setEXP_POS(double val) {EXP_POS = val;}
+	public void setEXP_NEG(double val) {EXP_NEG = val;}
+	
+
+	public int 	  getCapacity() {return capacity;}
+	public int 	  getNumPatients() {return numPatients;}
+	public double getk() {return k;}
+	public double gett() {return t;}
+	public int 	  getweeks() {return weeks;}
+	public double getSEVERITY_ALLOCATION() {return SEVERITY_ALLOCATION;}
+	public double getCONTINUITY_ALLOCATION() {return CONTINUITY_ALLOCATION;}
+	public double getDISEASE_VELOCITY() {return DISEASE_VELOCITY;}
+	public double getLEARNING_RATE() {return LEARNING_RATE;}
+	public double getSUBJECTIVE_INITIATIVE() {return SUBJECTIVE_INITIATIVE;}
+	public double getEXP_POS() {return EXP_POS;}
+	public double getEXP_NEG() {return EXP_NEG;} 
+	
+	public HashMap getParams() {
+		HashMap<String, String> params = new HashMap();
+		params.put("capacity", Integer.toString(getCapacity()));
+		params.put("numPatients", Integer.toString(getNumPatients()));
+		params.put("k", Double.toString(getk()));		
+		params.put("t", Double.toString(gett()));
+		params.put("weeks", Integer.toString(getweeks()));
+		params.put("SEVERITY_ALLOCATION", Double.toString(getSEVERITY_ALLOCATION()));
+		params.put("CONTINUITY_ALLOCATION", Double.toString(getCONTINUITY_ALLOCATION()));
+		params.put("DISEASE_VELOCITY", Double.toString(getDISEASE_VELOCITY()));
+		params.put("LEARNING_RATE", Double.toString(getLEARNING_RATE()));
+		params.put("SUBJECTIVE_INITIATIVE", Double.toString(getSUBJECTIVE_INITIATIVE()));
+		params.put("EXP_POS", Double.toString(getEXP_POS()));
+		params.put("EXP_NEG", Double.toString(getEXP_NEG()));
+		return params;
 	}
 	
 	public int[][] getCs() {

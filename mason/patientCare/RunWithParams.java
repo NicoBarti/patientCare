@@ -13,7 +13,6 @@ public class RunWithParams {
 	public RunWithParams(String par) {
 		simulation = new Care(System.currentTimeMillis());
 		params = new JSONObject(par);
-		System.out.println(params);
 		
 		populateParameters();
 	}
@@ -38,10 +37,10 @@ public class RunWithParams {
 			case "weeks":
 				simulation.setweeks(a.getInt(0));
 				break;
-			case "CONTINUITY@ALLOCATION":
+			case "CONTINUITY_ALLOCATION":
 				simulation.setCONTINUITY_ALLOCATION(a.getDouble(0));
 				break;
-			case "SEVERITY@ALLOCATION":
+			case "SEVERITY_ALLOCATION":
 				simulation.setSEVERITY_ALLOCATION(a.getDouble(0));
 				break;
 			case "DISEASE_VELOCITY":
@@ -54,8 +53,12 @@ public class RunWithParams {
 				simulation.setSUBJECTIVE_INITIATIVE(a.getDouble(0));
 				break;
 
-		}
-		
+		}}
 	}
+	
+	public String getParams() {
+		HashMap params = simulation.getParams();
+		JSONObject response = new JSONObject(params);
+		return(response.toString());
 	}
 }
