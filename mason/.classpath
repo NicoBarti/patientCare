@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="/Users/nicolasbarticevic/eclipse-workspace/sim13/libraries/jcommon-1.0.21.jar"/>
 	<classpathentry kind="lib" path="/Users/nicolasbarticevic/eclipse-workspace/sim13/libraries/itext-1.2.jar"/>
 	<classpathentry kind="lib" path="/Users/nicolasbarticevic/eclipse-workspace/sim13/libraries/bsh-2.0b4.jar"/>
+	<classpathentry kind="lib" path="/Users/nicolasbarticevic/Git/JSON-java/src/main/java/json-java.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>

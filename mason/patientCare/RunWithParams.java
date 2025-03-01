@@ -61,4 +61,19 @@ public class RunWithParams {
 		JSONObject response = new JSONObject(params);
 		return(response.toString());
 	}
+	
+	public void runSimulation() {
+		simulation.start();
+		do{
+			if (!simulation.schedule.step(simulation)) {
+				System.out.println("algo falso en schedule.step");
+				break;}
+		}
+		while (simulation.schedule.getSteps() < simulation.getweeks());
+		simulation.finish();
+	}
+	
+	public Care getSimulation() {
+		return(simulation);
+	}
 }

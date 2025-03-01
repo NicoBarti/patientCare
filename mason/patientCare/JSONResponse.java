@@ -8,17 +8,7 @@ public class JSONResponse {
 	String params;
 	JSONObject results_json = new JSONObject();
 	
-	public JSONResponse(String parList) {
-		params = parList;
-		Care simulation = new Care(System.currentTimeMillis());
-		simulation.start();
-		do{
-			if (!simulation.schedule.step(simulation)) {
-				System.out.println("algo falso en schedule.step");
-				break;}
-			}
-			while (simulation.schedule.getSteps() < simulation.getweeks());
-			simulation.finish();
+	public JSONResponse(Care simulation) {
 
 			buildResults_json("Ds", simulation.getds());
 			buildResults_json("Cs", simulation.getCs());

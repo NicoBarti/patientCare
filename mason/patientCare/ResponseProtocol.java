@@ -10,27 +10,27 @@ public class ResponseProtocol {
     
     String results;
 	String params;
+	RunWithParams run;
+	JSONResponse resutlsFetcher;
 	
 	public String comunicate(String com) {
 		if(status == WAITING) {
 			status = PARAMCHECK;
-			System.out.println(com);
-			//TODO call simulation from here?
-			RunWithParams run = new RunWithParams(com);			
-			JSONResponse resutlsFetcher = new JSONResponse(com);
-			results =  resutlsFetcher.result();
+			params = com;
+			run = new RunWithParams(params);			
 			// comunicates what parameter values were used by the simulation
 			return run.getParams();
 		}
 		if(status == PARAMCHECK & com.equals("OK_params")) {
-			//TODO check params
 			status = CHUNKING;
+			run.runSimulation(); //runs the simulation
+			resutlsFetcher = new JSONResponse(run.getSimulation()); //
+			results =  resutlsFetcher.result();
 			// comunicates the size of the message to the client
-			return String.valueOf(results.toString().length());
+			return String.valueOf(results.length());
 		}
 		if(status == CHUNKING) {
-			String response = results;
-			return response;
+			return results;
 		}
 	return "error";
 	}
