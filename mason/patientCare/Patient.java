@@ -15,7 +15,7 @@ public class Patient implements Steppable {
 	protected double currentMot;
 	protected boolean excluido = false;
 	protected int failedAttempts;
-	
+	private float progressProbability;
 	//Convenience variables
 
 	protected int current_week; //is the step + 1
@@ -51,14 +51,16 @@ public class Patient implements Steppable {
 		} 
 
 	
-	private void biologicalMechanism(Care care) {	
+	protected void biologicalMechanism(Care care) {	
 		// changes H
 		int progress = 0;
 
-		if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/care.weeks)) {
+		if(care.random.nextBoolean(progressProbability)) {
 			progress = 1;
 			care.totalProgress = care.totalProgress + 1;
 		}
+		
+		
 		double noise = 0;//care.random.nextGaussian()*0.05; //NEED TO ADJUST NOISE PER STEPS
 		double finalProgress =  progress + noise;
 		H[current_week] = Math.max(0, Math.min(H[current_week-1] + finalProgress - T[current_week-1], 5));
@@ -107,7 +109,7 @@ public class Patient implements Steppable {
 
 	public void initializePatient(int severity, int weeks, int i, Care care) {
 		d = severity;
-		
+		progressProbability = (float)(d * care.DISEASE_VELOCITY/weeks);
 		H = new double[weeks+1];
 		H[0] = 0;
 //			if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/weeks)) {
@@ -173,6 +175,9 @@ public class Patient implements Steppable {
 	public void testTreatmentMec(){
 		H[current_week] = id;
 		//System.out.println(id);
+	}
+	public float getprogressProbability() {
+		return progressProbability;
 	}
 	
 }
