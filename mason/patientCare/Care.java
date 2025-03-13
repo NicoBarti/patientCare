@@ -12,8 +12,8 @@ import sim.field.network.*;
 
 public class Care extends SimState {
 	//constrains
-	public int capacity = 1;
-	public int numPatients = 1000;
+	public int capacity = 10;
+	public int numPatients = 100;
 	public int weeks = 150;
 	
 	// PARAMS:

@@ -16,7 +16,8 @@ public class ABMServer {
         }
          
         int portNumber = Integer.parseInt(args[0]);
-         
+        System.out.println("Escuchando");
+ 
         try (
             ServerSocket serverSocket =
                 new ServerSocket(Integer.parseInt(args[0]));
@@ -24,8 +25,9 @@ public class ABMServer {
             PrintWriter out =
                 new PrintWriter(clientSocket.getOutputStream(), true);    
             BufferedReader in = new BufferedReader(
-                new InputStreamReader(clientSocket.getInputStream()));
+                new InputStreamReader(clientSocket.getInputStream()));	
         ) {
+
             String inputLine;
             String outputLine;
             ResponseProtocol controler = new ResponseProtocol();

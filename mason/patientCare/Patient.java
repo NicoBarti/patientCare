@@ -109,17 +109,19 @@ public class Patient implements Steppable {
 		d = severity;
 		
 		H = new double[weeks+1];
+		H[0] = 0;
 //			if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/weeks)) {
-				if(care.random.nextBoolean((double) (d)/weeks)) {
+				//if(care.random.nextBoolean((double) (d)/weeks)) {
 
-				care.totalProgress = care.totalProgress + 1;
-				H[0] = 1;
-			} else {H[0] = 0;}
+				//care.totalProgress = care.totalProgress + 1;
+				//H[0] = 1;
+			//} else {H[0] = 0;}
 		// initialization with everybody high needs
 		//H[0] = 1;	
 		expectation = new double[weeks+1];
-			double exp = care.random.nextGaussian()*Math.sqrt(2)+2.5;
-			expectation[0] = Math.min(4, Math.max(1, exp));
+		expectation[0] = 2.5;
+			//double exp = care.random.nextGaussian()*Math.sqrt(2)+2.5;
+			//expectation[0] = Math.min(4, Math.max(1, exp));
 		
 		//fix initial expectation:
 			//expectation[0] = 0;

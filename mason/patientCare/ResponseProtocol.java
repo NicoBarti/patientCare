@@ -12,8 +12,13 @@ public class ResponseProtocol {
 	String params;
 	RunWithParams run;
 	JSONResponse resutlsFetcher;
+
 	
 	public String comunicate(String com) {
+		if(com.equals("NextCall")) {
+			status = WAITING;
+			return "Done";
+		}
 		if(status == WAITING) {
 			status = PARAMCHECK;
 			params = com;
