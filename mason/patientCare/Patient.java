@@ -109,7 +109,7 @@ public class Patient implements Steppable {
 
 	public void initializePatient(int severity, int weeks, int i, Care care) {
 		d = severity;
-		progressProbability = (float)(d * care.DISEASE_VELOCITY/weeks);
+		progressProbability = (float)Math.min(1, (d * care.DISEASE_VELOCITY/weeks));
 		H = new double[weeks+1];
 		H[0] = 0;
 //			if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/weeks)) {
