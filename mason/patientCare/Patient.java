@@ -26,7 +26,7 @@ public class Patient implements Steppable {
 		
 		//internal agent events
 		expectationFormation(care);
-		behaviouralRule(care.k, care.random.nextDouble(), care.SUBJECTIVE_INITIATIVE);
+		behaviouralRule(care.random.nextDouble(), care.SUBJECTIVE_INITIATIVE);
 		
 		//agent action
 		if(B[current_week] == 1 & care.doctor.isAvailable()) { 
@@ -48,9 +48,7 @@ public class Patient implements Steppable {
 			progress = 1;
 			care.totalProgress = care.totalProgress + 1;
 		}
-		
-		double finalProgress =  progress;
-		H[current_week] = Math.max(0, Math.min(H[current_week-1] + finalProgress - T[current_week-1], 5));
+		H[current_week] = Math.max(0, Math.min(H[current_week-1] + progress - T[current_week-1], 5));
 	}
 	
 	protected void expectationFormation(Care care) {
@@ -72,7 +70,7 @@ public class Patient implements Steppable {
 		if(expectation[current_week] <= 0) {expectation[current_week] = 0;}
 	}
 	
-	protected void behaviouralRule(double k, double ran, double SUBJECTIVE_INITIATIVE) {
+	protected void behaviouralRule(double ran, double SUBJECTIVE_INITIATIVE) {
 	// sets the value of B[current_week] to determine next week seek behaviour
 	currentMot = (SUBJECTIVE_INITIATIVE*(expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*H[current_week])*0.2;// very careful, the multiplier here is 0.2, and not 0.1, because there is a 1/2 factor inside!
 
@@ -83,14 +81,14 @@ public class Patient implements Steppable {
 		}	
 	}
 	
-	public void initializePatient(int severity, int weeks, int i, Care care) {
+	public void initializePatient(int n_diseases, int weeks, int i, Care care) {
 		H = new double[weeks+1];
 		T = new double[weeks+1];
 		C = new int[weeks+1];
 		B = new int[weeks+1];
 		expectation = new double[weeks+1];
 
-		d = 1;
+		d = n_diseases;
 		H[0] = 0;
 		expectation[0] = 2.5;
 		T[0] = 0;

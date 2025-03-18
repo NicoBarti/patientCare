@@ -26,8 +26,8 @@ public class Care extends SimState {
 	public double SUBJECTIVE_INITIATIVE = 0.5;
  	
 	// HYPERPARAMETERS:
-	public double k = 1;
 	public double t = 1; // max treatment effectivennes
+	public int[] nDiseases = {1,1,1};
 	
 	// internals
 	public Doctor doctor;
@@ -81,9 +81,9 @@ public class Care extends SimState {
 		// initialize and add patients
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
-			if(i < numPatients/3) {d = 1;} 
-			else if (i < 2*numPatients/3) {d = 2;}
-			else {d = 3;}
+			if(i < numPatients/3) {d = nDiseases[0];} 
+			else if (i < 2*numPatients/3) {d = nDiseases[1];}
+			else {d = nDiseases[2];}
 			patient.initializePatient(d, weeks, i, this);
 			patients.add(patient);
 			allocationRule(patient.getReceivedCare(), patient.getd(), i);
@@ -155,7 +155,6 @@ public class Care extends SimState {
 	// setters and getters
 	public void setCapacity(int val) {capacity = val;}
 	public void setNumPatients(int val) {numPatients = val;}
-	public void setk(double val) {k = val;}
 	public void sett(double val) {t = val;}
 	public void setweeks(int val) {weeks = val;}
 	public void setSEVERITY_ALLOCATION(double val) {SEVERITY_ALLOCATION = val;}
@@ -165,11 +164,15 @@ public class Care extends SimState {
 	public void setSUBJECTIVE_INITIATIVE(double val) {SUBJECTIVE_INITIATIVE = val;}
 	public void setEXP_POS(double val) {EXP_POS = val;}
 	public void setEXP_NEG(double val) {EXP_NEG = val;}
+	public void setnDiseases(int[] n) {
+		nDiseases[0] = n[0];
+		nDiseases[1] = n[1];
+		nDiseases[2] = n[2];
+		}
 	
 
 	public int 	  getCapacity() {return capacity;}
 	public int 	  getNumPatients() {return numPatients;}
-	public double getk() {return k;}
 	public double gett() {return t;}
 	public int 	  getweeks() {return weeks;}
 	public double getSEVERITY_ALLOCATION() {return SEVERITY_ALLOCATION;}
@@ -179,12 +182,13 @@ public class Care extends SimState {
 	public double getSUBJECTIVE_INITIATIVE() {return SUBJECTIVE_INITIATIVE;}
 	public double getEXP_POS() {return EXP_POS;}
 	public double getEXP_NEG() {return EXP_NEG;} 
+	public int[] getnDiseases() {return nDiseases;}
 	
 	public HashMap getParams() {
 		HashMap<String, String> params = new HashMap();
 		params.put("capacity", Integer.toString(getCapacity()));
+		
 		params.put("numPatients", Integer.toString(getNumPatients()));
-		params.put("k", Double.toString(getk()));		
 		params.put("t", Double.toString(gett()));
 		params.put("weeks", Integer.toString(getweeks()));
 		params.put("SEVERITY_ALLOCATION", Double.toString(getSEVERITY_ALLOCATION()));
