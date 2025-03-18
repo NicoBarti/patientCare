@@ -13,11 +13,8 @@ public class Patient implements Steppable {
 	protected int[] B;
 	protected int id;
 	protected double currentMot;
-	protected boolean excluido = false;
-	protected int failedAttempts;
 	private float progressProbability;
-	//Convenience variables
-
+	
 	protected int current_week; //is the step + 1
 		
 	public void step(SimState state) {
@@ -27,18 +24,11 @@ public class Patient implements Steppable {
 		//disease progression
 		biologicalMechanism(care);
 		
-		//test treatment efficacy at different needs
-		//testTreatmentMec();
-		
 		//internal agent events
 		expectationFormation(care);
 		behaviouralRule(care.k, care.random.nextDouble(), care.SUBJECTIVE_INITIATIVE);
 		
-		//TESTING, ALWAYS RECEIVE TREATMENT
-		//B[current_week] = 1;
-		
 		//agent action
-
 		if(B[current_week] == 1 & care.doctor.isAvailable()) { 
 			care.totalInteractions = care.totalInteractions +1;
 				C[current_week] = 1;
@@ -54,93 +44,61 @@ public class Patient implements Steppable {
 	protected void biologicalMechanism(Care care) {	
 		// changes H
 		int progress = 0;
-
 		if(care.random.nextBoolean(progressProbability)) {
 			progress = 1;
 			care.totalProgress = care.totalProgress + 1;
 		}
 		
-		
-		double noise = 0;//care.random.nextGaussian()*0.05; //NEED TO ADJUST NOISE PER STEPS
-		double finalProgress =  progress + noise;
+		double finalProgress =  progress;
 		H[current_week] = Math.max(0, Math.min(H[current_week-1] + finalProgress - T[current_week-1], 5));
 	}
 	
 	protected void expectationFormation(Care care) {
-		double noise = 0;//care.random.nextGaussian() *0.05;// NEED TO ADJUST NOISE PER STEPS
 		//forms the expectation for the next consultation based on previous experience
 		
-		// got the visit last week
+		// CASE 1. got the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 1) { 
-				expectation[current_week] = expectation[current_week-1] + care.EXP_POS + noise;}
-		//didn't get the visit last week
+				expectation[current_week] = expectation[current_week-1] + care.EXP_POS;}
+		// CASE 2. didn't get the visit last week
 		if(B[current_week-1] == 1 & C[current_week-1] == 0) { 
-				expectation[current_week] = expectation[current_week-1] - care.EXP_NEG + noise;
+				expectation[current_week] = expectation[current_week-1] - care.EXP_NEG;
 				} 
-		//didn't ask for a visit
+		// CASE 3. didn't ask for a visit
 		if(B[current_week-1] == 0) { 
-			expectation[current_week] = expectation[current_week-1] + noise;
+			expectation[current_week] = expectation[current_week-1];
 			}	
 		//limit to expecations
 		if(expectation[current_week] >5) {expectation[current_week] = 5;}
 		if(expectation[current_week] <= 0) {expectation[current_week] = 0;}
-		
-		//Conterfactual: patients don't form expectations
-		//expectation[current_week] = 0;
-
 	}
 	
 	protected void behaviouralRule(double k, double ran, double SUBJECTIVE_INITIATIVE) {
-	// sets the value of B[current_week] to 0  won't seek care during this week
-	// or B[curent_week] = 1 if patient will seek care this week
+	// sets the value of B[current_week] to determine next week seek behaviour
+	currentMot = (SUBJECTIVE_INITIATIVE*(expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*H[current_week])*0.2;// very careful, the multiplier here is 0.2, and not 0.1, because there is a 1/2 factor inside!
 
-	currentMot = (SUBJECTIVE_INITIATIVE*(expectation[current_week]) + (1-SUBJECTIVE_INITIATIVE)*H[current_week])*0.2;
-	// very careful, the multiplier here is 0.2, and not 0.1, because there is a 1/2 factor inside!
-
-		  
 		if(ran < currentMot) {
 			B[current_week] = 1;
 		} else {
 			B[current_week] = 0;
 		}	
-		
 	}
 	
-
 	public void initializePatient(int severity, int weeks, int i, Care care) {
-		d = 1;
-		progressProbability = (float)Math.min(1, (d * care.DISEASE_VELOCITY/weeks));
 		H = new double[weeks+1];
-		H[0] = 0;
-//			if(care.random.nextBoolean((double) (d*care.DISEASE_VELOCITY)/weeks)) {
-				//if(care.random.nextBoolean((double) (d)/weeks)) {
-
-				//care.totalProgress = care.totalProgress + 1;
-				//H[0] = 1;
-			//} else {H[0] = 0;}
-		// initialization with everybody high needs
-		//H[0] = 1;	
-		expectation = new double[weeks+1];
-		expectation[0] = 2.5;
-			//double exp = care.random.nextGaussian()*Math.sqrt(2)+2.5;
-			//expectation[0] = Math.min(4, Math.max(1, exp));
-		
-		//fix initial expectation:
-			//expectation[0] = 0;
 		T = new double[weeks+1];
-			T[0] = 0;
-		
-			
 		C = new int[weeks+1];
-			C[0] = 0;
 		B = new int[weeks+1];
-			B[0] = 0;
+		expectation = new double[weeks+1];
+
+		d = 1;
+		H[0] = 0;
+		expectation[0] = 2.5;
+		T[0] = 0;
+		C[0] = 0;
+		B[0] = 0;
 		id = i;
-//		if(id == 0) {
-//			System.out.println(d);
-//		}
-		//System.out.println(id);
-		
+	
+		progressProbability = (float)Math.min(1, (d * care.DISEASE_VELOCITY/weeks));
 	}
 	
 
@@ -157,7 +115,6 @@ public class Patient implements Steppable {
 		}
 		return total;
 	}
-	//public double getcurrentMot() {return currentMot;}
 	public double getExpectativas() {
 		return expectation[current_week];
 	}
