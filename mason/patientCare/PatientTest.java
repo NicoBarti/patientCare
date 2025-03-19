@@ -30,7 +30,7 @@ class PatientTest {
 	void passParameters_runInContextBiological_checksTotalProgression() {
 		Care care = new Care(123);
 		care.setweeks(150);
-		care.setDISEASE_VELOCITY(1);
+		care.setDISEASE_SEVERITY(1);
 		care.setNumPatients(1000);
 		care.setCapacity(0);
 		care.setSUBJECTIVE_INITIATIVE(1);

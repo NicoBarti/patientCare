@@ -6,7 +6,7 @@ public class AisoletedMechanisms {
 	
 	public AisoletedMechanisms() {}
 	
-	double[] runAisolatedBiologicalMechanism(int weeks, double DISEASE_VELOCITY, 
+	double[] runAisolatedBiologicalMechanism(int weeks, double DISEASE_SEVERITY, 
 			int d, int numPatients, int seed) {
 		
 		final long long_seed;
@@ -21,7 +21,7 @@ public class AisoletedMechanisms {
 		Bag patients = new Bag(numPatients);
 
 		care.setweeks(weeks);
-		care.setDISEASE_VELOCITY(DISEASE_VELOCITY);
+		care.setDISEASE_SEVERITY(DISEASE_SEVERITY);
 		care.setNumPatients(0); //a very light simulation to not waste computation
 		care.start();
 		

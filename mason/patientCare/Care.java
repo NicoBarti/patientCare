@@ -21,7 +21,7 @@ public class Care extends SimState {
 	public double CONTINUITY_ALLOCATION = 0;
 	public double EXP_POS = 1;
 	public double EXP_NEG = 1;
-	public double DISEASE_VELOCITY = 1;
+	public double DISEASE_SEVERITY = 1;
 	public double LEARNING_RATE = 1;
 	public double SUBJECTIVE_INITIATIVE = 0.5;
  	
@@ -159,7 +159,7 @@ public class Care extends SimState {
 	public void setweeks(int val) {weeks = val;}
 	public void setSEVERITY_ALLOCATION(double val) {SEVERITY_ALLOCATION = val;}
 	public void setCONTINUITY_ALLOCATION(double val) {CONTINUITY_ALLOCATION = val;}
-	public void setDISEASE_VELOCITY(double val) {DISEASE_VELOCITY = val;}
+	public void setDISEASE_SEVERITY(double val) {DISEASE_SEVERITY = val;}
 	public void setLEARNING_RATE(double val) {LEARNING_RATE = val;}
 	public void setSUBJECTIVE_INITIATIVE(double val) {SUBJECTIVE_INITIATIVE = val;}
 	public void setEXP_POS(double val) {EXP_POS = val;}
@@ -177,7 +177,7 @@ public class Care extends SimState {
 	public int 	  getweeks() {return weeks;}
 	public double getSEVERITY_ALLOCATION() {return SEVERITY_ALLOCATION;}
 	public double getCONTINUITY_ALLOCATION() {return CONTINUITY_ALLOCATION;}
-	public double getDISEASE_VELOCITY() {return DISEASE_VELOCITY;}
+	public double getDISEASE_SEVERITY() {return DISEASE_SEVERITY;}
 	public double getLEARNING_RATE() {return LEARNING_RATE;}
 	public double getSUBJECTIVE_INITIATIVE() {return SUBJECTIVE_INITIATIVE;}
 	public double getEXP_POS() {return EXP_POS;}
@@ -193,7 +193,7 @@ public class Care extends SimState {
 		params.put("weeks", Integer.toString(getweeks()));
 		params.put("SEVERITY_ALLOCATION", Double.toString(getSEVERITY_ALLOCATION()));
 		params.put("CONTINUITY_ALLOCATION", Double.toString(getCONTINUITY_ALLOCATION()));
-		params.put("DISEASE_VELOCITY", Double.toString(getDISEASE_VELOCITY()));
+		params.put("DISEASE_SEVERITY", Double.toString(getDISEASE_SEVERITY()));
 		params.put("LEARNING_RATE", Double.toString(getLEARNING_RATE()));
 		params.put("SUBJECTIVE_INITIATIVE", Double.toString(getSUBJECTIVE_INITIATIVE()));
 		params.put("EXP_POS", Double.toString(getEXP_POS()));

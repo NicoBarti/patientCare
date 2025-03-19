@@ -47,7 +47,7 @@ public class runCare {
 		// pass parameters to simulation
 		// create list of parameters
 		String[] pars = { "capacity", "numPatients", "k","weeks", "CONTINUITY@ALLOCATION", "SEVERITY@ALLOCATION", 
-				"DISEASE_VELOCITY", "LEARNING_RATE", "SUBJECTIVE_INITIATIVE" };
+				"DISEASE_SEVERITY", "LEARNING_RATE", "SUBJECTIVE_INITIATIVE" };
 		for (int a = 0; a < pars.length; a++) {
 			for (int i = 0; i < args.length; i++) { // loops through args to find parameters
 				if (args[i].equals(pars[a])) {
@@ -64,9 +64,6 @@ public class runCare {
 					case "numPatients":
 						simulation.setNumPatients(Integer.valueOf(args[i + 1]));
 						break;
-					case "k":
-						simulation.setk(Double.valueOf(args[i + 1]));
-						break;
 					case "weeks":
 						simulation.setweeks(Integer.valueOf(args[i + 1]));
 						break;
@@ -76,8 +73,8 @@ public class runCare {
 					case "SEVERITY@ALLOCATION":
 						simulation.setSEVERITY_ALLOCATION(Double.valueOf(args[i+1]));
 						break;
-					case "DISEASE_VELOCITY":
-						simulation.setDISEASE_VELOCITY(Double.valueOf(args[i+1]));
+					case "DISEASE_SEVERITY":
+						simulation.setDISEASE_SEVERITY(Double.valueOf(args[i+1]));
 						break;
 					case "LEARNING_RATE":
 						simulation.setLEARNING_RATE(Double.valueOf(args[i+1]));

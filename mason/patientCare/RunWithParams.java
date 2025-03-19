@@ -31,9 +31,6 @@ public class RunWithParams {
 			case "numPatients":
 				simulation.setNumPatients(a.getInt(0));
 				break;
-			case "k":
-				simulation.setk(a.getDouble(0));
-				break;
 			case "weeks":
 				simulation.setweeks(a.getInt(0));
 				break;
@@ -43,8 +40,8 @@ public class RunWithParams {
 			case "SEVERITY_ALLOCATION":
 				simulation.setSEVERITY_ALLOCATION(a.getDouble(0));
 				break;
-			case "DISEASE_VELOCITY":
-				simulation.setDISEASE_VELOCITY(a.getDouble(0));
+			case "DISEASE_SEVERITY":
+				simulation.setDISEASE_SEVERITY(a.getDouble(0));
 				break;
 			case "LEARNING_RATE":
 				simulation.setLEARNING_RATE(a.getDouble(0));

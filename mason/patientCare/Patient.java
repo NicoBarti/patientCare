@@ -96,7 +96,7 @@ public class Patient implements Steppable {
 		B[0] = 0;
 		id = i;
 	
-		progressProbability = (float)Math.min(1, (d * care.DISEASE_VELOCITY/weeks));
+		progressProbability = (float)Math.min(1, (d * care.DISEASE_SEVERITY/weeks));
 	}
 	
 
