@@ -149,8 +149,7 @@ public class Care extends SimState {
 	
 	
 	public void finish() {
-		//System.out.println(totalProgress);
-	}
+			}
 	
 	// setters and getters
 	public void setCapacity(int val) {capacity = val;}
@@ -183,6 +182,7 @@ public class Care extends SimState {
 	public double getEXP_POS() {return EXP_POS;}
 	public double getEXP_NEG() {return EXP_NEG;} 
 	public int[] getnDiseases() {return nDiseases;}
+	public int gettotalProgress() {return totalProgress;} 
 	
 	public HashMap getParams() {
 		HashMap<String, String> params = new HashMap();

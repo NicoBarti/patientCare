@@ -29,7 +29,7 @@ public class ResponseProtocol {
 		if(status == PARAMCHECK & com.equals("OK_params")) {
 			status = CHUNKING;
 			run.runSimulation(); //runs the simulation
-			resutlsFetcher = new JSONResponse(run.getSimulation()); //
+			resutlsFetcher = new JSONResponse(run.getSimulation(), com); //
 			results =  resutlsFetcher.result();
 			// comunicates the size of the message to the client
 			return String.valueOf(results.length());
