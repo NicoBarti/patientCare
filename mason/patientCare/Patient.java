@@ -14,6 +14,8 @@ public class Patient implements Steppable {
 	protected int id;
 	protected double currentMot;
 	private float progressProbability;
+	protected int totalProgress = 0; // The total number of needs during the simulation including initialization
+
 	
 	protected int current_week; //is the step + 1
 		
@@ -46,7 +48,7 @@ public class Patient implements Steppable {
 		int progress = 0;
 		if(care.random.nextBoolean(progressProbability)) {
 			progress = 1;
-			care.totalProgress = care.totalProgress + 1;
+			totalProgress = totalProgress + 1;
 		}
 		H[current_week] = Math.max(0, Math.min(H[current_week-1] + progress - T[current_week-1], 5));
 	}
@@ -102,6 +104,7 @@ public class Patient implements Steppable {
 
 	public int[] getReceivedCare() {return C;}
 	public int getd(){ return d;}
+	public int gettotalProgress() { return totalProgress;}
 	public double[] getH() {return H;}
 	public double[] getexpectation() {return expectation;}
 	public double[] getT() {return T;}
@@ -126,7 +129,6 @@ public class Patient implements Steppable {
 		}
 		return total;
 	}
-	
 	public void testTreatmentMec(){
 		H[current_week] = id;
 		//System.out.println(id);

@@ -26,7 +26,7 @@ public class ResponseProtocol {
 			// comunicates what parameter values were used by the simulation
 			return run.getParams();
 		}
-		if(status == PARAMCHECK & com.equals("OK_params")) {
+		if(status == PARAMCHECK & (com.equals("OK_params") || com.equals("add_progression"))) {
 			status = CHUNKING;
 			run.runSimulation(); //runs the simulation
 			resutlsFetcher = new JSONResponse(run.getSimulation(), com); //

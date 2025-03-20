@@ -32,7 +32,6 @@ public class Care extends SimState {
 	// internals
 	public Doctor doctor;
 	public Bag patients = new Bag(numPatients);
-	public int totalProgress = 0; // The total number of needs during the simulation including initialization
 	public int totalInteractions = 0;
 	public int totalTreatment = 0;
 	private int d;
@@ -182,7 +181,6 @@ public class Care extends SimState {
 	public double getEXP_POS() {return EXP_POS;}
 	public double getEXP_NEG() {return EXP_NEG;} 
 	public int[] getnDiseases() {return nDiseases;}
-	public int gettotalProgress() {return totalProgress;} 
 	
 	public HashMap getParams() {
 		HashMap<String, String> params = new HashMap();
@@ -258,6 +256,7 @@ public class Care extends SimState {
 	}
 	
 	public int[][] getBs() {
+
 		int[][] distro = new int[patients.numObjs][weeks+1];
 		for (int i = 0; i < patients.numObjs; i++) {
 			int[] data = ((Patient) (patients.objs[i])).getB();
@@ -268,4 +267,12 @@ public class Care extends SimState {
 		return distro;
 	}	
 	
+	public int[] gettotalProgress() {
+		int[] totalProgress = new int[patients.numObjs];
+		for (int i = 0; i < patients.numObjs; i++) {
+			totalProgress[i] = ((Patient) (patients.objs[i])).gettotalProgress();
+		}
+		return totalProgress;
+		} 
+
 }

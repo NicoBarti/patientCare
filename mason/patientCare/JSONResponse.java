@@ -17,7 +17,7 @@ public class JSONResponse {
 			buildResults_json("T", simulation.getTs());
 			buildResults_json("B", simulation.getBs());
 			
-			if (fetchType == "add_progression") {
+			if (fetchType.equals("add_progression")) {
 			buildResults_json("P", simulation.gettotalProgress());}
 	}
 	
