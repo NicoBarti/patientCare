@@ -51,6 +51,7 @@ public class Patient implements Steppable {
 			totalProgress = totalProgress + 1;
 		}
 		H[current_week] = Math.max(0, Math.min(H[current_week-1] + progress - T[current_week-1], 5));
+
 	}
 	
 	protected void expectationFormation(Care care) {
