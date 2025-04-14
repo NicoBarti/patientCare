@@ -26,7 +26,7 @@ public class Care extends SimState {
 	public double SUBJECTIVE_INITIATIVE = 0.5;
  	
 	// HYPERPARAMETERS:
-	public double t = 1; // max treatment effectivennes
+	public double t = 5; // max treatment effectivennes
 	public int[] nDiseases = {1,1,1};
 	
 	// internals
