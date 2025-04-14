@@ -93,7 +93,7 @@ public class Patient implements Steppable {
 
 		d = n_diseases;
 		H[0] = 0;
-		expectation[0] = 2.5;
+		expectation[0] = care.random.nextDouble()*2.5;
 		T[0] = 0;
 		C[0] = 0;
 		B[0] = 0;

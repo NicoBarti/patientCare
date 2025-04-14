@@ -79,12 +79,13 @@ public class Care extends SimState {
 		schedule.scheduleRepeating(schedule.EPOCH, 0, doctor);
 		// initialize and add patients
 		int assign = 1;
+		double patientsPerGroup = numPatients/10;
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
-			patient.initializePatient(assign, weeks, i, this);
-			if (i/10 >= assign) {
+			if (i/patientsPerGroup >= assign) {
 				assign = assign +1;
 			}
+			patient.initializePatient(assign, weeks, i, this);
 			patients.add(patient);
 			allocationRule(patient.getReceivedCare(), patient.getd(), i);
 			//schedule.scheduleOnce(schedule.EPOCH, 1, patient);
