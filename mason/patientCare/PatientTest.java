@@ -35,8 +35,6 @@ class PatientTest {
 		care.setCapacity(0);
 		care.setSUBJECTIVE_INITIATIVE(1);
 		care.setLEARNING_RATE(1);
-		int[] nDiseases = {1,2,3};
-		care.setnDiseases(nDiseases);
 		care.start();
 		do{
 			if (!care.schedule.step(care)) {

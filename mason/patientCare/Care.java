@@ -11,139 +11,58 @@ import sim.field.continuous.*;
 import sim.field.network.*;
 
 public class Care extends SimState {
-	//constrains
+	//system's constrains
 	public int capacity = 10;
 	public int numPatients = 100;
-	public int weeks = 150;
+	public int weeks = 150; //time-steps
+	public int W = 1;
 	
 	// PARAMS:
 	public double SEVERITY_ALLOCATION = 0;
 	public double CONTINUITY_ALLOCATION = 0;
-	public double EXP_POS = 1;
-	public double EXP_NEG = 1;
+	public double rho = 1;
+	public double eta = 1;
 	public double DISEASE_SEVERITY = 1;
 	public double LEARNING_RATE = 1;
 	public double SUBJECTIVE_INITIATIVE = 0.5;
- 	
-	// HYPERPARAMETERS:
 	public double t = 5; // max treatment effectivennes
-	public int[] nDiseases = {1,1,1};
 	
 	// internals
 	public Doctor doctor;
+	public Bag doctors = new Bag(W);
 	public Bag patients = new Bag(numPatients);
 	public int totalInteractions = 0;
 	public int totalTreatment = 0;
 	private int d;
 	
-	// VISUALIZATION
-	//I'll implement all the objects for visualization here and control them from here
-	//so I don't interfere with the other uses of the simulation, and don't touch patients and docs
-	// some methods will only be called if there is a visualization
-	public boolean visual = true;
-	public Continuous2D center = new Continuous2D(1.0,100,100);
-    public Network visualPatients = new Network(false);
-    // eventually the Bag patients could be substituted for the Network visualPatients
-	
-
 	public Care(long seed) {
 		super(seed);
 	}
 
 	public static void main(String[] args) {
-		System.out.println("BEWARE Starting from Care Java!!");
+		System.out.println("BEWARE Starting from Care Java with hard-coded params.");
 		doLoop(Care.class, args);
 		System.exit(0);
 	}
 
 	public void start() {
 		super.start();
-		
-		// clear the center
-        center.clear();
-        // clear the visualPatients
-        visualPatients.clear();
         
-        // should i clear the Bag? I think so, add in the other branches
         patients.clear();
 		
 		// initialize and add Doctor
 		doctor = new Doctor();
-		if(visual) { // add doctor to  visualization: TO DO!!
-			//visualPatients.addNode(doctor);
-			Double2D docPos = new Double2D(center.getWidth() * 0.5,
-	        		center.getHeight() * 0.5);
-			center.setObjectLocation(doctor, docPos);
-		}
 		doctor.initializeDoctor(capacity, numPatients, t, LEARNING_RATE);
+		
 		schedule.scheduleRepeating(schedule.EPOCH, 0, doctor);
 		// initialize and add patients
+		d = 1; // all patients get one disease
 		for (int i = 0; i < numPatients; i++) {
 			Patient patient = new Patient();
-			if(i < numPatients/3) {d = nDiseases[0];} 
-			else if (i < 2*numPatients/3) {d = nDiseases[1];}
-			else {d = nDiseases[2];}
 			patient.initializePatient(d, weeks, i, this);
 			patients.add(patient);
-			allocationRule(patient.getReceivedCare(), patient.getd(), i);
-			//schedule.scheduleOnce(schedule.EPOCH, 1, patient);
-			if(visual) { // add this patient for visualization:
-				//visualPatients.addNode(patient);
-				visualPatients.addEdge(doctor,patient, 1);
-			}
-		}
-		updatePositions(0);
-		
-		  if (visual) 		// anonymus agent that actualizes network positions
-		  {schedule.scheduleRepeating(schedule.EPOCH, 0, new Steppable()
-		  {public void step(SimState state) {updatePositions((int)state.schedule.getSteps());}});}
-	
-	  
-	}
-	
-
-	
-	public void allocationRule(int[] C_i, int d, int id) {
-		// The schedule priorities are like this:
-		// 0 for the doctor to reopen their agendas
-		// 1,..,6 for the priorities of patients
-		int priority = 6;
-		int visit_counter = 0;
-		if(random.nextDouble() < SEVERITY_ALLOCATION) {
-			priority = priority-d+1; //d 1 doents get promoted, 2 gets one, 3 gets 2 promotions
-		}
-		if(random.nextDouble() < CONTINUITY_ALLOCATION) {
-			
-			for (int i =0; i < weeks+1; i++) {
-				visit_counter = visit_counter + C_i[i];
-			}
-			if(visit_counter > 0) {
-				priority = priority - 1;
-			}
-		}
-		
-		schedule.scheduleOnce((Patient)patients.objs[id],priority);
-		//System.out.println("Patient d = "+d+" counter = "+ visit_counter+" priority "+priority);
-	}
-	
-
-	public void updatePositions(int week) {
-		int diameter = 7;
-		double doctorMargin = 0.1;
-		//double movement = 10;
-		for(int i = 0; i < numPatients; i++) {
-			Patient patient = (Patient) (patients.objs[i]);
-			double angle = (2*Math.PI)/numPatients * patient.id;
-			double distanceFromDoctor = doctorMargin+(5-patient.getExpectativas())*diameter;
-
-			//double distanceFromDoctor = Math.max(doctorMargin, (diameter - patient.getcurrentMot())*diameter);
-			//double distanceFromDoctor = (diameter - patient.getexpectation()[week]+doctorMargin)*movement;
-			Double2D newposition = new Double2D(
-					center.getWidth() * 0.5 + Math.cos(angle) * distanceFromDoctor,
-	        		center.getHeight() * 0.5 + Math.sin(angle)* distanceFromDoctor);
-			center.setObjectLocation(patient, newposition);
-			//System.out.println(newposition);
-		}	
+			schedule.scheduleRepeating(schedule.EPOCH,1,patient);
+		}	  
 	}
 	
 	
@@ -161,13 +80,7 @@ public class Care extends SimState {
 	public void setLEARNING_RATE(double val) {LEARNING_RATE = val;}
 	public void setSUBJECTIVE_INITIATIVE(double val) {SUBJECTIVE_INITIATIVE = val;}
 	public void setEXP_POS(double val) {EXP_POS = val;}
-	public void setEXP_NEG(double val) {EXP_NEG = val;}
-	public void setnDiseases(int[] n) {
-		nDiseases[0] = n[0];
-		nDiseases[1] = n[1];
-		nDiseases[2] = n[2];
-		}
-	
+	public void setEXP_NEG(double val) {EXP_NEG = val;}	
 
 	public int 	  getCapacity() {return capacity;}
 	public int 	  getNumPatients() {return numPatients;}
@@ -180,7 +93,6 @@ public class Care extends SimState {
 	public double getSUBJECTIVE_INITIATIVE() {return SUBJECTIVE_INITIATIVE;}
 	public double getEXP_POS() {return EXP_POS;}
 	public double getEXP_NEG() {return EXP_NEG;} 
-	public int[] getnDiseases() {return nDiseases;}
 	
 	public HashMap getParams() {
 		HashMap<String, String> params = new HashMap();
