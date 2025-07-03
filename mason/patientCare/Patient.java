@@ -3,44 +3,65 @@ package patientCare;
 import sim.engine.*;
 
 public class Patient implements Steppable {
-
-	//Internals to agent:
-	protected int[][] c; // received care
-	protected int delta; // risk stratification {1, 2, 3}
-	protected double[] h; // health status [0,+]
-	protected double[] d;
-	protected double[][] e; // expectation of outcomes for next appointment
-	protected double[] t; //treatment effect
-	protected int[][] b;
-	protected int id;
-	protected double currentMot;
-	private float progressProbability;
-	protected int totalProgress = 0; // The total number of needs during the simulation including initialization
-	protected int capN;
-	protected int capE;
 	
-	protected int current_week; //is the step + 1
-		
+	
+	//State variables for the patient agent
+	double h_i;
+	double h_i_1;
+	double t_i;
+	double t_i_1;
+	double n_i;
+	double[] e_i;
+	double[] e_i_1;
+	int[] c_i;
+	int[] c_i_1;
+	int[] b_i;
+	int[] b_i_1;
+	
+	//Control variables for the patient agent (parameters)
+	double delta;
+	double progressProbability;
+	double capN;
+	double rho;
+	double eta;
+	double capE;
+	double psi;
+	double iota;
+	
+	//internals
+	Care care;
+	int id;
+	double[] interaction;
+	Boolean interact;
+	myUtil ut = new myUtil();
+	
+	
 	public void step(SimState state) {
-		Care care = (Care) state;
-		current_week = (int)care.schedule.getSteps() + 1;
-
+		care = (Care) state;
+		interact = false;
+		
 		//disease progression
 		diseaseEvolution(care);
 		
-		//internal agent events
+		//compute agents mechanisms
+		healthNeedPerception();
 		expectationFormation(care);
 		behaviouralRule(care);
+
+		//eventually interact:
+		int w = -1;
+		for(int b_w = 0; b_w < care.W; b_w++) { //see if there is any b_w == 0
+			if(b_i[b_w] == 1) {
+				w = b_w;
+				interact = true;
+				break;}}
+		 
+		if(interact) {
+			interaction = care.appointer.appoint(w, id, h_i);
+			c_i[(int)interaction[0]] = 1;
+			t_i = interaction[1];}
 		
-		//agent action
-		if(B[current_week] == 1 & care.doctor.isAvailable()) { 
-			care.totalInteractions = care.totalInteractions +1;
-				C[current_week] = 1;
-				T[current_week] = care.doctor.interactWithPatient(id, H[current_week]);
-			} else {
-				C[current_week] = 0;
-				T[current_week] = 0;
-				}
+		stepForwardStateVariables();
 		} 
 
 	
@@ -49,133 +70,62 @@ public class Patient implements Steppable {
 		int Bernoulli = 0;
 		if(care.random.nextBoolean(progressProbability)) {
 			Bernoulli = 1;
-			totalProgress = totalProgress + 1;
 		}
-		h[current_week] = h[current_week-1] - t[current_week-1] + Bernoulli ;
-
+		h_i = h_i_1 - t_i_1 + Bernoulli ;
+		h_i = Math.max(h_i, 0); // health status can't be negative
 	}
 
-	protected void healthNeedPerception(Care care) {
-		d[current_week] = Math.max(Math.min(h[current_week], capN), 0);
+	protected void healthNeedPerception() {
+		n_i = Math.max(Math.min(h_i, capN), 0);
 	}
 	
 	protected void expectationFormation(Care care) {
-		//forms the expectation for the next consultation based on previous experience
-		
+		//forms expectations for each provider based on previous experience
 		for(int w = 0; w < care.W; w++) {
-			// CASE 1 got the visit with doctor w
-			if(b[w][current_week-1] == 1 & c[w][current_week-1] == 1) {
-				e[w][current_week] = e[w][current_week-1]+ care.rho;
-			}
-			// CASE 2 didn't get the visit with doctor w
-			if(b[w][current_week-1] == 1 & c[w][current_week-1] == 0) {
-				e[w][current_week] = e[w][current_week-1] - care.eta;
-			}
-			// CASE 3. didn't ask for a visit
-			if(b[w][current_week-1] == 0) {
-				e[w][current_week] = e[w][current_week-1];
+			// CASE 1 got the visit with provider w
+			if(c_i_1[w] == 1) {
+				e_i[w] = e_i_1[w]+ rho;
+			} else
+			// CASE 2 didn't get the visit with provider but wanted provider w
+			if(b_i_1[w] == 1 & c_i_1[w] == 0) {
+				e_i[w] = e_i_1[w] - eta;
+			} else
+			// CASE 3. didn't ask for a visit with provider w
+			if(b_i_1[w] == 0) {
+				e_i[w] = e_i_1[w];
 			}
 			//limit expecations
-			if(e[w][current_week] >5) {e[w][current_week] = capE;}
-			if(e[w][current_week] <= 0) {e[w][current_week] = 0;}
+			if(e_i[w] >5) {e_i[w] = capE;}
+			if(e_i[w] <= 0) {e_i[w] = 0;}
 		}
-
 	}
 	
 	protected void behaviouralRule(Care care) {
 	// sets the value of B[current_week] to determine next week seek behaviour
 		// Find the provider with highest expectation
-		double[] expectationsPerProvider = new double[care.W]; // array with all privider's expectations
-		for (int w=0;w<care.W;w++) {
-			expectationsPerProvider[w] = e[w][current_week];
-		}
-		int[] randomAccess = new int[care.W]; // to break ties with some randomness if there are
-		randomAccess = randomArray(care);
-		
+		int[] randomAccess = ut.accessArray(care.W, care.random.nextInt(care.W));
 		int wMaxExpectation = randomAccess[0];
 		for(int i = 1; i < care.W;i++) {
-			if(expectationsPerProvider[randomAccess[i]] > expectationsPerProvider[wMaxExpectation]) {
+			if(e_i[randomAccess[i]] > e_i[wMaxExpectation]) {
 				wMaxExpectation = randomAccess[i];
-			}
-		}
-		
-
-	currentMot = (care.SUBJECTIVE_INITIATIVE*(e[wMaxExpectation][current_week]) + (1-care.SUBJECTIVE_INITIATIVE)*h[current_week])*0.2;// very careful, the multiplier here is 0.2, and not 0.1, because there is a 1/2 factor inside!
-
+			}}
+	double currentMot;
+	currentMot = (psi*e_i[wMaxExpectation] + (1-psi)*n_i)*iota;
 		if(care.random.nextDouble() < currentMot) {
-			b[wMaxExpectation][current_week] = 1;
-		} 	
+			b_i[wMaxExpectation] = 1;} 
 	}
 	
-	public void initializePatient(int n_diseases, int weeks, int i, Care care) {
-		h = new double[weeks+1];
-		d = new double[weeks+1];
-		t = new double[weeks+1];
-		c = new int[care.W][weeks+1];
-		b = new int[care.W][weeks+1];
-		e = new double[care.W][i];
-
-		delta = n_diseases;
-		h[0] = 0;
-		
-		for(int w = 0; w<care.W; w++) {
-			e[w][0] = 2.5;
-		}
-		
-		id = i;
-		capN = 5;
-		capE=5;
-		progressProbability = (float)Math.min(1, (d * care.DISEASE_SEVERITY/weeks));
-	}
 	
-
-	public int[] getReceivedCare() {return C;}
-	public int getd(){ return d;}
-	public int gettotalProgress() { return totalProgress;}
-	public double[] getH() {return H;}
-	public double[] getexpectation() {return expectation;}
-	public double[] getT() {return T;}
-	public int[] getB() {return B;}
-	public int getTotalCare() {
-		int total = 0;
-		for(int i =0; i < C.length ; i++) {
-			total = total + C[i];
-		}
-		return total;
-	}
-	public double getExpectativas() {
-		return expectation[current_week];
-	}
-	public double getNecesidades() {
-		return H[current_week];
-	}
-	public double getBusquedaCuidado() {
-		double total = 0;
-		for(int i=0; i < B.length; i++) {
-			total = total + B[i];
-		}
-		return total;
-	}
-	public void testTreatmentMec(){
-		H[current_week] = id;
-		//System.out.println(id);
-	}
-	public float getprogressProbability() {
-		return progressProbability;
-	}
-	
-	protected int[] randomArray(Care care) {
-	int[] randomAccessArray = new int[care.W]; // to break ties at random
-	int index = care.random.nextInt(care.W);
-	//int index = 0;
-	int counter = 0;
-	while (counter < care.W) {
-		randomAccessArray[index] = counter;
-		index += 1;
-		counter += 1;
-		if (index == care.W) {index = 0;}
-	}
-	return(randomAccessArray);
-	}
-	
+	public void stepForwardStateVariables(){
+		h_i_1 = h_i;
+			h_i = 0;
+		t_i_1 = t_i;
+			t_i = 0;
+		e_i_1 = e_i;
+			for(int i = 0; i< e_i.length;i++) {e_i[i]=0;}
+		c_i_1 = c_i;
+			for(int i = 0; i< c_i.length;i++) {c_i[i]=0;}
+		b_i_1 = b_i;
+			for(int i = 0; i< b_i.length;i++) {b_i[i]=0;}
+	}	
 }

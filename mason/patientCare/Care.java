@@ -16,6 +16,8 @@ public class Care extends SimState {
 	public int numPatients = 100;
 	public int weeks = 150; //time-steps
 	public int W = 1;
+	public double maxDelta = 5;
+	//enforce delta can't be > weeks, because progressprobability > 1
 	
 	// PARAMS:
 	public double SEVERITY_ALLOCATION = 0;
@@ -28,12 +30,13 @@ public class Care extends SimState {
 	public double t = 5; // max treatment effectivennes
 	
 	// internals
-	public Doctor doctor;
+	public Provider provider;
 	public Bag doctors = new Bag(W);
 	public Bag patients = new Bag(numPatients);
-	public int totalInteractions = 0;
 	public int totalTreatment = 0;
 	private int d;
+	
+	public Appointer appointer;
 	
 	public Care(long seed) {
 		super(seed);
@@ -47,7 +50,8 @@ public class Care extends SimState {
 
 	public void start() {
 		super.start();
-        
+		
+		appointer = new Appointer(this);
         patients.clear();
 		
 		// initialize and add Doctor
@@ -79,8 +83,8 @@ public class Care extends SimState {
 	public void setDISEASE_SEVERITY(double val) {DISEASE_SEVERITY = val;}
 	public void setLEARNING_RATE(double val) {LEARNING_RATE = val;}
 	public void setSUBJECTIVE_INITIATIVE(double val) {SUBJECTIVE_INITIATIVE = val;}
-	public void setEXP_POS(double val) {EXP_POS = val;}
-	public void setEXP_NEG(double val) {EXP_NEG = val;}	
+	public void setEXP_POS(double val) {rho = val;}
+	public void setEXP_NEG(double val) {eta = val;}	
 
 	public int 	  getCapacity() {return capacity;}
 	public int 	  getNumPatients() {return numPatients;}
@@ -91,8 +95,8 @@ public class Care extends SimState {
 	public double getDISEASE_SEVERITY() {return DISEASE_SEVERITY;}
 	public double getLEARNING_RATE() {return LEARNING_RATE;}
 	public double getSUBJECTIVE_INITIATIVE() {return SUBJECTIVE_INITIATIVE;}
-	public double getEXP_POS() {return EXP_POS;}
-	public double getEXP_NEG() {return EXP_NEG;} 
+	public double getEXP_POS() {return rho;}
+	public double getEXP_NEG() {return eta;} 
 	
 	public HashMap getParams() {
 		HashMap<String, String> params = new HashMap();
