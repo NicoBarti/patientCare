@@ -4,50 +4,43 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 
 public class Provider implements Steppable {
-	private int A;
-	private int Capacity;
-	private int[] visitCounter; //an index of patients and number of consultations
-	double T;
-	double t; //max treatment
-	double LEARNING_RATE;
-	//private double policy;
+	
+	// state variable
+	public int[][] C;
+	
+	// control variables
+	public int alpha;
+	public double lambda;
+	public double tau;
+	public int capacity;
+	
+	//internals
+	private int thisweek;
+	private int Ccounter;
+
 
 	@Override
 	public void step(SimState state) {
-		openAgenda();
+		thisweek = (int)state.schedule.getSteps();
+		alpha = capacity; //open agenda
 	}
 
-	public void openAgenda() {
-		A = Capacity;
-	}
-	
-
-	public double interactWithPatient(int id, double needs) {
-		visitCounter[id] += 1;
-		T = prescribeTreatment(visitCounter[id], needs);
-		A = A - 1; 
-		return(T);
-	}
-	
-
-	public double prescribeTreatment(int n_visits, double needs) {
-		if(needs == 0) {
+	public double interactWithPatient(int id, double h) {
+		C[id][thisweek] = 1;
+		alpha = alpha-1;
+		if(h == 0) { //this should never happen, patient's don't ask for visit when h ==0. Only here to be consistent with docs.
 			return(0);
 		}
-		double treatment = Math.min(Math.min(LEARNING_RATE * n_visits/needs,t), needs);
-		return(treatment);
-	}
-	
-	public void initializeDoctor(int capacity, int nPatients, double tto, double RATE) {
-		Capacity = capacity;
-		visitCounter = new int[nPatients];
-		t = tto;
-		LEARNING_RATE = RATE;
+		Ccounter = 0;
+		for(int i=0; i<C[id].length; i++) {
+			Ccounter += C[id][i]; }
+		return(Math.min(Math.min(lambda * Ccounter/h,tau), h));
 	}
 	
 	public boolean isAvailable() {		
-		if(A > 0) {return(true);
+		if(alpha > 0) {return(true);
 		} else {return(false);}
 	}
-		
+	
+			
 }

@@ -27,13 +27,15 @@ public class Patient implements Steppable {
 	double capE;
 	double psi;
 	double iota;
+	double kappa;
 	
 	//internals
 	Care care;
-	int id;
-	double[] interaction;
-	Boolean interact;
+	private int id;
+	private double[] interaction;
+	private Boolean interact;
 	myUtil ut = new myUtil();
+	private double e_fluctuation;
 	
 	
 	public void step(SimState state) {
@@ -81,19 +83,23 @@ public class Patient implements Steppable {
 	
 	protected void expectationFormation(Care care) {
 		//forms expectations for each provider based on previous experience
+		// fluctuation
 		for(int w = 0; w < care.W; w++) {
+			e_fluctuation = care.random.nextGaussian()*(rho + eta)*kappa;
 			// CASE 1 got the visit with provider w
 			if(c_i_1[w] == 1) {
-				e_i[w] = e_i_1[w]+ rho;
+				e_i[w] = e_i_1[w]+ rho + e_fluctuation;
 			} else
 			// CASE 2 didn't get the visit with provider but wanted provider w
 			if(b_i_1[w] == 1 & c_i_1[w] == 0) {
-				e_i[w] = e_i_1[w] - eta;
+				e_i[w] = e_i_1[w] - eta + e_fluctuation;
 			} else
 			// CASE 3. didn't ask for a visit with provider w
 			if(b_i_1[w] == 0) {
-				e_i[w] = e_i_1[w];
+				e_i[w] = e_i_1[w] + e_fluctuation;
+				
 			}
+			
 			//limit expecations
 			if(e_i[w] >5) {e_i[w] = capE;}
 			if(e_i[w] <= 0) {e_i[w] = 0;}
@@ -110,10 +116,12 @@ public class Patient implements Steppable {
 				wMaxExpectation = randomAccess[i];
 			}}
 	double currentMot;
-	currentMot = (psi*e_i[wMaxExpectation] + (1-psi)*n_i)*iota;
+	if(e_i[wMaxExpectation] != 0 & n_i != 0) {
+		b_i[wMaxExpectation] = 0;
+		currentMot = (psi*e_i[wMaxExpectation] + (1-psi)*n_i)*iota;
 		if(care.random.nextDouble() < currentMot) {
 			b_i[wMaxExpectation] = 1;} 
-	}
+	}}
 	
 	
 	public void stepForwardStateVariables(){

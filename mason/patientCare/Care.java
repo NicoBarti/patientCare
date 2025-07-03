@@ -13,21 +13,21 @@ import sim.field.network.*;
 public class Care extends SimState {
 	//system's constrains
 	public int capacity = 10;
-	public int numPatients = 100;
+	public int N = 100;
 	public int weeks = 150; //time-steps
 	public int W = 1;
 	public double maxDelta = 5;
 	//enforce delta can't be > weeks, because progressprobability > 1
 	
 	// PARAMS:
-	public double SEVERITY_ALLOCATION = 0;
+	public double delta = 0;
 	public double CONTINUITY_ALLOCATION = 0;
 	public double rho = 1;
 	public double eta = 1;
 	public double DISEASE_SEVERITY = 1;
-	public double LEARNING_RATE = 1;
+	public double lambda = 1;
 	public double SUBJECTIVE_INITIATIVE = 0.5;
-	public double t = 5; // max treatment effectivennes
+	public double tau = 5; // max treatment effectivennes
 	
 	// internals
 	public Provider provider;

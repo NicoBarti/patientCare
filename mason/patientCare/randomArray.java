@@ -49,13 +49,28 @@ public class randomArray extends SimState{
 
 		System.out.println("Trying 2 D array");
 		//three providers in two timesteps
-		int[][] doble = new int[][] {{0,1,0},{1,0,0},{0,0,1}};
+		int[][] doble = new int[][] {{0,1,1},{1,0,0},{0,0,1},{1}};
 		System.out.println("Trying 2 D array");
 		System.out.println("w0,t0 "+doble[0][0]);
 		System.out.println("w0,t1 "+doble[0][1]);
 		System.out.println("w0,t2 "+doble[0][2]);
 		System.out.println("w2,t2 "+doble[2][2]);
 		System.out.println("w1,t0 "+doble[1][0]);
+		System.out.println("lenght_outer "+doble.length);
+		System.out.println("lenght_inner "+doble[0].length);
+		int counter =0;
+		for (int i=0;i<doble[0].length;i++) {
+			counter += doble[0][i];
+		}
+		System.out.println("counter "+counter);
+
+		
+		System.out.println("Trying combined condition");
+		int r = 3;
+		int g = 1;
+		if(r  != 2 & g != 1) {
+			System.out.println("True ");
+		} else {System.out.println("False ");}
 	}
 	
 	public int[] randomArray(int len) {

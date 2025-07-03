@@ -19,6 +19,7 @@ public class PatientInitializer {
 		psi(patient);
 		iota(patient); //iota depends on the caps
 		progressProbability(patient); //progressProbability depends on delta
+		kappa(patient);
 
 		//initialize state variables
 		h(patient);
@@ -37,7 +38,7 @@ public class PatientInitializer {
 	
 	public void t(Patient patient) {
 		switch(strategy) {
-		case "random": patient.t_i_1 = care.random.nextDouble()*care.t;
+		case "random": patient.t_i_1 = care.random.nextDouble()*care.tau;
 			break;
 		default: patient.t_i_1 = 0;
 		}}
@@ -135,5 +136,14 @@ public class PatientInitializer {
 	public void iota(Patient patient) {
 		patient.iota = 1/(patient.capN + patient.psi*(patient.capE - patient.capN));
 		
+	}
+	
+	public void kappa(Patient patient) {
+		switch(strategy) {
+		case "random": 
+			patient.kappa = care.random.nextDouble()*3;
+			break;
+		default: 
+			patient.kappa = .01;}
 	}
 }
