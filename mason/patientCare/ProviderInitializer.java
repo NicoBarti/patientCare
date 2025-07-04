@@ -11,11 +11,14 @@ public class ProviderInitializer {
 	}
 
 	public void initialize(Provider provider) {
+		C_w(provider);
+		alpha_w(provider);
+		lambda_w(provider);
 		
 	}
 	
-	public void C(Provider provider) {
-		provider.C = new int[care.N][care.weeks];
+	public void C_w(Provider provider) {
+		provider.C_w = new int[care.N][care.varsigma];
 		switch(strategy) {
 		case "random": //pending
 			break;
@@ -23,30 +26,30 @@ public class ProviderInitializer {
 		}
 	}
 	
-	public void alpha(Provider provider) {
+	public void alpha_w(Provider provider) {
 		switch(strategy) {
 		case "random": 
-			provider.alpha = care.random.nextInt(care.capacity);
+			provider.alpha_w = care.random.nextInt(care.N);
 			break;
 		default:
-			provider.alpha = care.capacity;
+			provider.alpha_w = 10;
 		}
 	}
-	public void lambda(Provider provider) {
+	public void lambda_w(Provider provider) {
 		switch(strategy) {
 		case "random": 
-			provider.lambda = care.random.nextDouble()*10;
+			provider.lambda_w = care.random.nextDouble()*10;
 			break;
 		default:
-			provider.lambda = care.lambda;}
+			provider.lambda_w = 0.5;}
 	}
 	
-	public void tau(Provider provider) {
+	public void tau_w(Provider provider) {
 		switch(strategy) {
 		case "random": 
-			provider.tau = care.random.nextDouble()*10;
+			provider.tau_w = care.random.nextDouble()*10;
 			break;
 		default:
-			provider.tau = care.tau;}
+			provider.tau_w = 2;}
 	}
 }

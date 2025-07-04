@@ -6,13 +6,13 @@ import sim.engine.Steppable;
 public class Provider implements Steppable {
 	
 	// state variable
-	public int[][] C;
+	public int[][] C_w;
+	public int alpha_w;
 	
 	// control variables
-	public int alpha;
-	public double lambda;
-	public double tau;
-	public int capacity;
+	public double lambda_w;
+	public double tau_w;
+	public int A_w;
 	
 	//internals
 	private int thisweek;
@@ -22,23 +22,23 @@ public class Provider implements Steppable {
 	@Override
 	public void step(SimState state) {
 		thisweek = (int)state.schedule.getSteps();
-		alpha = capacity; //open agenda
+		alpha_w = A_w; //open agenda
 	}
 
 	public double interactWithPatient(int id, double h) {
-		C[id][thisweek] = 1;
-		alpha = alpha-1;
+		C_w[id][thisweek] = 1;
+		alpha_w = alpha_w-1;
 		if(h == 0) { //this should never happen, patient's don't ask for visit when h ==0. Only here to be consistent with docs.
 			return(0);
 		}
 		Ccounter = 0;
-		for(int i=0; i<C[id].length; i++) {
-			Ccounter += C[id][i]; }
-		return(Math.min(Math.min(lambda * Ccounter/h,tau), h));
+		for(int i=0; i<C_w[id].length; i++) {
+			Ccounter += C_w[id][i]; }
+		return(Math.min(Math.min(lambda_w * Ccounter/h,tau_w), h));
 	}
 	
 	public boolean isAvailable() {		
-		if(alpha > 0) {return(true);
+		if(alpha_w > 0) {return(true);
 		} else {return(false);}
 	}
 	

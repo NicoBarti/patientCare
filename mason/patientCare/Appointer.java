@@ -5,9 +5,10 @@ import sim.util.*;
 public class Appointer {
 	Bag providers;
 	Care care;
+	myUtil ut = new myUtil();
 	
 	public Appointer(Care c) {
-		providers = care.doctors;
+		providers = c.providers;
 		care = c;
 	}
 
@@ -15,8 +16,7 @@ public class Appointer {
 		//w: desired provided
 		//id: patient identifier
 		// returns: provider index if available, or -1 if no provider available; treatment: 
-		//result: [w,t]
-		double[] result = new double[] {-1, 0}; // default result
+		double[] result = new double[] {-1, 0}; // default result [w,t]
 		
 		if(((Provider)(providers.objs[w])).isAvailable()) {
 			result[0] = w;
@@ -24,10 +24,9 @@ public class Appointer {
 		}
 		
 		else {
-			//int[] accessArray = randomArray(care); // avoid w+1 receiving all the overflow from w
-			myUtil ut = new myUtil();
+			// avoid w+1 receiving all the overflow from w
 			int[] accessArray = ut.accessArray(care.W, care.random.nextInt(care.W));
-			for(int rw=0; rw< accessArray.length; rw++) { 
+			for(int rw=0; rw< accessArray.length; rw++) { //try assignment with the order in accessArray
 				if(((Provider)(providers.objs[accessArray[rw]])).isAvailable()) {
 					result[0] = accessArray[rw];
 					result[1]=((Provider)(providers.objs[accessArray[rw]])).interactWithPatient(id, d);

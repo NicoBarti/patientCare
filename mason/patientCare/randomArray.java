@@ -71,6 +71,9 @@ public class randomArray extends SimState{
 		if(r  != 2 & g != 1) {
 			System.out.println("True ");
 		} else {System.out.println("False ");}
+		float one = 2;
+		System.out.println("Converting 1 to float"+ one);
+
 	}
 	
 	public int[] randomArray(int len) {

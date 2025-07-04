@@ -11,15 +11,15 @@ public class PatientInitializer {
 
 	public void initialize(Patient patient) {
 		//initialize control variables first
-		delta(patient);
-		capN(patient);
-		capE(patient);
-		rho(patient);
-		eta(patient);
-		psi(patient);
-		iota(patient); //iota depends on the caps
-		progressProbability(patient); //progressProbability depends on delta
-		kappa(patient);
+		delta_p(patient);
+		capN_p(patient);
+		capE_p(patient);
+		rho_p(patient);
+		eta_p(patient);
+		psi_p(patient);
+		iota_p(patient); //iota_p depends on the caps
+		progressProbability(patient); //progressProbability depends on delta_p
+		kappa_p(patient);
 
 		//initialize state variables
 		h(patient);
@@ -31,119 +31,120 @@ public class PatientInitializer {
 	
 	public void h(Patient patient) {
 		switch(strategy) {
-		case "random": patient.h_i_1 = care.random.nextDouble()*patient.capN;
+		case "random": patient.h_p_i_1 = care.random.nextDouble()*patient.capN_p;
 			break;
-		default: patient.h_i_1 = 0;
+		default: patient.h_p_i_1 = 0;
 		}}
 	
 	public void t(Patient patient) {
 		switch(strategy) {
-		case "random": patient.t_i_1 = care.random.nextDouble()*care.tau;
-			break;
-		default: patient.t_i_1 = 0;
+		default: patient.t_p_i_1 = 0;
 		}}
 	
 	public void e(Patient patient) {
-		patient.e_i_1 = new double[care.W];
+		patient.e_p_i_1 = new double[care.W];
+		patient.e_p_i = new double[care.W];
 		switch(strategy) {
 		case "random": 
-			for(int i=0;i<patient.e_i_1.length;i++) {
-				patient.e_i_1[i] = care.random.nextDouble()*patient.capE;
+			for(int i=0;i<patient.e_p_i_1.length;i++) {
+				patient.e_p_i_1[i] = care.random.nextDouble()*patient.capE_p;
 			}
 			break;
 		default: 
-			for(int i=0;i<patient.e_i_1.length;i++) {
-				patient.e_i_1[i] = patient.capE/2;
+			for(int i=0;i<patient.e_p_i_1.length;i++) {
+				patient.e_p_i_1[i] = patient.capE_p/2;
 			}
 		}}
 	
 	public void c(Patient patient) {
-		patient.c_i_1 = new int[care.W];
+		patient.c_p_i_1 = new int[care.W];
+		patient.c_p_i = new int[care.W];
 		switch(strategy) {
 		case "random": 
-			patient.c_i_1[care.random.nextInt(care.W)] = 1;
+			patient.c_p_i_1[care.random.nextInt(care.W)] = 1;
 			break;
 		default: // all 0s 
 		}}
 	
 	public void b(Patient patient) {
-		patient.b_i_1 = new int[care.W];
+		patient.b_p_i_1 = new int[care.W];
+		patient.b_p_i = new int[care.W];
 		switch(strategy) {
 		case "random": 
-			patient.b_i_1[care.random.nextInt(care.W)] = 1;
+			patient.b_p_i_1[care.random.nextInt(care.W)] = 1;
 			break;
 		default: // all 0s 
 		}}
 
-	public void delta(Patient patient) {
+	public void delta_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.delta = care.random.nextDouble()*care.maxDelta;
+			patient.delta_p = care.random.nextDouble()*10;
 			break;
 		default: 
-			patient.delta = 1;}
+			patient.delta_p = 1;}
 	}
 	
 	public void progressProbability(Patient patient) {
-			patient.progressProbability = (float)patient.delta/care.weeks;
+			patient.progressProbability = (float)patient.delta_p/care.varsigma;
 	}
 
-	public void capN(Patient patient) {
+	public void capN_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.capN = care.random.nextDouble()*care.maxDelta;
+			patient.capN_p = care.random.nextDouble()*10;
 			break;
 		default: 
-			patient.capN = 5;}
+			patient.capN_p = 5;}
 	}
 	
-	public void rho(Patient patient) {
+	public void rho_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.rho = care.random.nextDouble();
+			patient.rho_p = care.random.nextDouble();
 			break;
 		default: 
-			patient.rho = .5;}
+			patient.rho_p = .5;}
 	}
 	
-	public void eta(Patient patient) {
+	public void eta_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.eta = care.random.nextDouble();
+			patient.eta_p = care.random.nextDouble();
 			break;
 		default: 
-			patient.eta = .5;}
+			patient.eta_p = .5;}
 	}
 	
-	public void capE(Patient patient) {
+	public void capE_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.capE = care.random.nextDouble()*care.maxDelta;
+			patient.capE_p = care.random.nextDouble()*10;
 			break;
 		default: 
-			patient.capE = 5;}
+			patient.capE_p = 5;}
 	}
 	
-	public void psi(Patient patient) {
+	public void psi_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.psi = care.random.nextDouble();
+			patient.psi_p = care.random.nextDouble();
 			break;
 		default: 
-			patient.psi = .5;}
+			patient.psi_p = .5;}
 	}
 	
-	public void iota(Patient patient) {
-		patient.iota = 1/(patient.capN + patient.psi*(patient.capE - patient.capN));
+	public void iota_p(Patient patient) {
+		patient.iota_p = 1/(patient.capN_p + patient.psi_p*(patient.capE_p - patient.capN_p));
 		
 	}
 	
-	public void kappa(Patient patient) {
+	public void kappa_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.kappa = care.random.nextDouble()*3;
+			patient.kappa_p = care.random.nextDouble()*3;
 			break;
 		default: 
-			patient.kappa = .01;}
+			patient.kappa_p = .01;}
 	}
 }
