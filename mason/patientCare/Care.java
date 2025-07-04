@@ -27,6 +27,7 @@ public class Care extends SimState {
 	Provider provider;
 	ProviderInitializer prov_init;
 	PatientInitializer pat_init;
+	PatientObserver patientObserver;
 	
 	public Care(long seed) {
 		super(seed);
@@ -44,6 +45,7 @@ public class Care extends SimState {
 		prioritize = new Prioritizator(this, Pi);
 		prov_init = new ProviderInitializer(this, PROVIDER_INIT);
 		pat_init = new PatientInitializer(this, PATIENT_INIT);
+		patientObserver = new PatientObserver(this);
 		
 		providers = new Bag(W);
 		patients = new Bag(N);
@@ -59,6 +61,7 @@ public class Care extends SimState {
 		// create and initialize patients
 		for (int i = 0; i < N; i++) {
 			patient = new Patient();
+			patient.p = i;
 			pat_init.initialize(patient);
 			patients.add(patient);
 			schedule.scheduleOnce(schedule.EPOCH, prioritize.hat_o(patient), patient); 

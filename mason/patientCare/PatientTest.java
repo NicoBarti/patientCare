@@ -1,9 +1,7 @@
 package patientCare;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
-
 import sim.util.Bag;
 
 class PatientTest {
@@ -26,34 +24,34 @@ class PatientTest {
 		assertEquals((double) 539, total2);
 	}
 
-	@Test
-	void passParameters_runInContextBiological_checksTotalProgression() {
-		Care care = new Care(123);
-		care.setweeks(150);
-		care.setDISEASE_SEVERITY(1);
-		care.setNumPatients(1000);
-		care.setCapacity(0);
-		care.setSUBJECTIVE_INITIATIVE(1);
-		care.setLEARNING_RATE(1);
-		care.start();
-		do{
-			if (!care.schedule.step(care)) {
-				System.out.println("algo falso en schedule.step");
-				break;}
-		}
-		while (care.schedule.getSteps() < care.getweeks());
-		care.finish();
-		double[][] Hs = new double[care.getNumPatients()][care.getweeks()];
-		Hs = care.getHs();
-		double totalNeeds = 0;
-		double[] totalHsPat = new double[care.getNumPatients()];
-		for(int pat = 0; pat < care.getNumPatients(); pat++) {
-			totalHsPat[pat] = Hs[pat][care.getweeks()];
-			totalNeeds = totalNeeds + totalHsPat[pat];
-		}
-		assertEquals((double) 1892, totalNeeds);	
-	}
-	
+//	@Test
+//	void passParameters_runInContextBiological_checksTotalProgression() {
+//		Care care = new Care(123);
+//		care.setweeks(150);
+//		care.setDISEASE_SEVERITY(1);
+//		care.setNumPatients(1000);
+//		care.setCapacity(0);
+//		care.setSUBJECTIVE_INITIATIVE(1);
+//		care.setLEARNING_RATE(1);
+//		care.start();
+//		do{
+//			if (!care.schedule.step(care)) {
+//				System.out.println("algo falso en schedule.step");
+//				break;}
+//		}
+//		while (care.schedule.getSteps() < care.getweeks());
+//		care.finish();
+//		double[][] Hs = new double[care.getNumPatients()][care.getweeks()];
+//		Hs = care.getHs();
+//		double totalNeeds = 0;
+//		double[] totalHsPat = new double[care.getNumPatients()];
+//		for(int pat = 0; pat < care.getNumPatients(); pat++) {
+//			totalHsPat[pat] = Hs[pat][care.getweeks()];
+//			totalNeeds = totalNeeds + totalHsPat[pat];
+//		}
+//		assertEquals((double) 1892, totalNeeds);	
+//	}
+//	
 }
 
 

@@ -24,7 +24,7 @@ public class Patient implements Steppable {
 	
 	//internals
 	Care care;
-	private int p;
+	protected int p;
 	private double[] interaction;
 	private Boolean interact;
 	myUtil ut = new myUtil();
@@ -32,6 +32,7 @@ public class Patient implements Steppable {
 	double progressProbability;
 
 	public void step(SimState state) {
+		System.out.println(p);
 		care = (Care) state;
 		interact = false;
 		
