@@ -1,5 +1,7 @@
 package patientCare;
 
+import sim.util.Bag;
+
 public class ProviderInitializer {
 	Care care;
 	String strategy;
@@ -12,7 +14,7 @@ public class ProviderInitializer {
 
 	public void initialize(Provider provider) {
 		C_w(provider);
-		alpha_w(provider);
+		A_w(provider);
 		lambda_w(provider);
 		
 	}
@@ -26,13 +28,13 @@ public class ProviderInitializer {
 		}
 	}
 	
-	public void alpha_w(Provider provider) {
+	public void A_w(Provider provider) {
 		switch(strategy) {
 		case "random": 
-			provider.alpha_w = care.random.nextInt(care.N);
+			provider.A_w = care.random.nextInt(care.N);
 			break;
 		default:
-			provider.alpha_w = 10;
+			provider.A_w = 10;
 		}
 	}
 	public void lambda_w(Provider provider) {
@@ -51,5 +53,23 @@ public class ProviderInitializer {
 			break;
 		default:
 			provider.tau_w = 2;}
+	}
+	
+	public void settau(Bag providers, double value) {
+		for(int i=0;i<providers.numObjs;i++) {
+			((Provider)providers.objs[i]).tau_w = value;
+		}
+	}
+	
+	public void setlambda(Bag providers, double value) {
+		for(int i=0;i<providers.numObjs;i++) {
+			((Provider)providers.objs[i]).lambda_w = value;
+		}
+	}
+	
+	public void setalpha(Bag providers, int value) {
+		for(int i=0;i<providers.numObjs;i++) {
+			((Provider)providers.objs[i]).A_w = value;
+		}
 	}
 }

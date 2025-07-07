@@ -53,6 +53,7 @@ public class Care extends SimState {
 		// create and initialize providers
 		for(int i =0;i<W;i++) {
 			provider = new Provider();
+			provider.w = i;
 			prov_init.initialize(provider);
 			providers.add(provider);
 			schedule.scheduleRepeating(schedule.EPOCH,0,provider); //providers are stepped first thing at each step
@@ -71,8 +72,8 @@ public class Care extends SimState {
 		//this agent acts at the end of each state (order N+1)
 		schedule.scheduleRepeating(schedule.EPOCH, N+1, new Steppable(){ //copied
 				public void step(SimState state) { 
-					for(int i=0;i<N;i++) {
-						schedule.scheduleOnce(patient, prioritize.hat_o(patient));
+					for(int i=0;i<patients.numObjs;i++) {
+						schedule.scheduleOnce((Patient)(patients.objs[i]),prioritize.hat_o(patient));
 					}}
 				});
 		

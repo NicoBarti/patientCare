@@ -6,6 +6,7 @@ public class Appointer {
 	Bag providers;
 	Care care;
 	myUtil ut = new myUtil();
+	Provider wanted_provider;
 	
 	public Appointer(Care c) {
 		providers = c.providers;
@@ -18,13 +19,22 @@ public class Appointer {
 		// returns: provider index if available, or -1 if no provider available; treatment: 
 		double[] result = new double[] {-1, 0}; // default result [w,t]
 		
-		if(((Provider)(providers.objs[w])).isAvailable()) {
+		//localize desired provider
+		for(int i =0;i<providers.numObjs;i++) {
+			if(((Provider)providers.objs[i]).w == w) {
+				//System.out.println("Provider localized:" +w);
+				wanted_provider = (Provider)providers.objs[i];
+			}
+		}
+		//System.out.println("Provider available:" +wanted_provider.isAvailable());
+
+		if(wanted_provider.isAvailable()) {
 			result[0] = w;
 			result[1]=((Provider)(providers.objs[w])).interactWithPatient(id, d);
 		}
 		
 		else {
-			// avoid w+1 receiving all the overflow from w
+			// avoid w+1 receiving all the overflow from w // but this step might be unecesary because Bag is unordered
 			int[] accessArray = ut.accessArray(care.W, care.random.nextInt(care.W));
 			for(int rw=0; rw< accessArray.length; rw++) { //try assignment with the order in accessArray
 				if(((Provider)(providers.objs[accessArray[rw]])).isAvailable()) {

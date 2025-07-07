@@ -1,4 +1,6 @@
 package patientCare;
+import sim.util.*;
+
 
 public class PatientInitializer {
 	Care care;
@@ -24,7 +26,7 @@ public class PatientInitializer {
 		//initialize state variables
 		h(patient);
 		t(patient);
-		e(patient);
+		e(patient); //in some strategies depends on capE
 		c(patient);
 		b(patient);
 	}
@@ -142,9 +144,58 @@ public class PatientInitializer {
 	public void kappa_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.kappa_p = care.random.nextDouble()*3;
+			patient.kappa_p = (float)care.random.nextDouble()*3;
 			break;
 		default: 
-			patient.kappa_p = .01;}
+			patient.kappa_p = (float).01;}
 	}
+	
+	public void setdelta(Bag patients, double value) {
+		for(int i=0;i<patients.numObjs;i++) {
+			((Patient)patients.objs[i]).delta_p = value;
+			progressProbability((Patient)patients.objs[i]); //progressProbability depends on delta_p
+
+		}
+	}
+	
+	public void setpsi(Bag patients, double value) {
+		for(int i=0;i<patients.numObjs;i++) {
+			((Patient)patients.objs[i]).psi_p = value;
+		}
+	}
+	
+	public void setcapN(Bag patients, double value) {
+		for(int i=0;i<patients.numObjs;i++) {
+			((Patient)patients.objs[i]).capN_p = value;
+			iota_p((Patient)patients.objs[i]); //iota_p depends on the caps
+
+		}
+	}
+	
+	public void setcapE(Bag patients, double value) {
+		for(int i=0;i<patients.numObjs;i++) {
+			((Patient)patients.objs[i]).capE_p = value;
+			iota_p((Patient)patients.objs[i]); //iota_p depends on the caps
+
+		}
+	}
+	
+	public void setrho(Bag patients, double value) {
+		for(int i=0;i<patients.numObjs;i++) {
+			((Patient)patients.objs[i]).rho_p = value;
+		}
+	}
+	
+	public void seteta(Bag patients, double value) {
+		for(int i=0;i<patients.numObjs;i++) {
+			((Patient)patients.objs[i]).eta_p = value;
+		}
+	}
+	
+	public void setkappa(Bag patients, float value) {
+		for(int i=0;i<patients.numObjs;i++) {
+			((Patient)patients.objs[i]).kappa_p = value;
+		}
+	}
+	
 }

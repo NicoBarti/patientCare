@@ -17,6 +17,7 @@ public class Provider implements Steppable {
 	//internals
 	private int thisweek;
 	private int Ccounter;
+	protected int w;
 
 
 	@Override
