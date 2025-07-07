@@ -19,6 +19,7 @@ public class Care extends SimState {
 
 	
 	// internals
+	public int obsSteps = 50;
 	public Bag providers;
 	public Bag patients;
 	public Appointer appointer;
@@ -27,7 +28,7 @@ public class Care extends SimState {
 	Provider provider;
 	ProviderInitializer prov_init;
 	PatientInitializer pat_init;
-	PatientObserver patientObserver;
+	ObserveCare observer;
 	
 	public Care(long seed) {
 		super(seed);
@@ -45,7 +46,8 @@ public class Care extends SimState {
 		prioritize = new Prioritizator(this, Pi);
 		prov_init = new ProviderInitializer(this, PROVIDER_INIT);
 		pat_init = new PatientInitializer(this, PATIENT_INIT);
-		patientObserver = new PatientObserver(this);
+		observer = new ObserveCare();
+		observer.initialize(obsSteps, this);
 		
 		providers = new Bag(W);
 		patients = new Bag(N);
@@ -76,6 +78,8 @@ public class Care extends SimState {
 						schedule.scheduleOnce((Patient)(patients.objs[i]),prioritize.hat_o(patient));
 					}}
 				});
+		
+		schedule.scheduleRepeating(schedule.EPOCH, N+2, observer);
 		
 		appointer = new Appointer(this);
 	}

@@ -32,6 +32,8 @@ public class Patient implements Steppable {
 	protected double progressProbability;
 	protected double currentMot;
 	protected int wMaxExpectation;
+	protected int Bernoulli;
+
 	
 	//debug test
 	protected Boolean testing=false;
@@ -78,7 +80,7 @@ public class Patient implements Steppable {
 	
 	protected void diseaseEvolution(Care care) {	
 		// changes H
-		int Bernoulli = 0;
+		Bernoulli = 0;
 		if(care.random.nextBoolean(progressProbability)) {
 			Bernoulli = 1;
 		}

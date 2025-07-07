@@ -52,12 +52,14 @@ public class Tests {
 	void d1_disease_after_treatment_2() {
 	//long currentSeed = System.currentTimeMillis();
 	long currentSeed = System.currentTimeMillis();
-	care = new Care(currentSeed);
+	care = new Care(1751891775290L);
 	care.start();
-	((Patient)care.patients.objs[0]).h_p_i_1 = 3;
-	((Patient)care.patients.objs[0]).t_p_i_1 = 1;
-	((Patient)care.patients.objs[0]).diseaseEvolution(care);
-	assertEquals(2.0, ((Patient)care.patients.objs[0]).h_p_i, "Disease was not treated in diseaseEvolution"+ "seed: "+currentSeed);
+	onePatient = ((Patient)care.patients.objs[0]);
+	//onePatient.testing = true;
+	onePatient.h_p_i_1 = 3;
+	onePatient.t_p_i_1 = 1;
+	onePatient.diseaseEvolution(care);
+	assertEquals(2.0, onePatient.h_p_i - onePatient.Bernoulli, "Disease was not treated in diseaseEvolution"+ "seed: "+currentSeed);
 	}
 
 	
@@ -68,6 +70,7 @@ public class Tests {
 	care = new Care(currentSeed);
 	care.setvarsigma(varsigma);
 	care.setN(N); 
+	care.obsSteps = 1;
 	care.start();
 	care.pat_init.setdelta(care.patients, delta); //same disease severity for all
 	care.prov_init.settau(care.providers,0); //no treatment
@@ -80,15 +83,16 @@ public class Tests {
 		//progress probability
 		assertEquals((float)delta/varsigma, ((Patient)care.patients.objs[care.random.nextInt(N)]).progressProbability);
 
-		
-	runCare(care,varsigma);
 	double result = 0;
-	double h[] = care.patientObserver.geth(care.patients);
-	for(int i = 0; i<h.length;i++) {
-		result += h[i];
-		//System.out.println(h[i]);
+		for(int step = 0; step<varsigma; step++) {
+		for(int p = 0; p<N;p++) {
+			onePatient = ((Patient)care.patients.objs[p]);
+			onePatient.diseaseEvolution(care);
+			result += onePatient.Bernoulli;
 		}
-		assertEquals(delta,(int)(result/N+0.5), "Unexpected need evolution (could be random error, re-test)"+ "seed: "+currentSeed); //is approx delta, I'm adding 0.5 to round up
+	}
+
+	assertEquals(delta,(int)(result/N+0.5), "Unexpected need evolution (could be random error, re-test)"+ "seed: "+currentSeed); //is approx delta, I'm adding 0.5 to round up
 	}
 	
 	@Test
@@ -382,14 +386,58 @@ public class Tests {
 		
 	}
 	
-	
-	public void runCare(Care care, int varsigma) {
-		do{
-			if (!care.schedule.step(care)) {break;}
-			}
-		while (care.schedule.getSteps() < varsigma);
-		care.finish();
-	}
-	
+	@Test
+	void g1_g2__g3_g4interact_max1_only_interact_if_anyB() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 3000; int W = 50; int varsigma = 150; double result;
+		care.setN(N);
+		care.setW(W);
+		care.setvarsigma(varsigma);
+		care.obsSteps = 1;
+		care.PATIENT_INIT = "random";
+		care.start();
+		
+		for(int step=0;step<varsigma;step++) {
+			care.schedule.step(care);
+		}
+		
+		int[][][] C_p_w_i = care.observer.getC();
+		int[][][] B_p_w_i = care.observer.getB();
 
+		int providersForThisPatient = 0;
+		int behaviourInThisIteration = 0;
+		for(int step=0;step<varsigma;step++) {
+		for(int p=0;p<N;p++) { onePatient = (Patient)care.patients.objs[0]; 
+			providersForThisPatient = 0;
+			behaviourInThisIteration = 0;
+			for (int w=0;w<W;w++) {
+				providersForThisPatient += C_p_w_i[p][w][step];
+				behaviourInThisIteration += B_p_w_i[p][w][step];	
+				//that the global representation (from Patient) equals the Provider representation
+				if(C_p_w_i[p][w][step] == 1) {
+					for(int ww=0;ww<W;ww++) {
+						if(((Provider)care.providers.objs[ww]).w == w) {oneProvider = ((Provider)care.providers.objs[ww]);break;}
+					}
+					assertTrue(oneProvider.C_w[p][step] == C_p_w_i[p][w][step], "Provider and Patient representations are different "+ "seed: "+currentSeed);
+				}
+			}
+			if(providersForThisPatient > 1) {
+				assertTrue(behaviourInThisIteration > 0,"a patient interacted with a provider but no behaviour was >0 "+ "seed: "+currentSeed);	
+			}
+			assertTrue(providersForThisPatient == 0 | providersForThisPatient == 1, "a patient interactions with providers are wrong, are less than 0 or more than 1 in a time step "+ "seed: "+currentSeed);
+				}}
+		
+		int[][][] Providers_C_p_w_i = new int[N][W][varsigma];
+		
+		int this_W = 0;
+		for(int step=0;step<varsigma;step++) {
+			for(int p =0;p<N;p++) {
+				for(int w=0;w<W;w++) {
+					oneProvider = (Provider)care.providers.objs[w];
+					this_W = oneProvider.w;
+					assertTrue(oneProvider.C_w[p][step] == C_p_w_i[p][this_W][step], "Provider and Patient representations are different "+ "seed: "+currentSeed);
+				}	
+			}
+		}
+	}
 }

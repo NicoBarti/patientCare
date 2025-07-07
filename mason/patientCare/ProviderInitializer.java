@@ -16,7 +16,6 @@ public class ProviderInitializer {
 		C_w(provider);
 		A_w(provider);
 		lambda_w(provider);
-		
 	}
 	
 	public void C_w(Provider provider) {

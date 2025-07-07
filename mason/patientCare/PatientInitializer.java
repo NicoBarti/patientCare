@@ -88,7 +88,7 @@ public class PatientInitializer {
 	}
 	
 	public void progressProbability(Patient patient) {
-			patient.progressProbability = (float)patient.delta_p/care.varsigma;
+			patient.progressProbability = (float)(patient.delta_p/care.varsigma);
 	}
 
 	public void capN_p(Patient patient) {
@@ -144,7 +144,7 @@ public class PatientInitializer {
 	public void kappa_p(Patient patient) {
 		switch(strategy) {
 		case "random": 
-			patient.kappa_p = (float)care.random.nextDouble()*3;
+			patient.kappa_p = (float)care.random.nextDouble();
 			break;
 		default: 
 			patient.kappa_p = (float).01;}
