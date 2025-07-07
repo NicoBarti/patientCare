@@ -10,15 +10,15 @@ public class JSONResponse {
 	
 	public JSONResponse(Care simulation, String fetchType) {
 			
-			buildResults_json("d", simulation.getds());
-			buildResults_json("C", simulation.getCs());
-			buildResults_json("H", simulation.getHs());
-			buildResults_json("exp", simulation.getexpectations());
-			buildResults_json("T", simulation.getTs());
-			buildResults_json("B", simulation.getBs());
+			//buildResults_json("d", simulation.getds());
+			buildResults_json("C", simulation.observer.getC());
+			buildResults_json("H", simulation.observer.getH());
+			//buildResults_json("exp", simulation.getexpectations());
+			//buildResults_json("T", simulation.getTs());
+			buildResults_json("B", simulation.observer.getB());
 			
-			if (fetchType.equals("add_progression")) {
-			buildResults_json("P", simulation.gettotalProgress());}
+			//if (fetchType.equals("add_progression")) {
+			//buildResults_json("P", simulation.gettotalProgress());}
 	}
 	
 	private JSONObject buildResults_json(String name, Object array) {

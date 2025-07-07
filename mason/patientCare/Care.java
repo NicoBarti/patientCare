@@ -103,22 +103,17 @@ public class Care extends SimState {
 	public String getPATIENT_INIT() {return PATIENT_INIT;}
 
 	
-//	public HashMap getParams() {
-//		HashMap<String, String> params = new HashMap();
-//		params.put("capacity", Integer.toString(getCapacity()));
-//		
-//		params.put("numPatients", Integer.toString(getNumPatients()));
-//		params.put("t", Double.toString(gett()));
-//		params.put("weeks", Integer.toString(getweeks()));
-//		params.put("SEVERITY_ALLOCATION", Double.toString(getSEVERITY_ALLOCATION()));
-//		params.put("CONTINUITY_ALLOCATION", Double.toString(getCONTINUITY_ALLOCATION()));
-//		params.put("DISEASE_SEVERITY", Double.toString(getDISEASE_SEVERITY()));
-//		params.put("LEARNING_RATE", Double.toString(getLEARNING_RATE()));
-//		params.put("SUBJECTIVE_INITIATIVE", Double.toString(getSUBJECTIVE_INITIATIVE()));
-//		params.put("EXP_POS", Double.toString(getEXP_POS()));
-//		params.put("EXP_NEG", Double.toString(getEXP_NEG()));
-//		return params;
-//	}
+	public HashMap getParams() {
+				
+		HashMap<String, String> params = new HashMap();
+		params.put("N", Integer.toString(getN()));
+		params.put("varsigma", Integer.toString(getvarsigma()));
+		params.put("W", Double.toString(getW()));
+		params.put("Pi", getPi());
+		params.put("PROVIDER_INIT", getPROVIDER_INIT());
+		params.put("PATIENT_INIT", getPATIENT_INIT());
+		return params;
+	}
 //	
 //	public int[][] getCs() {
 //		int[][] distro = new int[patients.numObjs][weeks+1];

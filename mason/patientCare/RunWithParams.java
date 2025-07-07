@@ -24,32 +24,17 @@ public class RunWithParams {
 		while(keys.hasNext()) {
 		    String key = keys.next();
 		    JSONArray a = (JSONArray)params.get(key);
+		    
 			switch (key) { // adds the parameters to simulation
-			case "capacity":
-				simulation.setCapacity(a.getInt(0));
+			case "N":
+				simulation.setN(a.getInt(0));
 				break;
-			case "numPatients":
-				simulation.setNumPatients(a.getInt(0));
+			case "varsigma":
+				simulation.setvarsigma(a.getInt(0));
 				break;
-			case "weeks":
-				simulation.setweeks(a.getInt(0));
+			case "W":
+				simulation.setW(a.getInt(0));
 				break;
-			case "CONTINUITY_ALLOCATION":
-				simulation.setCONTINUITY_ALLOCATION(a.getDouble(0));
-				break;
-			case "SEVERITY_ALLOCATION":
-				simulation.setSEVERITY_ALLOCATION(a.getDouble(0));
-				break;
-			case "DISEASE_SEVERITY":
-				simulation.setDISEASE_SEVERITY(a.getDouble(0));
-				break;
-			case "LEARNING_RATE":
-				simulation.setLEARNING_RATE(a.getDouble(0));
-				break;
-			case "SUBJECTIVE_INITIATIVE":
-				simulation.setSUBJECTIVE_INITIATIVE(a.getDouble(0));
-				break;
-
 		}}
 	}
 	
@@ -66,7 +51,7 @@ public class RunWithParams {
 				System.out.println("algo falso en schedule.step");
 				break;}
 		}
-		while (simulation.schedule.getSteps() < simulation.getweeks());
+		while (simulation.schedule.getSteps() < simulation.getvarsigma());
 		simulation.finish();
 	}
 	
