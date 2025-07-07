@@ -7,6 +7,7 @@ public class Tests {
 	
 	Care care;
 	Patient onePatient;
+	Provider oneProvider;
 	long seed = 19382109;
 	
 	@Test
@@ -213,8 +214,10 @@ public class Tests {
 	
 	@Test
 	void b2_zero_needs_or_expect() {
-		care = new Care(seed);
-		int N = 1; int W = 10;
+
+		long currentSeed = System.currentTimeMillis();
+		currentSeed = 1751874283676L;
+		care = new Care(currentSeed);		int N = 1; int W = 10;
 		care.setW(W);
 		care.setN(N);
 		care.start();
@@ -223,35 +226,159 @@ public class Tests {
 		onePatient = (Patient)care.patients.objs[0];
 		
 		for(int i=0;i<W;i++) {onePatient.e_p_i[i] = 0.0;}
-		onePatient.h_p_i = 0.0;
+		onePatient.n_p_i = 0.0;
 		
 		onePatient.behaviouralRule(care);
 		for(int i=0;i<W;i++) {assertEquals(0, onePatient.b_p_i[i]);}
 
-		onePatient.h_p_i = 1.0;
+		onePatient.n_p_i = 1.0;
+
 		onePatient.behaviouralRule(care);		
 		for(int i=0;i<W;i++) {assertEquals(0, onePatient.b_p_i[i]);}
 		
-		((Patient)care.patients.objs[0]).h_p_i = 1.0;
-
+		((Patient)care.patients.objs[0]).n_p_i = 1.0;
 		onePatient.e_p_i[3] = 1.0; onePatient.e_p_i[7] = 1.0;
 		onePatient.psi_p = 1;
 		onePatient.testing = true;
-		System.out.println("need from test 1 h_p_i "+onePatient.h_p_i);
 
 		onePatient.behaviouralRule(care);	
-		System.out.println("need from test 2 "+onePatient.h_p_i);
+		
+		//for(int i=0;i<W;i++) {System.out.println(onePatient.b_p_i[i]);}
+		assertTrue(onePatient.b_p_i[3] == 1 | onePatient.b_p_i[7] == 1, "Patient should have seek care with w 7 or 3."+ "seed: "+currentSeed);
+		
+	}
+	
+	@Test
+	void b3_iota_well_specified() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);		int N = 1; int W = 10;
+		care.setW(W);
+		care.setN(N);
+		care.start();
+		onePatient = (Patient)care.patients.objs[0];
 
-		//assertEquals(1, onePatient.b_p_i[3]);
-		//assertEquals(1, onePatient.b_p_i[7]);
-		for(int i=0;i<W;i++) {System.out.println(onePatient.e_p_i[i]);}
-		System.out.println("exp "+onePatient.wMaxExpectation);
-		System.out.println("mot "+onePatient.currentMot);
-		System.out.println("iota "+onePatient.iota_p);
-		System.out.println("psi "+onePatient.psi_p);
+		double capE = 5.2; double capN = 3.7; double psi= 0.54;
+		care.pat_init.setcapE(care.patients, capE);
+		care.pat_init.setcapN(care.patients, capN);
+		care.pat_init.setpsi(care.patients, psi);
+		
+		assertEquals(1/(onePatient.psi_p*capE+(1-onePatient.psi_p)*capN), onePatient.iota_p, "iota not well specified");
+		capE = 4.2; capN = 0; psi= 0.1;
+		care.pat_init.setcapE(care.patients, capE);
+		care.pat_init.setcapN(care.patients, capN);
+		care.pat_init.setpsi(care.patients, psi);
+		
+		assertEquals(1/(onePatient.psi_p*capE+(1-onePatient.psi_p)*capN), onePatient.iota_p, "iota not well specified");
+	}
+	
+	@Test
+	void effect_of_psi() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 1; int W = 1;
+		care.setW(W);
+		care.setN(N);
+		care.start();
+		onePatient = (Patient)care.patients.objs[0];
+		
+		double capE = 10; double capN = 10;
+		care.pat_init.setcapE(care.patients, capE);
+		care.pat_init.setcapN(care.patients, capN);
+		
+		onePatient.n_p_i = 5;
+		onePatient.e_p_i[0] = 3;
+		care.pat_init.setpsi(care.patients, 1);
+		onePatient.behaviouralRule(care);
+		assertEquals((int)(0.3*1000), (int)(onePatient.currentMot*1000), "Psi not working"+ "seed: "+currentSeed); //handles double representation errors
+		care.pat_init.setpsi(care.patients, 0.5);
+		onePatient.behaviouralRule(care);
+		double result = ((0.5*3) + (0.5*5))/10;
+		assertEquals((int)(result*1000), (int)(onePatient.currentMot*1000),"Psi not working"+ "seed: "+currentSeed); //handles double representation errors
+		care.pat_init.setpsi(care.patients, 0);
+		onePatient.behaviouralRule(care);
+		assertEquals((int)(0.5*1000), (int)(onePatient.currentMot*1000),"Psi not working"+ "seed: "+currentSeed); //handles double representation errors
 
-		for(int i=0;i<W;i++) {System.out.println(onePatient.b_p_i[i]);}
+	}
+	
+	@Test
+	void p1_compute_minimum() {
+		long currentSeed = System.currentTimeMillis();
+		double lambda; double tau; double healthStatus;
+		care = new Care(currentSeed);int N = 1; int W = 1; int varsigma = 10; double result;
+		care.setW(W);
+		care.setN(N);
+		care.setvarsigma(varsigma);
+		care.start();
+		oneProvider = (Provider)(care.providers.objs[0]);
+		onePatient = (Patient)care.patients.objs[0]; 
+		int[] prevInteract = {1,0,0,1,1,1,0,1,1,0};
 
+		lambda = 3; tau = 1; healthStatus = 2;
+		care.prov_init.setlambda(care.providers, lambda);
+		care.prov_init.settau(care.providers, tau);
+		oneProvider.C_w[0] = prevInteract;
+		result = oneProvider.interactWithPatient(0, healthStatus);
+		assertEquals(tau,result, "Prescription rule not working" + "seed: "+currentSeed);
+		
+		lambda = 1; tau = 1; healthStatus = 12;
+		care.prov_init.setlambda(care.providers, lambda);
+		care.prov_init.settau(care.providers, tau);
+		oneProvider.C_w[0] = prevInteract;
+		result = oneProvider.interactWithPatient(0, healthStatus);
+		assertEquals(0.5,result, "Prescription rule not working" + "seed: "+currentSeed);
+		
+		lambda = 1; tau = 1; healthStatus = 0.2;
+		care.prov_init.setlambda(care.providers, lambda);
+		care.prov_init.settau(care.providers, tau);
+		oneProvider.C_w[0] = prevInteract;
+		result = oneProvider.interactWithPatient(0, healthStatus);
+		assertEquals(healthStatus,result, "Prescription rule not working" + "seed: "+currentSeed);
+	}
+	
+	@Test
+	void p2_counter() {
+		long currentSeed = System.currentTimeMillis();
+		double lambda; double tau; double healthStatus;
+		care = new Care(currentSeed);int N = 1; int W = 1; int varsigma = 5; double result;
+		care.setW(W);
+		care.setN(N);
+		care.setvarsigma(varsigma);
+		care.start();
+		oneProvider = (Provider)(care.providers.objs[0]);
+		int[] prevInteract = {1,0,0,1,0};
+
+		oneProvider.C_w[0] = prevInteract;
+		oneProvider.thisweek = 4;
+		oneProvider.interactWithPatient(0, 10);
+		assertEquals(3, oneProvider.Ccounter, "provider interaction counter not working "+ "seed: "+currentSeed);
+			}
+	
+	@Test
+	void p3_proportionalEffec() {
+		long currentSeed = System.currentTimeMillis();
+		double lambda; double tau; double healthStatus;
+		care = new Care(currentSeed);int N = 1; int W = 1; int varsigma = 1; double result;
+		care.setW(W);
+		care.setN(N);
+		care.setvarsigma(varsigma);
+		care.start();
+		care.prov_init.settau(care.providers, 100);
+		oneProvider = (Provider)(care.providers.objs[0]);
+		int[] prevInteract = {1};
+
+		oneProvider.C_w[0] = prevInteract;
+		oneProvider.thisweek = 0;
+		
+		lambda = 1;healthStatus=10;
+		oneProvider.lambda_w = lambda;
+		oneProvider.testing = true;
+		result= oneProvider.interactWithPatient(0,healthStatus);
+		assertEquals(lambda/healthStatus, result, "provider interaction counter not working "+ "seed: "+currentSeed);
+	
+		lambda = 2;healthStatus=5;
+		oneProvider.lambda_w = lambda;
+		oneProvider.testing = true;
+		result= oneProvider.interactWithPatient(0,healthStatus);
+		assertEquals(lambda/healthStatus, result, "provider interaction counter not working "+ "seed: "+currentSeed);
 		
 	}
 	

@@ -15,9 +15,12 @@ public class Provider implements Steppable {
 	public int A_w;
 	
 	//internals
-	private int thisweek;
-	private int Ccounter;
+	protected int thisweek;
+	protected int Ccounter;
 	protected int w;
+	
+	//test
+	protected Boolean testing = false;
 
 
 	@Override
@@ -35,13 +38,11 @@ public class Provider implements Steppable {
 		Ccounter = 0;
 		for(int i=0; i<C_w[id].length; i++) {
 			Ccounter += C_w[id][i]; }
-		return(Math.min(Math.min(lambda_w * Ccounter/h,tau_w), h));
+			return(Math.min(Math.min(lambda_w * Ccounter/h,tau_w), h));
 	}
 	
 	public boolean isAvailable() {		
 		if(alpha_w > 0) {return(true);
 		} else {return(false);}
 	}
-	
-			
 }

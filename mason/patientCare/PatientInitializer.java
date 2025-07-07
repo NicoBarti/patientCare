@@ -161,6 +161,7 @@ public class PatientInitializer {
 	public void setpsi(Bag patients, double value) {
 		for(int i=0;i<patients.numObjs;i++) {
 			((Patient)patients.objs[i]).psi_p = value;
+			iota_p((Patient)patients.objs[i]); //iota_p depends on the caps
 		}
 	}
 	

@@ -72,4 +72,10 @@ public class ProviderInitializer {
 			((Provider)providers.objs[i]).A_w = value;
 		}
 	}
+	
+	public void settau(Bag providers, int value) {
+		for(int i=0;i<providers.numObjs;i++) {
+			((Provider)providers.objs[i]).tau_w = value;
+		}
+	}
 }

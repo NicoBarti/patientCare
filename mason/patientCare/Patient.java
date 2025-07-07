@@ -123,13 +123,10 @@ public class Patient implements Steppable {
 			if(e_p_i[randomAccess[i]] > e_p_i[wMaxExpectation]) {
 				wMaxExpectation = randomAccess[i];
 			}}
-		if(testing) {System.out.println("MexExp value"+e_p_i[wMaxExpectation]);
-		System.out.println("Need value n_p_i "+n_p_i);}
+
 	if(e_p_i[wMaxExpectation] != 0 & n_p_i != 0) {
 		b_p_i[wMaxExpectation] = 0;
 		currentMot = (psi_p*e_p_i[wMaxExpectation] + (1-psi_p)*n_p_i)*iota_p;
-		if(testing) {System.out.println("From beh"+currentMot);}
-		//System.out.println(currentMot);
 		if(care.random.nextDouble() < currentMot) {
 			b_p_i[wMaxExpectation] = 1;} 
 	}}
