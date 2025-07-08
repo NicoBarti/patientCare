@@ -13,14 +13,16 @@ public class ObserveCare implements Steppable{
 	
 	//internals
 	protected int counter = 0;
-	protected int freq = 50;
+	protected int freq = 1;
+	
+	
 	
 	public void step(SimState state) {
 		care = (Care)state;
-		if(care.schedule.getSteps() ==0 | care.schedule.getSteps() == care.varsigma-1) {
-			observe();
-		}
-		count();
+		//if(care.schedule.getSteps() ==0 | care.schedule.getSteps() == care.varsigma-1) {
+		observe();
+		//}
+		//count();
 	}
 	
 	public void observe() {

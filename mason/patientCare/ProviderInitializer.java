@@ -7,9 +7,14 @@ public class ProviderInitializer {
 	String strategy;
 	int rand;
 	
+	int totalCapacity;
+	int alpha_w;
+	
 	public ProviderInitializer(Care _care, String _strategy) {
 		care = _care;
 		strategy = _strategy;
+		totalCapacity = care.pat_init.totalCapacity;
+		alpha_w = (int)(totalCapacity/care.W);
 	}
 
 	public void initialize(Provider provider) {
@@ -21,7 +26,7 @@ public class ProviderInitializer {
 	public void C_w(Provider provider) {
 		provider.C_w = new int[care.N][care.varsigma];
 		switch(strategy) {
-		case "random": //pending
+		case "random-basal": //pending
 			break;
 		default: // all 0s 
 		}
@@ -29,8 +34,8 @@ public class ProviderInitializer {
 	
 	public void A_w(Provider provider) {
 		switch(strategy) {
-		case "random": 
-			provider.A_w = care.random.nextInt(care.N);
+		case "random-basal": 
+			provider.A_w = alpha_w;
 			break;
 		default:
 			provider.A_w = 10;
@@ -39,7 +44,7 @@ public class ProviderInitializer {
 	public void lambda_w(Provider provider) {
 		switch(strategy) {
 		case "random": 
-			provider.lambda_w = care.random.nextDouble()*10;
+			provider.lambda_w = care.random.nextDouble()*3;
 			break;
 		default:
 			provider.lambda_w = 0.5;}
@@ -48,7 +53,7 @@ public class ProviderInitializer {
 	public void tau_w(Provider provider) {
 		switch(strategy) {
 		case "random": 
-			provider.tau_w = care.random.nextDouble()*10;
+			provider.tau_w = care.random.nextDouble()*3;
 			break;
 		default:
 			provider.tau_w = 2;}

@@ -14,12 +14,12 @@ public class Care extends SimState {
 	public int varsigma = 150; 
 	public int W = 2;
 	public String Pi = "base policy";
-	public String PROVIDER_INIT = "base model";
-	public String PATIENT_INIT = "base model";
+	public String PROVIDER_INIT = "random";
+	public String PATIENT_INIT = "random";
 
 	
 	// internals
-	public int obsSteps = 50;
+	public int obsSteps = 1;
 	public Bag providers;
 	public Bag patients;
 	public Appointer appointer;
@@ -43,11 +43,12 @@ public class Care extends SimState {
 	public void start() {
 		super.start();
 		
-		prioritize = new Prioritizator(this, Pi);
-		prov_init = new ProviderInitializer(this, PROVIDER_INIT);
 		pat_init = new PatientInitializer(this, PATIENT_INIT);
+		prov_init = new ProviderInitializer(this, PROVIDER_INIT);
+
+		prioritize = new Prioritizator(this, Pi);
 		observer = new ObserveCare();
-		observer.initialize(obsSteps, this);
+		observer.initialize(1, this);
 		
 		providers = new Bag(W);
 		patients = new Bag(N);
@@ -86,6 +87,9 @@ public class Care extends SimState {
 	
 	
 	public void finish() {
+		for(int i = 0; i<observer.getH()[0].length;i++) {
+			System.out.print(this.observer.getH()[0][i]);
+		}
 			}
 	
 	// setters and getters

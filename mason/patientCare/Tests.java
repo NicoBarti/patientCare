@@ -11,6 +11,21 @@ public class Tests {
 	long seed = 19382109;
 	
 	@Test
+	void run_simulation_10_steps() {
+		int varsigma = 10; int N = 2; int W = 2;
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);
+		care.setvarsigma(varsigma);
+		care.setN(N);
+		care.setW(W);
+		care.start();
+		care.obsSteps = 1;
+		String[] arg = new String[1]; arg[0] = "Hola";
+		Care.main(arg);
+	}
+	
+	
+	@Test
 	void d1_disease_after_treatment_1() {
 	int varsigma = 500; int N = 1; double delta = 11; int W = 1;
 	long currentSeed = System.currentTimeMillis();
@@ -207,9 +222,9 @@ public class Tests {
 		for(int i=0;i<W;i++) {((Patient)care.patients.objs[0]).e_p_i[i] = 2.0;}
 		//for(int i=0;i<W;i++) {System.out.println(((Patient)care.patients.objs[0]).e_p_i_1[i]);}
 		((Patient)care.patients.objs[0]).behaviouralRule(care);
-		assertEquals(7,((Patient)care.patients.objs[0]).wMaxExpectation);
+		assertEquals(2,((Patient)care.patients.objs[0]).wMaxExpectation);
 		((Patient)care.patients.objs[0]).behaviouralRule(care);
-		assertEquals(5,((Patient)care.patients.objs[0]).wMaxExpectation);
+		assertEquals(0,((Patient)care.patients.objs[0]).wMaxExpectation);
 		((Patient)care.patients.objs[0]).e_p_i[3] = 3.0;
 		((Patient)care.patients.objs[0]).behaviouralRule(care);
 		assertEquals(3,((Patient)care.patients.objs[0]).wMaxExpectation);
@@ -440,4 +455,6 @@ public class Tests {
 			}
 		}
 	}
+	
+
 }
