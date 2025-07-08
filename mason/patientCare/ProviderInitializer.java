@@ -24,7 +24,7 @@ public class ProviderInitializer {
 	}
 	
 	public void C_w(Provider provider) {
-		provider.C_w = new int[care.N][care.varsigma];
+		provider.SumC_w = new int[care.N];
 		switch(strategy) {
 		case "random-basal": //pending
 			break;

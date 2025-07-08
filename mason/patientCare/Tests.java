@@ -10,20 +10,6 @@ public class Tests {
 	Provider oneProvider;
 	long seed = 19382109;
 	
-	@Test
-	void run_simulation_10_steps() {
-		int varsigma = 10; int N = 2; int W = 2;
-		long currentSeed = System.currentTimeMillis();
-		care = new Care(currentSeed);
-		care.setvarsigma(varsigma);
-		care.setN(N);
-		care.setW(W);
-		care.start();
-		care.obsSteps = 1;
-		String[] arg = new String[1]; arg[0] = "Hola";
-		Care.main(arg);
-	}
-	
 	
 	@Test
 	void d1_disease_after_treatment_1() {
@@ -329,26 +315,26 @@ public class Tests {
 		care.start();
 		oneProvider = (Provider)(care.providers.objs[0]);
 		onePatient = (Patient)care.patients.objs[0]; 
-		int[] prevInteract = {1,0,0,1,1,1,0,1,1,0};
+		int prevInteract = 6;
 
 		lambda = 3; tau = 1; healthStatus = 2;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.C_w[0] = prevInteract;
+		oneProvider.SumC_w[0] = prevInteract;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(tau,result, "Prescription rule not working" + "seed: "+currentSeed);
 		
 		lambda = 1; tau = 1; healthStatus = 12;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.C_w[0] = prevInteract;
+		oneProvider.SumC_w[0] = prevInteract-1;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(0.5,result, "Prescription rule not working" + "seed: "+currentSeed);
 		
 		lambda = 1; tau = 1; healthStatus = 0.2;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.C_w[0] = prevInteract;
+		oneProvider.SumC_w[0] = prevInteract;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(healthStatus,result, "Prescription rule not working" + "seed: "+currentSeed);
 	}
@@ -363,12 +349,13 @@ public class Tests {
 		care.setvarsigma(varsigma);
 		care.start();
 		oneProvider = (Provider)(care.providers.objs[0]);
-		int[] prevInteract = {1,0,0,1,0};
+		oneProvider.alpha_w =10;
+		
+		care.appointer.appoint(0, 0, .5);
+		care.appointer.appoint(0, 0, .5);
+		care.appointer.appoint(0, 0, .5);
 
-		oneProvider.C_w[0] = prevInteract;
-		oneProvider.thisweek = 4;
-		oneProvider.interactWithPatient(0, 10);
-		assertEquals(3, oneProvider.Ccounter, "provider interaction counter not working "+ "seed: "+currentSeed);
+		assertEquals(3, oneProvider.SumC_w[0], "provider interaction counter not working "+ "seed: "+currentSeed);
 			}
 	
 	@Test
@@ -382,10 +369,9 @@ public class Tests {
 		care.start();
 		care.prov_init.settau(care.providers, 100);
 		oneProvider = (Provider)(care.providers.objs[0]);
-		int[] prevInteract = {1};
+		int prevInteract = 0;
 
-		oneProvider.C_w[0] = prevInteract;
-		oneProvider.thisweek = 0;
+		oneProvider.SumC_w[0] = prevInteract;
 		
 		lambda = 1;healthStatus=10;
 		oneProvider.lambda_w = lambda;
@@ -394,6 +380,7 @@ public class Tests {
 		assertEquals(lambda/healthStatus, result, "provider interaction counter not working "+ "seed: "+currentSeed);
 	
 		lambda = 2;healthStatus=5;
+		oneProvider.SumC_w[0] = prevInteract;
 		oneProvider.lambda_w = lambda;
 		oneProvider.testing = true;
 		result= oneProvider.interactWithPatient(0,healthStatus);
@@ -428,13 +415,6 @@ public class Tests {
 			for (int w=0;w<W;w++) {
 				providersForThisPatient += C_p_w_i[p][w][step];
 				behaviourInThisIteration += B_p_w_i[p][w][step];	
-				//that the global representation (from Patient) equals the Provider representation
-				if(C_p_w_i[p][w][step] == 1) {
-					for(int ww=0;ww<W;ww++) {
-						if(((Provider)care.providers.objs[ww]).w == w) {oneProvider = ((Provider)care.providers.objs[ww]);break;}
-					}
-					assertTrue(oneProvider.C_w[p][step] == C_p_w_i[p][w][step], "Provider and Patient representations are different "+ "seed: "+currentSeed);
-				}
 			}
 			if(providersForThisPatient > 1) {
 				assertTrue(behaviourInThisIteration > 0,"a patient interacted with a provider but no behaviour was >0 "+ "seed: "+currentSeed);	
@@ -442,18 +422,22 @@ public class Tests {
 			assertTrue(providersForThisPatient == 0 | providersForThisPatient == 1, "a patient interactions with providers are wrong, are less than 0 or more than 1 in a time step "+ "seed: "+currentSeed);
 				}}
 		
-		int[][][] Providers_C_p_w_i = new int[N][W][varsigma];
+		//int[][][] Providers_C_p_w_i = new int[N][W][varsigma];
 		
+		//That the global representation extracted from patient matches the one in the provider
 		int this_W = 0;
-		for(int step=0;step<varsigma;step++) {
+		int globalCW = 0;
 			for(int p =0;p<N;p++) {
 				for(int w=0;w<W;w++) {
 					oneProvider = (Provider)care.providers.objs[w];
 					this_W = oneProvider.w;
-					assertTrue(oneProvider.C_w[p][step] == C_p_w_i[p][this_W][step], "Provider and Patient representations are different "+ "seed: "+currentSeed);
+					for(int i =0;i<varsigma;i++) {
+						globalCW += C_p_w_i[p][this_W][i];
+					}
+					assertTrue(oneProvider.SumC_w[p] == globalCW, "Provider and Patient representations are different "+ "seed: "+currentSeed);
+					globalCW = 0;
 				}	
 			}
-		}
 	}
 	
 
