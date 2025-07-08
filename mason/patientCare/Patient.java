@@ -84,8 +84,20 @@ public class Patient implements Steppable {
 		if(care.random.nextBoolean(progressProbability)) {
 			Bernoulli = 1;
 		}
+		if(testing) {
+			System.out.println(" step "+care.schedule.getSteps());
+
+		System.out.println(" pre h_p_i " +h_p_i);
+		System.out.println(" h_p_i_1 " +h_p_i_1);
+		System.out.println(" t_p_i_1 " +t_p_i_1);
+		System.out.println(" Bernoulli " +h_p_i_1);
+		System.out.println(" e_p_i_1[0]" + e_p_i_1[0]);
+		}
+
 		h_p_i = h_p_i_1 - t_p_i_1 + Bernoulli ;
 		h_p_i = Math.max(h_p_i, 0); // health status can't be negative
+		if(testing) {System.out.println(" post h_p_i " +h_p_i+"\n");}		
+
 	}
 
 	protected void healthNeedPerception() {

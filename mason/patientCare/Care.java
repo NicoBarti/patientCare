@@ -75,6 +75,7 @@ public class Care extends SimState {
 		//this agent acts at the end of each state (order N+1)
 		schedule.scheduleRepeating(schedule.EPOCH, N+1, new Steppable(){ //copied
 				public void step(SimState state) { 
+					//System.out.println(schedule.getSteps());
 					for(int i=0;i<patients.numObjs;i++) {
 						schedule.scheduleOnce((Patient)(patients.objs[i]),prioritize.hat_o(patient));
 					}}

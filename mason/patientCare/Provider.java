@@ -27,6 +27,7 @@ public class Provider implements Steppable {
 	public void step(SimState state) {
 		thisweek = (int)state.schedule.getSteps();
 		alpha_w = A_w; //open agenda
+		if(testing) {System.out.println("alpha_w" + alpha_w +" in w "+w);}
 	}
 
 	public double interactWithPatient(int id, double h) {

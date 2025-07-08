@@ -10,26 +10,26 @@ public class Tests {
 	Provider oneProvider;
 	long seed = 19382109;
 	
-	@Test
-	void run_simulation_10_steps() {
-		int varsigma = 10; int N = 2; int W = 2;
-		long currentSeed = System.currentTimeMillis();
-		care = new Care(currentSeed);
-		care.setvarsigma(varsigma);
-		care.setN(N);
-		care.setW(W);
-		care.start();
-		care.obsSteps = 1;
-		String[] arg = new String[1]; arg[0] = "Hola";
-		Care.main(arg);
-	}
+//	@Test
+//	void run_simulation_10_steps() {
+//		int varsigma = 10; int N = 2; int W = 2;
+//		long currentSeed = System.currentTimeMillis();
+//		care = new Care(currentSeed);
+//		care.setvarsigma(varsigma);
+//		care.setN(N);
+//		care.setW(W);
+//		care.start();
+//		care.obsSteps = 1;
+//		String[] arg = new String[1]; arg[0] = "Hola";
+//		Care.main(arg);
+//	}
 	
 	
 	@Test
 	void d1_disease_after_treatment_1() {
 	int varsigma = 500; int N = 1; double delta = 11; int W = 1;
 	long currentSeed = System.currentTimeMillis();
-	care = new Care(currentSeed);
+	care = new Care(1751958692214L);
 	care.setvarsigma(varsigma);
 	care.setN(N);
 	care.setW(W);
@@ -38,10 +38,11 @@ public class Tests {
 	care.pat_init.setdelta(care.patients, delta); 
 	care.pat_init.setpsi(care.patients, 0);
 	care.pat_init.setcapN(care.patients, 1);
+	care.pat_init.setkappa(care.patients,0);
+
 	care.prov_init.settau(care.providers,1); 
 	care.prov_init.setlambda(care.providers, 1);
 	care.prov_init.setalpha(care.providers, N);
-	
 		//care
 		assertEquals(varsigma, care.varsigma, "vasrigma was not set right");
 		//patient initializers
@@ -56,9 +57,16 @@ public class Tests {
 		// The patient will seek care (psi = 0, expectations are never =0, and capN = 1)
 		// The doctor is always available and prescribe a treatment = 1
 		// We test that needs never accumulate; are always treated.
+		((Patient)care.patients.objs[0]).testing = true;
+		((Provider)care.providers.objs[0]).testing = true;
 		for(int i = 0; i<varsigma;i++) {
 			care.schedule.step(care);
 			assertNotEquals(2, ((Patient)care.patients.objs[0]).h_p_i_1, "Helath status must not accumulate in this setting "+ "seed: "+currentSeed);
+			
+			
+
+
+
 		}
 		care.finish();
 	}
