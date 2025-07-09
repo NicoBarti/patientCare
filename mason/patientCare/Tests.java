@@ -35,7 +35,7 @@ public class Tests {
 		//patient initializers
 		assertEquals(delta, ((Patient)care.patients.objs[0]).delta_p, "delta_p was not set right");
 		assertEquals(0, ((Patient)care.patients.objs[0]).psi_p, "psi_p was not set right");
-		assertEquals((float)delta/varsigma, ((Patient)care.patients.objs[care.random.nextInt(N)]).progressProbability, "progressProbability was not set right");
+		assertEquals((float)delta/52, ((Patient)care.patients.objs[care.random.nextInt(N)]).progressProbability, "progressProbability was not set right");
 		assertTrue(((Patient)care.patients.objs[0]).e_p_i_1[0]>0, "Positive initial expectation needed for this test");
 		
 		
@@ -91,7 +91,7 @@ public class Tests {
 		assertEquals(delta, ((Patient)care.patients.objs[care.random.nextInt(N)]).delta_p);
 		assertEquals(delta, ((Patient)care.patients.objs[care.random.nextInt(N)]).delta_p);
 		//progress probability
-		assertEquals((float)delta/varsigma, ((Patient)care.patients.objs[care.random.nextInt(N)]).progressProbability);
+		assertEquals((float)delta/52, ((Patient)care.patients.objs[care.random.nextInt(N)]).progressProbability);
 
 	double result = 0;
 		for(int step = 0; step<varsigma; step++) {
@@ -102,7 +102,7 @@ public class Tests {
 		}
 	}
 
-	assertEquals(delta,(int)(result/N+0.5), "Unexpected need evolution (could be random error, re-test)"+ "seed: "+currentSeed); //is approx delta, I'm adding 0.5 to round up
+	assertEquals((int)(delta*152/52),(int)(result/N+0.5), "Unexpected need evolution (could be random error, re-test)"+ "seed: "+currentSeed); //is approx delta, I'm adding 0.5 to round up
 	}
 	
 	@Test

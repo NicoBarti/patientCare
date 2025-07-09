@@ -100,7 +100,7 @@ public class PatientInitializer {
 	}
 	
 	public void progressProbability(Patient patient) {
-			patient.progressProbability = (float)(patient.delta_p/care.varsigma);
+			patient.progressProbability = (float)(patient.delta_p/52);
 	}
 
 	public void capN_p(Patient patient) {
