@@ -34,9 +34,9 @@ public class PatientInitializer {
 		//initialize state variables
 		h(patient);
 		t(patient);
-		e(patient); //in some strategies depends on capE
-		c(patient);
-		b(patient);
+		e(patient); //in some strategies depends on capE // depends on W
+		c(patient); // depends on W, N
+		b(patient); // depends on W, N
 	}
 	
 	
@@ -210,5 +210,26 @@ public class PatientInitializer {
 			((Patient)patients.objs[i]).kappa_p = value;
 		}
 	}
+	
+	public void setexpectations(Bag patients, double value) {
+		for(int p=0;p<patients.numObjs;p++) {
+			for(int w=0;w<care.W;w++) {
+				((Patient)patients.objs[p]).e_p_i_1[w] = value;
+			}
+		}
+	}
+	
+	public void sethealtstatus(Bag patients, double value) {
+		for(int p=0;p<patients.numObjs;p++) {
+			((Patient)patients.objs[p]).h_p_i_1 = value;
+		}
+	}
+	
+	public void settesting(Bag patients, Boolean value) {
+		for(int p=0;p<patients.numObjs;p++) {
+			((Patient)patients.objs[p]).testing = value;
+		}
+	}
+	
 	
 }

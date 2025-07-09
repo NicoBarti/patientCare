@@ -24,7 +24,7 @@ public class Prioritizator {
 	public void changePolicy(String p) {}
 	
 	private int default_policy(Patient patient) {
-		return care.N;}
+		return care.N+2;}
 	
 	
 }

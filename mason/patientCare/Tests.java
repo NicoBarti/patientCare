@@ -8,6 +8,8 @@ public class Tests {
 	Care care;
 	Patient onePatient;
 	Provider oneProvider;
+	Provider provider_1;
+	Provider provider_2;
 	long seed = 19382109;
 	
 	@Test
@@ -78,7 +80,7 @@ public class Tests {
 	care = new Care(currentSeed);
 	care.setvarsigma(varsigma);
 	care.setN(N); 
-	care.obsSteps = 1;
+	care.OBS_PERIOD = 1;
 	care.start();
 	care.pat_init.setdelta(care.patients, delta); //same disease severity for all
 	care.prov_init.settau(care.providers,0); //no treatment
@@ -398,24 +400,30 @@ public class Tests {
 	@Test
 	void g1_g2__g3_g4interact_max1_only_interact_if_anyB() {
 		long currentSeed = System.currentTimeMillis();
-		care = new Care(currentSeed);int N = 3000; int W = 50; int varsigma = 150; double result;
+		care = new Care(currentSeed);
+		int N = 3000 + care.random.nextInt(10); 
+		int W = 45 + care.random.nextInt(10); 
+		int varsigma = 145 + care.random.nextInt(10); 
 		care.setN(N);
 		care.setW(W);
 		care.setvarsigma(varsigma);
-		care.obsSteps = 1;
+		care.OBS_PERIOD = 1;
 		care.PATIENT_INIT = "random";
 		care.start();
 		
+		care.pat_init.settesting(care.patients, true);
+		care.prov_init.settesting(care.providers, true);
 		for(int step=0;step<varsigma;step++) {
 			care.schedule.step(care);
 		}
+		care.finish();
 		
 		int[][][] C_p_w_i = care.observer.getC();
 		int[][][] B_p_w_i = care.observer.getB();
-
+		
 		int providersForThisPatient = 0;
 		int behaviourInThisIteration = 0;
-		for(int step=0;step<varsigma;step++) {
+		for(int step=0;step<C_p_w_i[0][0].length;step++) {
 		for(int p=0;p<N;p++) { onePatient = (Patient)care.patients.objs[0]; 
 			providersForThisPatient = 0;
 			behaviourInThisIteration = 0;
@@ -438,7 +446,7 @@ public class Tests {
 				for(int w=0;w<W;w++) {
 					oneProvider = (Provider)care.providers.objs[w];
 					this_W = oneProvider.w;
-					for(int i =0;i<varsigma;i++) {
+					for(int i =0;i<C_p_w_i[0][0].length;i++) {
 						globalCW += C_p_w_i[p][this_W][i];
 					}
 					assertTrue(oneProvider.SumC_w[p] == globalCW, "Provider and Patient representations are different "+ "seed: "+currentSeed);
@@ -447,5 +455,4 @@ public class Tests {
 			}
 	}
 	
-
 }

@@ -7,39 +7,41 @@ public class Appointer {
 	Care care;
 	myUtil ut = new myUtil();
 	Provider wanted_provider;
+	Provider other_provider;
 	
 	public Appointer(Care c) {
 		providers = c.providers;
 		care = c;
 	}
 
-	public double[] appoint(int w, int id, double d) { 
+	public double[] appoint(int w, int p, double h) { 
 		//w: desired provided
 		//id: patient identifier
 		// returns: provider index if available, or -1 if no provider available; treatment: 
 		double[] result = new double[] {-1, 0}; // default result [w,t]
 		
 		//localize desired provider
-		for(int i =0;i<providers.numObjs;i++) {
-			if(((Provider)providers.objs[i]).w == w) {
+		for(int ow =0;ow<providers.numObjs;ow++) {
+			if(((Provider)providers.objs[ow]).w == w) {
 				//System.out.println("Provider localized:" +w);
-				wanted_provider = (Provider)providers.objs[i];
+				wanted_provider = (Provider)providers.objs[ow];
 			}
 		}
 		//System.out.println("Provider available:" +wanted_provider.isAvailable());
 
 		if(wanted_provider.isAvailable()) {
-			result[0] = w;
-			result[1]=((Provider)(providers.objs[w])).interactWithPatient(id, d);
+			result[0] = wanted_provider.w;
+			result[1]= wanted_provider.interactWithPatient(p, h);
 		}
 		
 		else {
 			// avoid w+1 receiving all the overflow from w // but this step might be unecesary because Bag is unordered
 			int[] accessArray = ut.accessArray(care.W, care.random.nextInt(care.W));
 			for(int rw=0; rw< accessArray.length; rw++) { //try assignment with the order in accessArray
-				if(((Provider)(providers.objs[accessArray[rw]])).isAvailable()) {
-					result[0] = accessArray[rw];
-					result[1]=((Provider)(providers.objs[accessArray[rw]])).interactWithPatient(id, d);
+				other_provider = (Provider)(providers.objs[accessArray[rw]]);
+				if(other_provider.isAvailable()) {
+					result[0] = other_provider.w;
+					result[1]=other_provider.interactWithPatient(p,h);
 					break;
 				}
 			}

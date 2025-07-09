@@ -12,42 +12,72 @@ public class ObserveCare implements Steppable{
 	Patient patient;
 	
 	//internals
-	protected int counter = 0;
-	protected int freq = 1;
+	int period;
+	int counter = 0;
+	int windowNumber = 0;
 	
+	Boolean testing = false;
 	
+	//Time setep 0 is for initial conditions (the observe() method should be called from Care start()
+	//At the end of each time step (order N+1), the observer evaluates if it needs to save the state variables.
+	
+	public ObserveCare(Care sim, int value) {
+		care = sim;
+		period = value;
+		int nWindows = (int)(care.varsigma/period);
+		int remainder = 0;
+		if(nWindows*period<care.varsigma) {
+			remainder = 1;}
+		int arraysLength = 1 + nWindows +remainder; //initial conditions - observation windows - reminder
+		
+		H_p_i = new double[care.N][arraysLength];
+		C_p_w_i = new int[care.N][care.W][arraysLength];
+		B_p_w_i = new int[care.N][care.W][arraysLength];
+		
+	}
 	
 	public void step(SimState state) {
-		care = (Care)state;
-		//if(care.schedule.getSteps() ==0 | care.schedule.getSteps() == care.varsigma-1) {
-		observe();
-		//}
-		//count();
+		if(counter == 0) { //record initial conditions
+			observe(windowNumber);
+			windowNumber+=1;
+		}
+		if(counter == period) {
+			observe(windowNumber);
+			windowNumber+=1;
+			counter=0;
+		}
+		counter+=1;
 	}
 	
-	public void observe() {
-		observeC();
-		observeH();
-		observeB();
+	public void observe(int loc) {
+		observeC(loc);
+		observeH(loc);
+		observeB(loc);
 	}
 	
-	public void observeC(){
+	
+	public void endObservation() {
+		observe(windowNumber);
+	}
+	
+	public void observeC(int loc){
 		for(int p = 0; p<care.N;p++) {patient = ((Patient)care.patients.objs[p]);
 			for(int w = 0; w<care.W;w++) {
-				C_p_w_i[p][w][(int)care.schedule.getSteps()] = patient.c_p_i_1[w];
+				if(testing) {System.out.println("loc: " + loc+ " w "+w+" c_p_i_1 "+patient.c_p_i_1[w]);}
+				C_p_w_i[patient.p][w][loc] = patient.c_p_i_1[w];
 			}}
 	}
 	
-	public void observeH() {
+	public void observeH(int loc) {
 		for(int p = 0; p<care.N;p++) {patient = ((Patient)care.patients.objs[p]);
-			H_p_i[p][(int)care.schedule.getSteps()] = patient.h_p_i_1;
+			H_p_i[p][loc] = patient.h_p_i_1;
 			//System.out.println(H_p_i[p][(int)care.schedule.getSteps()]);
 	}}
 	
-	public void observeB(){
+	public void observeB(int loc){
 		for(int p = 0; p<care.N;p++) {patient = ((Patient)care.patients.objs[p]);
 			for(int w = 0; w<care.W;w++) {
-				B_p_w_i[p][w][(int)care.schedule.getSteps()] = patient.b_p_i_1[w];
+				B_p_w_i[p][w][loc] = patient.b_p_i_1[w];
 			}}
 	}
 	
@@ -56,19 +86,6 @@ public class ObserveCare implements Steppable{
 	public int[][][] getB(){return B_p_w_i;}
 
 	
-	public void initialize(int value, Care care) {
-		freq = value;
-		C_p_w_i= new int[care.N][care.W][care.varsigma];
-		H_p_i = new double[care.N][care.varsigma];
-		B_p_w_i= new int[care.N][care.W][care.varsigma];
 
-	}
-	
-	protected void count() {
-		if (counter  == freq) {
-			observe();
-			counter = 0;}
-		counter +=1;
-	}
 	
 }

@@ -24,16 +24,17 @@ public class Provider implements Steppable {
 	@Override
 	public void step(SimState state) {
 		alpha_w = A_w; //open agenda
-		if(testing) {System.out.println("alpha_w" + alpha_w +" in w "+w);}
 	}
 
-	public double interactWithPatient(int id, double h) {
-		SumC_w[id] += 1;
+	public double interactWithPatient(int p, double h) {
+//if(testing & p==9) {System.out.print("\n / previous SumC_w"+" patient "+p+": "+SumC_w[p]);}
+		SumC_w[p] += 1;
 		alpha_w = alpha_w-1;
+//if(testing & p==9) {System.out.print("post SumC_w[9] :"+SumC_w[p]+ " / ");}
 		if(h == 0) { //this should never happen, patient's don't ask for visit when h ==0. Only here to be consistent with docs.
 			return(0);
 		}
-			return(Math.min(Math.min(lambda_w * SumC_w[id]/h,tau_w), h));
+			return(Math.min(Math.min(lambda_w * SumC_w[p]/h,tau_w), h));
 	}
 	
 	public boolean isAvailable() {		

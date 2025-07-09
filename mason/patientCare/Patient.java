@@ -61,16 +61,13 @@ public class Patient implements Steppable {
 				break;}}
 		 
 		if(interact) {
-			//System.out.println("Wants provider: "+t_p_i );
 			interaction = care.appointer.appoint(w, p, h_p_i);
 			if((int)interaction[0] == -1) {
 				c_p_i[w] = 0;
 				t_p_i = 0;
-				//System.out.println("No treatment t_p_i: "+t_p_i );
 			} else {
 				c_p_i[(int)interaction[0]] = 1; //w or another available provider
 				t_p_i = interaction[1];
-				//System.out.println("Treatment w "+(int)interaction[0]+" t_p_i "+interaction[1] );
 				}
 			}
 		

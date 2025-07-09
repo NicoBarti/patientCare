@@ -82,4 +82,10 @@ public class ProviderInitializer {
 			((Provider)providers.objs[i]).tau_w = value;
 		}
 	}
+	
+	public void settesting(Bag providers, Boolean value) {
+		for(int w=0;w<providers.numObjs;w++) {
+			((Provider)providers.objs[w]).testing = value;
+		}
+	}
 }
