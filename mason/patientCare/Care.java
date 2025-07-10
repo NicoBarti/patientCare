@@ -13,7 +13,8 @@ public class Care extends SimState {
 	public int N = 1000;
 	public int varsigma = 150; 
 	public int W = 2;
-	public String Pi = "base policy";
+	public int totalCapacity = 50;
+	public String Pi = "random allocation";
 	public String PROVIDER_INIT = "random";
 	public String PATIENT_INIT = "random";
 
@@ -103,12 +104,28 @@ public class Care extends SimState {
 	public HashMap getParams() {
 				
 		HashMap<String, String> params = new HashMap();
+		//Care level
 		params.put("N", Integer.toString(getN()));
 		params.put("varsigma", Integer.toString(getvarsigma()));
 		params.put("W", Double.toString(getW()));
+		params.put("totalCapacity", Integer.toString(this.W*(int)(this.totalCapacity/this.W)));
 		params.put("Pi", getPi());
 		params.put("PROVIDER_INIT", getPROVIDER_INIT());
 		params.put("PATIENT_INIT", getPATIENT_INIT());
+		//Patient level
+		params.put("fixed_delta", Double.toString(pat_init.fixed_delta));
+		params.put("fixed_capN", Double.toString(pat_init.fixed_capN));
+		params.put("fixed_lambda", Double.toString(pat_init.fixed_lambda));
+		params.put("fixed_tau", Double.toString(pat_init.fixed_tau));
+		params.put("fixed_rho", Double.toString(pat_init.fixed_rho));
+		params.put("fixed_eta", Double.toString(pat_init.fixed_eta));
+		params.put("fixed_kappa", Float.toString(pat_init.fixed_kappa));
+		params.put("fixed_capE", Double.toString(pat_init.fixed_capE));
+		params.put("fixed_psi", Double.toString(pat_init.fixed_psi));
+		//Provider level
+		params.put("fixed_lambda", Double.toString(prov_init.fixed_lambda));
+		params.put("fixed_tau", Double.toString(prov_init.fixed_tau));
+		
 		return params;
 	}
 

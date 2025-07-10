@@ -208,20 +208,27 @@ public class Tests {
 	
 	@Test
 	void b1_break_ties_at_random_expectations() {
-		care = new Care(seed);
-		int N = 1; int W = 10;
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);
+		int N = 1; int W = 100;
 		care.setW(W);
 		care.setN(N);
 		care.start();
-		 
-		for(int i=0;i<W;i++) {((Patient)care.patients.objs[0]).e_p_i[i] = 2.0;}
-		//for(int i=0;i<W;i++) {System.out.println(((Patient)care.patients.objs[0]).e_p_i_1[i]);}
-		((Patient)care.patients.objs[0]).behaviouralRule(care);
-		assertEquals(2,((Patient)care.patients.objs[0]).wMaxExpectation);
-		((Patient)care.patients.objs[0]).behaviouralRule(care);
-		assertEquals(0,((Patient)care.patients.objs[0]).wMaxExpectation);
-		((Patient)care.patients.objs[0]).e_p_i[3] = 3.0;
-		((Patient)care.patients.objs[0]).behaviouralRule(care);
+		
+		Patient onePatient = (Patient)(care.patients.objs[0]);
+		
+		for(int i=0;i<W;i++) {onePatient.e_p_i[i] = 2.0;}
+		int[] ws = new int[3];
+		int matchs = 0;
+		onePatient.behaviouralRule(care);
+		ws[0] = onePatient.wMaxExpectation;
+		for(int i = 1; i<ws.length;i++) { 
+			onePatient.behaviouralRule(care);
+			ws[i] = onePatient.wMaxExpectation;
+			if(ws[0]==ws[i]) {matchs+=1;} }
+		assertTrue((matchs <1), "Check break ties expectations. The probability of this match is <1/100 "+ "seed: "+currentSeed);
+		onePatient.e_p_i[3] = 3.0;
+		onePatient.behaviouralRule(care);
 		assertEquals(3,((Patient)care.patients.objs[0]).wMaxExpectation);
 		
 	}

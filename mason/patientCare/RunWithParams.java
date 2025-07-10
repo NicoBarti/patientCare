@@ -35,6 +35,10 @@ public class RunWithParams {
 			case "W":
 				simulation.setW(a.getInt(0));
 				break;
+			case "PATIENT_INIT":
+				simulation.setPATIENT_INIT(key);
+			case "PROVIDER_INIT":
+				simulation.setPATIENT_INIT(key);
 		}}
 	}
 	
@@ -48,14 +52,14 @@ public class RunWithParams {
 		simulation.start();
 		do{
 			if (!simulation.schedule.step(simulation)) {
-				System.out.println("algo falso en schedule.step");
+				System.out.println("Unknown problem when calling schedule.step");
 				break;}
 		}
 		while (simulation.schedule.getSteps() < simulation.getvarsigma());
 		simulation.finish();
 	}
 	
-	public Care getSimulation() {
-		return(simulation);
-	}
+//	public Care getSimulation() {
+//		return(simulation);
+//	}
 }
