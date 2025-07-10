@@ -21,27 +21,52 @@ public class PatientInitializer {
 	public PatientInitializer(Care _care, String _strategy) {
 		care = _care;
 		strategy = _strategy;
-		if (strategy == "random-basal") {
-			care.W =  Math.max(care.random.nextInt(care.N),1);
-			care.totalCapacity = care.random.nextInt(care.N);
+		switch(strategy) {
+			case  "random-basal":
+				care.W =  Math.max(care.random.nextInt(care.N),1);
+				care.totalCapacity = care.random.nextInt(care.N);
+			break;
+			
+			case "sensitivity_1":
+				//initialize Care level (maybe this can be handled elsewhere)
+				care.totalCapacity = care.random.nextInt(4999)+1;
+				care.N = care.random.nextInt(4999)+1;
+				care.W = care.random.nextInt(49)+1;
+				//initialize fixed params
+				fixed_delta = care.random.nextDouble()*10;
+				fixed_capN = care.random.nextDouble()*10;
+				fixed_lambda = care.random.nextDouble()*10;
+				fixed_tau = care.random.nextDouble()*10;
+				fixed_rho = care.random.nextDouble()*10;
+				fixed_eta = care.random.nextDouble()*10;
+				fixed_kappa = care.random.nextFloat(true, true);
+				fixed_capE = care.random.nextDouble(true,true)*10;
+				fixed_psi = care.random.nextDouble();
+				strategy = "apply_fixed";
+			break;	
+		
 		}
-		if (strategy == "sensitivity_1") {
-			//initialize Care level (maybe this can be handled elsewhere)
-			care.totalCapacity = care.random.nextInt(4999)+1;
-			care.N = care.random.nextInt(4999)+1;
-			care.W = care.random.nextInt(49)+1;
-			//initialize fixed params
-			fixed_delta = care.random.nextDouble()*10;
-			fixed_capN = care.random.nextDouble()*10;
-			fixed_lambda = care.random.nextDouble()*10;
-			fixed_tau = care.random.nextDouble()*10;
-			fixed_rho = care.random.nextDouble()*10;
-			fixed_eta = care.random.nextDouble()*10;
-			fixed_kappa = care.random.nextFloat(true, true)*10;
-			fixed_capE = care.random.nextDouble(true,true)*10;
-			fixed_psi = care.random.nextDouble();
-			strategy = "apply_fixed";
-		}
+//		if (strategy == "random-basal") {
+//			care.W =  Math.max(care.random.nextInt(care.N),1);
+//			care.totalCapacity = care.random.nextInt(care.N);
+//		}
+//		if (strategy == "sensitivity_1") {
+//			//initialize Care level (maybe this can be handled elsewhere)
+//			care.totalCapacity = care.random.nextInt(4999)+1;
+//			care.N = care.random.nextInt(4999)+1;
+//			care.W = care.random.nextInt(49)+1;
+//			//initialize fixed params
+//			fixed_delta = care.random.nextDouble()*10;
+//			fixed_capN = care.random.nextDouble()*10;
+//			fixed_lambda = care.random.nextDouble()*10;
+//			fixed_tau = care.random.nextDouble()*10;
+//			fixed_rho = care.random.nextDouble()*10;
+//			fixed_eta = care.random.nextDouble()*10;
+//			fixed_kappa = care.random.nextFloat(true, true)*10;
+//			fixed_capE = care.random.nextDouble(true,true)*10;
+//			fixed_psi = care.random.nextDouble();
+//			strategy = "apply_fixed";
+//		}
 	}
 
 	//random-basal strategy: fixed N, varsigma, meanDelta

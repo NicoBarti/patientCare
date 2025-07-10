@@ -22,7 +22,8 @@ public class ResponseProtocol {
 		if(status == WAITING) {
 			status = PARAMCHECK;
 			params = com;
-			run = new RunWithParams(params);			
+			run = new RunWithParams(params);	
+			run.simulation.start();
 			// comunicates what parameter values were used by the simulation
 			return run.getParams();
 		}

@@ -61,23 +61,24 @@ public class ObserveCare implements Steppable{
 	}
 	
 	public void observeC(int loc){
-		for(int p = 0; p<care.N;p++) {patient = ((Patient)care.patients.objs[p]);
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
 			for(int w = 0; w<care.W;w++) {
-				if(testing) {System.out.println("loc: " + loc+ " w "+w+" c_p_i_1 "+patient.c_p_i_1[w]);}
 				C_p_w_i[patient.p][w][loc] = patient.c_p_i_1[w];
 			}}
 	}
 	
 	public void observeH(int loc) {
-		for(int p = 0; p<care.N;p++) {patient = ((Patient)care.patients.objs[p]);
-			H_p_i[p][loc] = patient.h_p_i_1;
-			//System.out.println(H_p_i[p][(int)care.schedule.getSteps()]);
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			H_p_i[patient.p][loc] = patient.h_p_i_1;
 	}}
 	
 	public void observeB(int loc){
-		for(int p = 0; p<care.N;p++) {patient = ((Patient)care.patients.objs[p]);
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
 			for(int w = 0; w<care.W;w++) {
-				B_p_w_i[p][w][loc] = patient.b_p_i_1[w];
+				B_p_w_i[patient.p][w][loc] = patient.b_p_i_1[w];
 			}}
 	}
 	

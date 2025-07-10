@@ -13,7 +13,6 @@ public class RunWithParams {
 	public RunWithParams(String par) {
 		simulation = new Care(System.currentTimeMillis());
 		params = new JSONObject(par);
-		
 		populateParameters();
 	}
 	
@@ -36,9 +35,14 @@ public class RunWithParams {
 				simulation.setW(a.getInt(0));
 				break;
 			case "PATIENT_INIT":
-				simulation.setPATIENT_INIT(key);
+				simulation.setPATIENT_INIT(a.getString(0) );
+				break;
 			case "PROVIDER_INIT":
-				simulation.setPATIENT_INIT(key);
+				simulation.setPROVIDER_INIT(a.getString(0));
+				break;
+			case "OBS_PERIOD":
+				simulation.setOBS_PERIOD(a.getInt(0));
+				break;
 		}}
 	}
 	
@@ -49,7 +53,6 @@ public class RunWithParams {
 	}
 	
 	public void runSimulation() {
-		simulation.start();
 		do{
 			if (!simulation.schedule.step(simulation)) {
 				System.out.println("Unknown problem when calling schedule.step");
@@ -59,7 +62,7 @@ public class RunWithParams {
 		simulation.finish();
 	}
 	
-//	public Care getSimulation() {
-//		return(simulation);
-//	}
+	public Care getSimulation() {
+		return(simulation);
+	}
 }

@@ -20,7 +20,7 @@ public class Care extends SimState {
 
 	
 	// internals
-	public int OBS_PERIOD = 10;
+	public int OBS_PERIOD = 0;
 	public Bag providers;
 	public Bag patients;
 	public Appointer appointer;
@@ -42,6 +42,7 @@ public class Care extends SimState {
 		prov_init = new ProviderInitializer(this, PROVIDER_INIT);
 
 		prioritize = new Prioritizator(this, Pi);
+		if(OBS_PERIOD == 0) {OBS_PERIOD = varsigma;}
 		observer = new ObserveCare(this, OBS_PERIOD);
 		// observer.initialize(1, this);
 		
@@ -99,6 +100,8 @@ public class Care extends SimState {
 	public String getPROVIDER_INIT() {return PROVIDER_INIT;}
 	public void setPATIENT_INIT(String val) {PATIENT_INIT = val;}
 	public String getPATIENT_INIT() {return PATIENT_INIT;}
+	public void setOBS_PERIOD(int val) {OBS_PERIOD = val;}
+	public int getOBS_PERIOD() {return OBS_PERIOD;}
 
 	
 	public HashMap getParams() {
@@ -112,6 +115,7 @@ public class Care extends SimState {
 		params.put("Pi", getPi());
 		params.put("PROVIDER_INIT", getPROVIDER_INIT());
 		params.put("PATIENT_INIT", getPATIENT_INIT());
+		params.put("OBS_PERIOD", Integer.toString(getOBS_PERIOD()));
 		//Patient level
 		params.put("fixed_delta", Double.toString(pat_init.fixed_delta));
 		params.put("fixed_capN", Double.toString(pat_init.fixed_capN));
