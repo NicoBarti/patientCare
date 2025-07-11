@@ -60,6 +60,7 @@ public class RunWithParams {
 		}
 		while (simulation.schedule.getSteps() < simulation.getvarsigma());
 		simulation.finish();
+		simulation.kill();
 	}
 	
 	public Care getSimulation() {
