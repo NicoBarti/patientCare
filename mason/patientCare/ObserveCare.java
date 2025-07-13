@@ -1,12 +1,19 @@
 package patientCare;
 
 import sim.engine.SimState;
+import sim.util.*;
+
 import sim.engine.Steppable;
 
 public class ObserveCare implements Steppable{
 	double[][] H_p_i;
 	int[][][] C_p_w_i;
 	int[][][] B_p_w_i;
+	double[][] H_norm_p_i;
+
+	
+	//internals
+	int arraysLength;
 
 	Care care;
 	Patient patient;
@@ -28,11 +35,12 @@ public class ObserveCare implements Steppable{
 		int remainder = 0;
 		if(nWindows*period<care.varsigma) {
 			remainder = 1;}
-		int arraysLength = 1 + nWindows +remainder; //initial conditions - observation windows - reminder
+		arraysLength = 1 + nWindows +remainder; //initial conditions - observation windows - reminder
 		
 		H_p_i = new double[care.N][arraysLength];
 		C_p_w_i = new int[care.N][care.W][arraysLength];
 		B_p_w_i = new int[care.N][care.W][arraysLength];
+		H_norm_p_i = new double[care.N][arraysLength];
 		
 	}
 	
@@ -53,6 +61,7 @@ public class ObserveCare implements Steppable{
 		observeC(loc);
 		observeH(loc);
 		observeB(loc);
+		observeH_norm(loc);
 	}
 	
 	
@@ -74,6 +83,14 @@ public class ObserveCare implements Steppable{
 			H_p_i[patient.p][loc] = patient.h_p_i_1;
 	}}
 	
+	public void observeH_norm(int loc) {
+		//Normalize the current disease evolution by the maximum possible evolution: (disease severity/52)*time_steps
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			H_norm_p_i[patient.p][loc] = patient.h_p_i_1/(patient.delta_p);
+	}}
+	
+	
 	public void observeB(int loc){
 		for(int p = 0; p<care.N;p++) {
 			patient = ((Patient)care.patients.objs[p]);
@@ -85,6 +102,23 @@ public class ObserveCare implements Steppable{
 	public int[][][] getC(){return C_p_w_i;}
 	public double[][] getH(){return H_p_i;}
 	public int[][][] getB(){return B_p_w_i;}
+	public int getarraysLengthreturn() {return arraysLength;}
+	public double[][] getH_norm(){return H_norm_p_i;}
+	
+//	public double[] getFinal_H_norm() {
+//		int last_array_cell = H_p_i[0].length-1;
+//		Bag patients = care.patients;
+//		double[] H_norm = new double[patients.numObjs];
+//		for(int orderedPatient=0;orderedPatient<H_p_i.length;orderedPatient++) {
+//			for(int bagPatient = 0; bagPatient<patients.numObjs;bagPatient++) {
+//				if(((Patient)patients.objs[bagPatient]).p == orderedPatient) {
+//					patient = (Patient)patients.objs[bagPatient];
+//				}
+//			}
+//			H_norm[orderedPatient] = H_p_i[orderedPatient][last_array_cell]/patient.delta_p;
+//		}
+//		return H_norm;
+//	}
 
 	
 
