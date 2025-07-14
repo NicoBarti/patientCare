@@ -45,7 +45,8 @@ public class RunSensitivity1_ex1 {
 				//System.out.println("Running simulations with varsigma = "+timestep);
 					run_ex1(timestep, repetition);
 				}
-			if(((repetition)%15 ==0 & repetition !=0) | repetition == REPS-1) {
+			if((repetition)%2 ==0){System.out.print(".");}
+			if(((repetition)%5 ==0 & repetition !=0) | repetition == REPS-1) {
 				System.out.println("Saving repetitions "+fromRep+" to "+repetition+" in "+path);
 				outputWriter writer1 = new outputWriter(path, fromRep, repetition, max_varsigma, "H");
 				writer1.write(storage_H, repetition, id);

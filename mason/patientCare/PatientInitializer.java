@@ -15,8 +15,7 @@ public class PatientInitializer {
 	double fixed_eta;
 	float fixed_kappa;
 	double fixed_capE;
-	double fixed_psi;
-	
+	double fixed_psi;	
 	
 	public PatientInitializer(Care _care, String _strategy) {
 		care = _care;
@@ -43,30 +42,23 @@ public class PatientInitializer {
 				fixed_capE = care.random.nextDouble(true,true)*10;
 				fixed_psi = care.random.nextDouble();
 				strategy = "apply_fixed";
+			break;
+				
+			case "basal":
+				care.N = 5000;
+				care.W = 5;
+				care.totalCapacity = 500;
+				fixed_delta = 3;
+				fixed_capN = 5;
+				fixed_rho = 1;
+				fixed_eta = 1;
+				fixed_kappa = 0.1F;
+				fixed_capE = 5;
+				fixed_psi = 0.5;				
+				strategy = "apply_fixed";
 			break;	
 		
 		}
-//		if (strategy == "random-basal") {
-//			care.W =  Math.max(care.random.nextInt(care.N),1);
-//			care.totalCapacity = care.random.nextInt(care.N);
-//		}
-//		if (strategy == "sensitivity_1") {
-//			//initialize Care level (maybe this can be handled elsewhere)
-//			care.totalCapacity = care.random.nextInt(4999)+1;
-//			care.N = care.random.nextInt(4999)+1;
-//			care.W = care.random.nextInt(49)+1;
-//			//initialize fixed params
-//			fixed_delta = care.random.nextDouble()*10;
-//			fixed_capN = care.random.nextDouble()*10;
-//			fixed_lambda = care.random.nextDouble()*10;
-//			fixed_tau = care.random.nextDouble()*10;
-//			fixed_rho = care.random.nextDouble()*10;
-//			fixed_eta = care.random.nextDouble()*10;
-//			fixed_kappa = care.random.nextFloat(true, true)*10;
-//			fixed_capE = care.random.nextDouble(true,true)*10;
-//			fixed_psi = care.random.nextDouble();
-//			strategy = "apply_fixed";
-//		}
 	}
 
 	//random-basal strategy: fixed N, varsigma, meanDelta
