@@ -14,6 +14,7 @@ public class RunWithParams {
 	Boolean configure_pathfinder = false; // configure simulation via pathfinder
 	int pathfinder_varsigma;
 	long pathfinder_seed;
+	int obsPeriod;
 	
 	public RunWithParams(String par) {
 		simulation = new Care(System.currentTimeMillis());
@@ -22,6 +23,8 @@ public class RunWithParams {
 	}
 	
 	private void populateParameters() {
+		//should implement this routine as first saving all params in this class, and then implement
+		//in the simulation class after "pupolateParameters" method is conlcuded.
 		Iterator<String> keys = params.keys();
 		
 		//iterate over keys and pass value params
@@ -47,6 +50,7 @@ public class RunWithParams {
 				break;
 			case "OBS_PERIOD":
 				simulation.setOBS_PERIOD(a.getInt(0));
+				obsPeriod = a.getInt(0);
 				break;
 			case "pathfinder_varsigma":
 				pathfinder_varsigma = a.getInt(0);
@@ -62,7 +66,7 @@ public class RunWithParams {
 			PathFinder pathfinder = new PathFinder(new String[] {
 					"varsigma", String.valueOf(pathfinder_varsigma), "TIMES", "2", "testing", "true"});
 			pathfinder.configureCare(simulation);
-			simulation.OBS_PERIOD = 5;
+			simulation.OBS_PERIOD = this.obsPeriod;
 		}	
 	}
 	
