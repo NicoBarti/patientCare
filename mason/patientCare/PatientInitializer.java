@@ -45,9 +45,6 @@ public class PatientInitializer {
 			break;
 				
 			case "basal":
-				care.N = 5000;
-				care.W = 5;
-				care.totalCapacity = 500;
 				fixed_delta = 3;
 				fixed_capN = 5;
 				fixed_rho = 1;

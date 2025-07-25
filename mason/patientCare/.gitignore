@@ -39,3 +39,7 @@
 /ObserveCare.class
 /RunSensitivity1_ex1.class
 /outputWriter.class
+/runOneFactorTime.class
+/ParametrizeOFAT.class
+/PathFinder.class
+/TestPathFinder.class

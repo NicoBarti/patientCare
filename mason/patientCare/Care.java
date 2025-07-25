@@ -84,7 +84,7 @@ public class Care extends SimState {
 	
 	
 	public void finish() {
-		observer.endObservation();
+		observer.endObservation(this);
 			}
 	
 	// setters and getters

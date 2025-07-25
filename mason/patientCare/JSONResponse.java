@@ -16,6 +16,8 @@ public class JSONResponse {
 			//buildResults_json("exp", simulation.getexpectations());
 			//buildResults_json("T", simulation.getTs());
 			buildResults_json("B", simulation.observer.getB());
+			buildResults_json("windows", simulation.observer.getWindows());
+
 			
 			//if (fetchType.equals("add_progression")) {
 			//buildResults_json("P", simulation.gettotalProgress());}

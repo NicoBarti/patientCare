@@ -24,15 +24,13 @@ public class ProviderInitializer {
 				fixed_tau = care.random.nextDouble(true,true)*10;
 				strategy = "apply_fixed";
 			break;
+			
+			case "basal":
+				fixed_lambda = 1;
+				fixed_tau = 2;
+			break;
 		
 		}
-//		if (strategy.equals("sensitivity_1")) {
-//			//initialize fixed params
-//			fixed_lambda = care.random.nextDouble(true,true)*10;
-//			fixed_tau = care.random.nextDouble(true,true)*10;
-//			strategy = "apply_fixed";
-//
-//		}
 
 	}
 

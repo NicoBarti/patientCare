@@ -9,19 +9,20 @@ public class ObserveCare implements Steppable{
 	double[][] H_p_i;
 	int[][][] C_p_w_i;
 	int[][][] B_p_w_i;
-	double[][] H_norm_p_i;
+	//double[][] H_norm_p_i;
 
 	
 	//internals
 	int arraysLength;
+	int period;
+	int counter = 0;
+	int windowNumber = 0;
+	int[] windows; // array to export the timestep of each window
 
 	Care care;
 	Patient patient;
 	
-	//internals
-	int period;
-	int counter = 0;
-	int windowNumber = 0;
+
 	
 	Boolean testing = false;
 	
@@ -40,33 +41,36 @@ public class ObserveCare implements Steppable{
 		H_p_i = new double[care.N][arraysLength];
 		C_p_w_i = new int[care.N][care.W][arraysLength];
 		B_p_w_i = new int[care.N][care.W][arraysLength];
-		H_norm_p_i = new double[care.N][arraysLength];
+		//H_norm_p_i = new double[care.N][arraysLength];
+		windows = new int[arraysLength];
 		
 	}
 	
 	public void step(SimState state) {
 		if(counter == 0) { //record initial conditions
-			observe(windowNumber);
+			observe(windowNumber,(Care)state);
 			windowNumber+=1;
 		}
 		if(counter == period) {
-			observe(windowNumber);
+			observe(windowNumber,(Care)state);
 			windowNumber+=1;
 			counter=0;
 		}
 		counter+=1;
 	}
 	
-	public void observe(int loc) {
-		observeC(loc);
+	public void observe(int loc, Care state) {
+		windows[loc] =(int)state.schedule.getSteps();
+
+		//observeC(loc);
 		observeH(loc);
-		observeB(loc);
-		observeH_norm(loc);
+		//observeB(loc);
+		//observeH_norm(loc);
 	}
 	
 	
-	public void endObservation() {
-		observe(windowNumber);
+	public void endObservation(Care state) {
+		observe(windowNumber, state);
 	}
 	
 	public void observeC(int loc){
@@ -83,12 +87,12 @@ public class ObserveCare implements Steppable{
 			H_p_i[patient.p][loc] = patient.h_p_i_1;
 	}}
 	
-	public void observeH_norm(int loc) {
-		//Normalize the current disease evolution by the maximum possible evolution: (disease severity/52)*time_steps
-		for(int p = 0; p<care.N;p++) {
-			patient = ((Patient)care.patients.objs[p]);
-			H_norm_p_i[patient.p][loc] = patient.h_p_i_1/(patient.delta_p);
-	}}
+//	public void observeH_norm(int loc) {
+//		//Normalize the current disease evolution by the maximum possible evolution: (disease severity/52)*time_steps
+//		for(int p = 0; p<care.N;p++) {
+//			patient = ((Patient)care.patients.objs[p]);
+//			H_norm_p_i[patient.p][loc] = patient.h_p_i_1/(patient.delta_p);
+//	}}
 	
 	
 	public void observeB(int loc){
@@ -103,7 +107,8 @@ public class ObserveCare implements Steppable{
 	public double[][] getH(){return H_p_i;}
 	public int[][][] getB(){return B_p_w_i;}
 	public int getarraysLengthreturn() {return arraysLength;}
-	public double[][] getH_norm(){return H_norm_p_i;}
+	//public double[][] getH_norm(){return H_norm_p_i;}
+	public int[] getWindows() {return windows;};
 	
 //	public double[] getFinal_H_norm() {
 //		int last_array_cell = H_p_i[0].length-1;

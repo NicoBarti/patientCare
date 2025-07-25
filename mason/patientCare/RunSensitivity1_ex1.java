@@ -1,15 +1,4 @@
 package patientCare;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.opencsv.CSVWriter;
 
 public class RunSensitivity1_ex1 {
 
@@ -22,10 +11,9 @@ public class RunSensitivity1_ex1 {
 	Care care;
 	double[][] finalH;
 	double[][] storage_H = new double[REPS][max_varsigma]; 
-	double[][] storage_normH = new double[REPS][max_varsigma]; 
+	//double[][] storage_normH = new double[REPS][max_varsigma]; 
 
 	double averages;
-
 	
 	public static void main(String[] args) {
 		max_varsigma = Integer.valueOf(args[0]);
@@ -36,6 +24,8 @@ public class RunSensitivity1_ex1 {
 	}
 	
 	public RunSensitivity1_ex1(){
+		long timer = System.currentTimeMillis();
+
 		int fromRep = 0;
 		//finalpath = "/Users/nicolasbarticevic/Desktop/CareEngineAnalytics/data/sensitivity_1/normalizedH/"+"varsigma_"+varsigma+"_ex1seed"+seed+".csv";
 		System.out.println("Running random simulations with varsigma in [1:"+max_varsigma+"] and "+REPS+" repetitions");
@@ -50,16 +40,19 @@ public class RunSensitivity1_ex1 {
 				System.out.println("Saving repetitions "+fromRep+" to "+repetition+" in "+path);
 				outputWriter writer1 = new outputWriter(path, fromRep, repetition, max_varsigma, "H");
 				writer1.write(storage_H, repetition, id);
-				outputWriter writer2 = new outputWriter(path, fromRep, repetition, max_varsigma, "normH");
-				writer2.write(storage_normH, repetition, id);
+				//outputWriter writer2 = new outputWriter(path, fromRep, repetition, max_varsigma, "normH");
+				//writer2.write(storage_normH, repetition, id);
 				fromRep = repetition;
 			}
 		}
+		//System.out.print(System.currentTimeMillis() - timer);
 		System.out.println("All done");
+		System.exit(0);
 	}
 	
 	public void run_ex1(int varsigma, int repetition){
-		care = new Care(System.currentTimeMillis());
+		long seed = System.currentTimeMillis();
+		care = new Care(seed);
 		care.setOBS_PERIOD(varsigma);
 		care.setPATIENT_INIT("sensitivity_1");
 		care.setPROVIDER_INIT("sensitivity_1");
@@ -82,6 +75,6 @@ public class RunSensitivity1_ex1 {
 		for(int p=0;p<care.observer.getH().length;p++) {
 			averages += care.observer.getH_norm()[p][care.observer.getH_norm()[0].length-1];
 		}
-		storage_normH[repetition][varsigma] = averages/care.observer.getH_norm().length;
+		//storage_normH[repetition][varsigma] = averages/care.observer.getH_norm().length;
 	}	
 }

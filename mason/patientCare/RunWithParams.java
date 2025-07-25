@@ -10,6 +10,11 @@ public class RunWithParams {
 	Care simulation;
 	JSONObject params;
 
+	// internals
+	Boolean configure_pathfinder = false; // configure simulation via pathfinder
+	int pathfinder_varsigma;
+	long pathfinder_seed;
+	
 	public RunWithParams(String par) {
 		simulation = new Care(System.currentTimeMillis());
 		params = new JSONObject(par);
@@ -43,10 +48,36 @@ public class RunWithParams {
 			case "OBS_PERIOD":
 				simulation.setOBS_PERIOD(a.getInt(0));
 				break;
+			case "pathfinder_varsigma":
+				pathfinder_varsigma = a.getInt(0);
+				configure_pathfinder = true;
+				break;
+			case "pathfinder_seed":
+				pathfinder_seed = a.getLong(0);
+				configure_pathfinder = true;
+				break;
 		}}
+		if(configure_pathfinder) {
+			simulation = new Care( Long.valueOf(pathfinder_seed));
+			PathFinder pathfinder = new PathFinder(new String[] {
+					"varsigma", String.valueOf(pathfinder_varsigma), "TIMES", "2", "testing", "true"});
+			pathfinder.configureCare(simulation);
+			simulation.OBS_PERIOD = 5;
+		}	
 	}
 	
 	public String getParams() {
+		if(configure_pathfinder) {
+			HashMap<String, String> params = new HashMap();
+			params.put("pathfinder_varsigma", Integer.toString(pathfinder_varsigma));
+			params.put("pathfinder_seed", Long.toString(pathfinder_seed));
+			HashMap configured_params = simulation.getParams();
+			JSONObject sub_response = new JSONObject(configured_params);
+			params.put("configured_params", sub_response.toString());
+
+			JSONObject response = new JSONObject(params);
+			return(response.toString());
+		}
 		HashMap params = simulation.getParams();
 		JSONObject response = new JSONObject(params);
 		return(response.toString());
