@@ -13,9 +13,11 @@ public class JSONResponse {
 			//buildResults_json("d", simulation.getds());
 			buildResults_json("C", simulation.observer.getC());
 			buildResults_json("H", simulation.observer.getH());
-			//buildResults_json("exp", simulation.getexpectations());
-			//buildResults_json("T", simulation.getTs());
+			buildResults_json("E", simulation.observer.getE());
+			buildResults_json("T", simulation.observer.getT());
 			buildResults_json("B", simulation.observer.getB());
+			buildResults_json("N", simulation.observer.getN());
+
 			buildResults_json("windows", simulation.observer.getWindows());
 
 			

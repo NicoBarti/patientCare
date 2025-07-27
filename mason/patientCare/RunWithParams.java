@@ -11,20 +11,64 @@ public class RunWithParams {
 	JSONObject params;
 
 	// internals
+	//int pathfinder_varsigma;
+	long seed;
+	int OBS_PERIOD = 0;
+	int N = 1000;
+	int varsigma = 150;
+	int W = 2;
+	String PATIENT_INIT = "random";
+	String PROVIDER_INIT = "random";
+	Boolean obsH;
+	Boolean obsN;
+	Boolean obsC;
+	Boolean obsT;
+	Boolean obsE;
+	Boolean obsB;
 	Boolean configure_pathfinder = false; // configure simulation via pathfinder
-	int pathfinder_varsigma;
-	long pathfinder_seed;
-	int obsPeriod;
 	
 	public RunWithParams(String par) {
-		simulation = new Care(System.currentTimeMillis());
-		params = new JSONObject(par);
 		populateParameters();
+		if (seed ==0) {simulation = new Care(System.currentTimeMillis());}
+		else {simulation = new Care(seed);} 
+		params = new JSONObject(par);
+		if (configure_pathfinder) {
+			configure_pathfinder(simulation);
+		} else {
+			regularParamImplementation(simulation);
+		}
+	}
+	
+	protected void regularParamImplementation(Care simulation) {
+		simulation.setN(N);
+		simulation.setvarsigma(varsigma);
+		simulation.setW(W);
+		simulation.setPATIENT_INIT(PATIENT_INIT);
+		simulation.setPROVIDER_INIT(PROVIDER_INIT);
+		simulation.setOBS_PERIOD(OBS_PERIOD);
+		simulation.observer.obsH = obsH;
+		simulation.observer.obsN = obsN;
+		simulation.observer.obsC = obsC;
+		simulation.observer.obsT = obsT;
+		simulation.observer.obsE = obsE;
+		simulation.observer.obsB = obsB;
+
+	}
+	
+	protected void configure_pathfinder(Care simulation){
+		PathFinder pathfinder = new PathFinder(new String[] {
+				"varsigma", String.valueOf(varsigma), "TIMES", "2", "testing", "true"});
+		pathfinder.configureCare(simulation);
+		simulation.OBS_PERIOD = OBS_PERIOD;
+		simulation.observer.obsH = obsH;
+		simulation.observer.obsN = obsN;
+		simulation.observer.obsC = obsC;
+		simulation.observer.obsT = obsT;
+		simulation.observer.obsE = obsE;
+		simulation.observer.obsB = obsB;
 	}
 	
 	private void populateParameters() {
-		//should implement this routine as first saving all params in this class, and then implement
-		//in the simulation class after "pupolateParameters" method is conlcuded.
 		Iterator<String> keys = params.keys();
 		
 		//iterate over keys and pass value params
@@ -34,47 +78,57 @@ public class RunWithParams {
 		    
 			switch (key) { // adds the parameters to simulation
 			case "N":
-				simulation.setN(a.getInt(0));
+				N = a.getInt(0);
 				break;
 			case "varsigma":
-				simulation.setvarsigma(a.getInt(0));
+				varsigma = a.getInt(0);
 				break;
 			case "W":
-				simulation.setW(a.getInt(0));
+				W = a.getInt(0);
 				break;
 			case "PATIENT_INIT":
-				simulation.setPATIENT_INIT(a.getString(0) );
+				PATIENT_INIT = a.getString(0);
 				break;
 			case "PROVIDER_INIT":
-				simulation.setPROVIDER_INIT(a.getString(0));
+				PROVIDER_INIT = a.getString(0);
 				break;
 			case "OBS_PERIOD":
-				simulation.setOBS_PERIOD(a.getInt(0));
-				obsPeriod = a.getInt(0);
+				OBS_PERIOD = a.getInt(0);
 				break;
-			case "pathfinder_varsigma":
-				pathfinder_varsigma = a.getInt(0);
+			case "pathfinder":
 				configure_pathfinder = true;
 				break;
-			case "pathfinder_seed":
-				pathfinder_seed = a.getLong(0);
-				configure_pathfinder = true;
+			case "seed":
+				seed = a.getLong(0);
 				break;
-		}}
-		if(configure_pathfinder) {
-			simulation = new Care( Long.valueOf(pathfinder_seed));
-			PathFinder pathfinder = new PathFinder(new String[] {
-					"varsigma", String.valueOf(pathfinder_varsigma), "TIMES", "2", "testing", "true"});
-			pathfinder.configureCare(simulation);
-			simulation.OBS_PERIOD = this.obsPeriod;
-		}	
+			case "obsH":
+				obsH = true;
+				break;
+			case "obsN":
+				obsN = true;
+				break;
+			case "obsC":
+				obsC = true;
+				break;
+			case "obsT":
+				obsT = true;
+				break;
+			case "obsE":
+				obsE = true;
+				break;
+			case "obsB":
+				obsB = true;
+				break;
+		}}	
 	}
+	
+
 	
 	public String getParams() {
 		if(configure_pathfinder) {
 			HashMap<String, String> params = new HashMap();
-			params.put("pathfinder_varsigma", Integer.toString(pathfinder_varsigma));
-			params.put("pathfinder_seed", Long.toString(pathfinder_seed));
+			params.put("pathfinder_varsigma", Integer.toString(varsigma));
+			params.put("pathfinder_seed", Long.toString(seed));
 			HashMap configured_params = simulation.getParams();
 			JSONObject sub_response = new JSONObject(configured_params);
 			params.put("configured_params", sub_response.toString());

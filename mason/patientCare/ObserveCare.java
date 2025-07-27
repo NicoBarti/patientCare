@@ -9,8 +9,9 @@ public class ObserveCare implements Steppable{
 	double[][] H_p_i;
 	int[][][] C_p_w_i;
 	int[][][] B_p_w_i;
-	//double[][] H_norm_p_i;
-
+	double[][] N_p_i;
+	double[][] T_p_i;
+	double[][][] E_p_w_i;
 	
 	//internals
 	int arraysLength;
@@ -19,10 +20,15 @@ public class ObserveCare implements Steppable{
 	int windowNumber = 0;
 	int[] windows; // array to export the timestep of each window
 
+	Boolean obsH;
+	Boolean obsN;
+	Boolean obsC;
+	Boolean obsT;
+	Boolean obsE;
+	Boolean obsB;
+	
 	Care care;
 	Patient patient;
-	
-
 	
 	Boolean testing = false;
 	
@@ -30,20 +36,38 @@ public class ObserveCare implements Steppable{
 	//At the end of each time step (order N+1), the observer evaluates if it needs to save the state variables.
 	
 	public ObserveCare(Care sim, int value) {
+		//this constructor for observing everything
 		care = sim;
+		set_arrays_length(value);
+		H_p_i = new double[care.N][arraysLength];
+		C_p_w_i = new int[care.N][care.W][arraysLength];
+		B_p_w_i = new int[care.N][care.W][arraysLength];
+		N_p_i = new double[care.N][arraysLength];
+		T_p_i = new double[care.N][arraysLength];
+		E_p_w_i = new double[care.N][care.W][arraysLength];
+	}
+	
+	public ObserveCare(Care sim, int value, Boolean H, Boolean N, Boolean C, 
+			Boolean T, Boolean E, Boolean B) {
+		//this constructor for observing only the specified state variables
+		care = sim;
+		set_arrays_length(value);
+		if(H) {obsH = true; H_p_i = new double[care.N][arraysLength];}
+		if(N) {obsN = true; N_p_i = new double[care.N][arraysLength];}
+		if(C) {obsC = true; C_p_w_i = new int[care.N][care.W][arraysLength];}
+		if(T) {obsT = true; T_p_i = new double[care.N][arraysLength];}
+		if(E) {obsE = true; E_p_w_i = new double[care.N][care.W][arraysLength];}
+		if(B) {obsB = true; B_p_w_i = new int[care.N][care.W][arraysLength];}
+	}
+	
+	private void set_arrays_length(int value) {
 		period = value;
 		int nWindows = (int)(care.varsigma/period);
 		int remainder = 0;
 		if(nWindows*period<care.varsigma) {
 			remainder = 1;}
 		arraysLength = 1 + nWindows +remainder; //initial conditions - observation windows - reminder
-		
-		H_p_i = new double[care.N][arraysLength];
-		C_p_w_i = new int[care.N][care.W][arraysLength];
-		B_p_w_i = new int[care.N][care.W][arraysLength];
-		//H_norm_p_i = new double[care.N][arraysLength];
 		windows = new int[arraysLength];
-		
 	}
 	
 	public void step(SimState state) {
@@ -62,10 +86,12 @@ public class ObserveCare implements Steppable{
 	public void observe(int loc, Care state) {
 		windows[loc] =(int)state.schedule.getSteps();
 
-		//observeC(loc);
-		observeH(loc);
-		//observeB(loc);
-		//observeH_norm(loc);
+		if(obsC) {observeC(loc);}
+		if(obsH) {observeH(loc);}
+		if(obsB) {observeB(loc);} 
+		if(obsN) {observeN(loc);}
+		if(obsT) {observeT(loc);}
+		if(obsE) {observeE(loc);}
 	}
 	
 	
@@ -87,13 +113,25 @@ public class ObserveCare implements Steppable{
 			H_p_i[patient.p][loc] = patient.h_p_i_1;
 	}}
 	
-//	public void observeH_norm(int loc) {
-//		//Normalize the current disease evolution by the maximum possible evolution: (disease severity/52)*time_steps
-//		for(int p = 0; p<care.N;p++) {
-//			patient = ((Patient)care.patients.objs[p]);
-//			H_norm_p_i[patient.p][loc] = patient.h_p_i_1/(patient.delta_p);
-//	}}
+	public void observeN(int loc) {
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			N_p_i[patient.p][loc] = patient.n_p_i;
+	}}
 	
+	public void observeT(int loc) {
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			T_p_i[patient.p][loc] = patient.t_p_i_1;
+	}}
+	
+	public void observeE(int loc){
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			for(int w = 0; w<care.W;w++) {
+				E_p_w_i[patient.p][w][loc] = patient.e_p_i_1[w];
+			}}
+	}
 	
 	public void observeB(int loc){
 		for(int p = 0; p<care.N;p++) {
@@ -106,25 +144,12 @@ public class ObserveCare implements Steppable{
 	public int[][][] getC(){return C_p_w_i;}
 	public double[][] getH(){return H_p_i;}
 	public int[][][] getB(){return B_p_w_i;}
-	public int getarraysLengthreturn() {return arraysLength;}
-	//public double[][] getH_norm(){return H_norm_p_i;}
-	public int[] getWindows() {return windows;};
+	public double[][] getN(){return N_p_i;}
+	public double[][] getT(){return T_p_i;}
+	public double[][][] getE(){return E_p_w_i;}
 	
-//	public double[] getFinal_H_norm() {
-//		int last_array_cell = H_p_i[0].length-1;
-//		Bag patients = care.patients;
-//		double[] H_norm = new double[patients.numObjs];
-//		for(int orderedPatient=0;orderedPatient<H_p_i.length;orderedPatient++) {
-//			for(int bagPatient = 0; bagPatient<patients.numObjs;bagPatient++) {
-//				if(((Patient)patients.objs[bagPatient]).p == orderedPatient) {
-//					patient = (Patient)patients.objs[bagPatient];
-//				}
-//			}
-//			H_norm[orderedPatient] = H_p_i[orderedPatient][last_array_cell]/patient.delta_p;
-//		}
-//		return H_norm;
-//	}
-
+	public int getarraysLengthreturn() {return arraysLength;}
+	public int[] getWindows() {return windows;};
 	
 
 	
