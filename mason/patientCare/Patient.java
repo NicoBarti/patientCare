@@ -59,7 +59,7 @@ public class Patient implements Steppable {
 				w = b_w;
 				interact = true;
 				break;}}
-		 
+
 		if(interact) {
 			interaction = care.appointer.appoint(w, p, h_p_i);
 			if((int)interaction[0] == -1) {

@@ -9,6 +9,9 @@ public class Appointer {
 	Provider wanted_provider;
 	Provider other_provider;
 	
+	//internals
+	Boolean testing = false;
+	
 	public Appointer(Care c) {
 		providers = c.providers;
 		care = c;
@@ -27,7 +30,6 @@ public class Appointer {
 				wanted_provider = (Provider)providers.objs[ow];
 			}
 		}
-		//System.out.println("Provider available:" +wanted_provider.isAvailable());
 
 		if(wanted_provider.isAvailable()) {
 			result[0] = wanted_provider.w;
@@ -46,6 +48,7 @@ public class Appointer {
 				}
 			}
 		}
+
 		return result;
 	}
 	

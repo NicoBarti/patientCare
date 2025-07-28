@@ -19,19 +19,23 @@ public class RunWithParams {
 	int W = 2;
 	String PATIENT_INIT = "random";
 	String PROVIDER_INIT = "random";
-	Boolean obsH;
-	Boolean obsN;
-	Boolean obsC;
-	Boolean obsT;
-	Boolean obsE;
-	Boolean obsB;
+	Boolean obsH= false;
+	Boolean obsN= false;
+	Boolean obsC= false;
+	Boolean obsT= false;
+	Boolean obsE= false;
+	Boolean obsB= false;
 	Boolean configure_pathfinder = false; // configure simulation via pathfinder
 	
 	public RunWithParams(String par) {
-		populateParameters();
-		if (seed ==0) {simulation = new Care(System.currentTimeMillis());}
-		else {simulation = new Care(seed);} 
 		params = new JSONObject(par);
+		populateParameters();
+		if (seed ==0) {simulation = new Care(System.currentTimeMillis());
+System.out.println("Configuring with random seed");
+}
+		else {simulation = new Care(seed);
+System.out.println("Configuring with seed "+seed);
+} 
 		if (configure_pathfinder) {
 			configure_pathfinder(simulation);
 		} else {
@@ -46,26 +50,15 @@ public class RunWithParams {
 		simulation.setPATIENT_INIT(PATIENT_INIT);
 		simulation.setPROVIDER_INIT(PROVIDER_INIT);
 		simulation.setOBS_PERIOD(OBS_PERIOD);
-		simulation.observer.obsH = obsH;
-		simulation.observer.obsN = obsN;
-		simulation.observer.obsC = obsC;
-		simulation.observer.obsT = obsT;
-		simulation.observer.obsE = obsE;
-		simulation.observer.obsB = obsB;
-
+		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB);
 	}
 	
 	protected void configure_pathfinder(Care simulation){
 		PathFinder pathfinder = new PathFinder(new String[] {
 				"varsigma", String.valueOf(varsigma), "TIMES", "2", "testing", "true"});
 		pathfinder.configureCare(simulation);
-		simulation.OBS_PERIOD = OBS_PERIOD;
-		simulation.observer.obsH = obsH;
-		simulation.observer.obsN = obsN;
-		simulation.observer.obsC = obsC;
-		simulation.observer.obsT = obsT;
-		simulation.observer.obsE = obsE;
-		simulation.observer.obsB = obsB;
+		simulation.setOBS_PERIOD(OBS_PERIOD);
+		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB);
 	}
 	
 	private void populateParameters() {
@@ -122,7 +115,6 @@ public class RunWithParams {
 		}}	
 	}
 	
-
 	
 	public String getParams() {
 		if(configure_pathfinder) {

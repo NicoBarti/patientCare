@@ -18,9 +18,8 @@ public class Care extends SimState {
 	public String PROVIDER_INIT = "random";
 	public String PATIENT_INIT = "random";
 
-	
 	// internals
-	public int OBS_PERIOD = 0;
+	public int OBS_PERIOD = 1;
 	public Bag providers;
 	public Bag patients;
 	public Appointer appointer;
@@ -34,6 +33,11 @@ public class Care extends SimState {
 	public Care(long seed) {
 		super(seed);
 	}
+	
+	public void startObserver(Boolean H, Boolean N, Boolean C, 
+			Boolean T, Boolean E, Boolean B) {
+		new ObserveCare(this, OBS_PERIOD, H, N, C, T, E, B);
+	}
 
 	public void start() {
 		super.start();
@@ -43,9 +47,10 @@ public class Care extends SimState {
 
 		prioritize = new Prioritizator(this, Pi);
 		if(OBS_PERIOD == 0) {OBS_PERIOD = varsigma;}
-		observer = new ObserveCare(this, OBS_PERIOD);
-		// observer.initialize(1, this);
-		
+		if(observer == null) {// if observer not started yet:
+			observer = new ObserveCare(this, OBS_PERIOD);
+		}
+				
 		providers = new Bag(W);
 		patients = new Bag(N);
 	schedule.scheduleRepeating(schedule.EPOCH, 0, observer);

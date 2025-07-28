@@ -406,7 +406,9 @@ public class Tests {
 	
 	@Test
 	void g1_g2__g3_g4interact_max1_only_interact_if_anyB() {
+
 		long currentSeed = System.currentTimeMillis();
+		currentSeed = 1753678383484L; // PENDING DEBUG
 		care = new Care(currentSeed);
 		int N = 3000 + care.random.nextInt(10); 
 		int W = 45 + care.random.nextInt(10); 
@@ -420,11 +422,17 @@ public class Tests {
 		
 		care.pat_init.settesting(care.patients, true);
 		care.prov_init.settesting(care.providers, true);
+
+
 		for(int step=0;step<varsigma;step++) {
 			care.schedule.step(care);
 		}
 		care.finish();
-		
+
+
+		//System.out.println("SumC for provider 0 patient 0 :"+oneProvider.SumC_w[0]);
+		//System.out.println("SumC for provider 0 patient 1 :"+oneProvider.SumC_w[1]);
+
 		int[][][] C_p_w_i = care.observer.getC();
 		int[][][] B_p_w_i = care.observer.getB();
 		
@@ -447,6 +455,8 @@ public class Tests {
 		//int[][][] Providers_C_p_w_i = new int[N][W][varsigma];
 		
 		//That the global representation extracted from patient matches the one in the provider
+		// seed: 1753678383484 ==> expected: <true> but was: <false>
+
 		int this_W = 0;
 		int globalCW = 0;
 			for(int p =0;p<N;p++) {

@@ -9,6 +9,9 @@ public class Provider implements Steppable {
 	public int[] SumC_w;
 	public int alpha_w;
 	
+	//borra:
+	Care care;
+	
 	// control variables
 	public double lambda_w;
 	public double tau_w;
@@ -19,11 +22,17 @@ public class Provider implements Steppable {
 	
 	//test
 	protected Boolean testing = false;
-
+	protected int interact =0;
 
 	@Override
 	public void step(SimState state) {
+		care = (Care)state;
+		//System.out.println("Provider "+w+" interact "+interact);
 		alpha_w = A_w; //open agenda
+		//if(interact == 1) {
+		//System.out.println("THIS IS MY COUNTING FOR STEP "+state.schedule.getSteps());
+		//System.out.println("PATIENT 0 "+SumC_w[0]);}
+		//at timestep 119 there is +1
 	}
 
 	public double interactWithPatient(int p, double h) {

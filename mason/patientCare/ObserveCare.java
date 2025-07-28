@@ -20,12 +20,12 @@ public class ObserveCare implements Steppable{
 	int windowNumber = 0;
 	int[] windows; // array to export the timestep of each window
 
-	Boolean obsH;
-	Boolean obsN;
-	Boolean obsC;
-	Boolean obsT;
-	Boolean obsE;
-	Boolean obsB;
+	Boolean obsH = false;
+	Boolean obsN = false;
+	Boolean obsC= false;
+	Boolean obsT= false;
+	Boolean obsE= false;
+	Boolean obsB= false;
 	
 	Care care;
 	Patient patient;
@@ -39,12 +39,12 @@ public class ObserveCare implements Steppable{
 		//this constructor for observing everything
 		care = sim;
 		set_arrays_length(value);
-		H_p_i = new double[care.N][arraysLength];
-		C_p_w_i = new int[care.N][care.W][arraysLength];
-		B_p_w_i = new int[care.N][care.W][arraysLength];
-		N_p_i = new double[care.N][arraysLength];
-		T_p_i = new double[care.N][arraysLength];
-		E_p_w_i = new double[care.N][care.W][arraysLength];
+		H_p_i = new double[care.N][arraysLength];obsH=true;
+		C_p_w_i = new int[care.N][care.W][arraysLength];obsC=true;
+		B_p_w_i = new int[care.N][care.W][arraysLength];obsB=true;
+		N_p_i = new double[care.N][arraysLength];obsN=true;
+		T_p_i = new double[care.N][arraysLength];obsT=true;
+		E_p_w_i = new double[care.N][care.W][arraysLength];obsE=true;
 	}
 	
 	public ObserveCare(Care sim, int value, Boolean H, Boolean N, Boolean C, 
