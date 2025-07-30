@@ -23,14 +23,14 @@ public class ResponseProtocol {
 			status = PARAMCHECK;
 			params = com;
 			run = new RunWithParams(params);
-			run.simulation.start();
+			//run.simulation.start();
 			// comunicates what parameter values are used by the simulation
 			return run.getParams();
 		}
 		if(status == PARAMCHECK & (com.equals("OK_params") || com.equals("add_progression"))) {
 			status = CHUNKING;
 			run.runSimulation(); //runs the simulation
-			resutlsFetcher = new JSONResponse(run.getSimulation(), com); //
+			resutlsFetcher = new JSONResponse(run.getSimulation()); //
 			results =  resutlsFetcher.result();
 			// comunicates the size of the message to the client
 			return String.valueOf(results.length());

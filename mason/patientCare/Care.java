@@ -30,13 +30,22 @@ public class Care extends SimState {
 	PatientInitializer pat_init;
 	ObserveCare observer;
 	
+	long storedSeed;
+	
 	public Care(long seed) {
 		super(seed);
+		storedSeed = seed;
 	}
 	
-	public void startObserver(Boolean H, Boolean N, Boolean C, 
-			Boolean T, Boolean E, Boolean B) {
-		new ObserveCare(this, OBS_PERIOD, H, N, C, T, E, B);
+	public void startObserver(Boolean obsH, Boolean obsN, Boolean obsC, 
+			Boolean obsT, Boolean obsE, Boolean obsB, Boolean simpleC, Boolean simpleE, Boolean simpleB) {
+		observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB);
+		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
+	}
+	
+	public void startObserver() {
+		observer = new ObserveCare(this, OBS_PERIOD);
+		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
 	}
 
 	public void start() {
@@ -47,13 +56,10 @@ public class Care extends SimState {
 
 		prioritize = new Prioritizator(this, Pi);
 		if(OBS_PERIOD == 0) {OBS_PERIOD = varsigma;}
-		if(observer == null) {// if observer not started yet:
-			observer = new ObserveCare(this, OBS_PERIOD);
-		}
+		
 				
 		providers = new Bag(W);
 		patients = new Bag(N);
-	schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
 
 		// create and initialize providers
 		for(int i =0;i<W;i++) {
@@ -134,6 +140,9 @@ public class Care extends SimState {
 		//Provider level
 		params.put("fixed_lambda", Double.toString(prov_init.fixed_lambda));
 		params.put("fixed_tau", Double.toString(prov_init.fixed_tau));
+		//hyperparams
+		params.put("seed", Long.toString(storedSeed));
+		params.put("OBS_PERIOD", Integer.toString(OBS_PERIOD));
 		
 		return params;
 	}

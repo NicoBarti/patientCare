@@ -63,6 +63,7 @@ public class TestPathFinder {
 		Care care = new Care(seed);
 		pathfinder.configureCare(care);
 		care.start();
+		care.startObserver(true, false, false, false, false, false, false, false, false);
 		for(int i=0;i<500;i++) {
 			care.schedule.step(care);
 			

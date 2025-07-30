@@ -30,7 +30,7 @@ public class PathFinder {
 	}
 	
 	public void runRepetitions() {
-		long timer = System.currentTimeMillis();
+		//long timer = System.currentTimeMillis();
 
 		int fromRep = 0;
 		//finalpath = "/Users/nicolasbarticevic/Desktop/CareEngineAnalytics/data/sensitivity_1/normalizedH/"+"varsigma_"+varsigma+"_ex1seed"+seed+".csv";
@@ -54,7 +54,7 @@ public class PathFinder {
 			}
 		}
 		
-		System.out.println(System.currentTimeMillis() - timer);
+		//System.out.println(System.currentTimeMillis() - timer);
 		System.out.println("All done");
 		if(!testing) { System.out.println("Exiting");System.exit(0);}
 	}
@@ -68,6 +68,7 @@ public class PathFinder {
 		care1.setJob(0);
 		configureCare(care1);
 		care1.start();
+		care1.startObserver(true, false, false, false, false, false, false, false, false);
 
 		
 //		 care2 = new Care(seed2);
@@ -135,7 +136,6 @@ public class PathFinder {
 	}
 	
 	protected void configureCare(Care care) {
-		//System.out.println("configuring "+care);
 		care.setOBS_PERIOD(varsigma);
 		care.setPATIENT_INIT("sensitivity_1");
 		care.setPROVIDER_INIT("sensitivity_1");

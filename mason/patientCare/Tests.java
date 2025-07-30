@@ -21,6 +21,7 @@ public class Tests {
 	care.setN(N);
 	care.setW(W);
 	care.start();
+	care.startObserver();
 	
 	care.pat_init.setdelta(care.patients, delta); 
 	care.pat_init.setpsi(care.patients, 0);
@@ -419,19 +420,15 @@ public class Tests {
 		care.OBS_PERIOD = 1;
 		care.PATIENT_INIT = "random";
 		care.start();
-		
 		care.pat_init.settesting(care.patients, true);
 		care.prov_init.settesting(care.providers, true);
+		care.startObserver(false, false, true, false, false, true, false, false, false);
 
 
 		for(int step=0;step<varsigma;step++) {
 			care.schedule.step(care);
 		}
 		care.finish();
-
-
-		//System.out.println("SumC for provider 0 patient 0 :"+oneProvider.SumC_w[0]);
-		//System.out.println("SumC for provider 0 patient 1 :"+oneProvider.SumC_w[1]);
 
 		int[][][] C_p_w_i = care.observer.getC();
 		int[][][] B_p_w_i = care.observer.getB();
@@ -459,6 +456,7 @@ public class Tests {
 
 		int this_W = 0;
 		int globalCW = 0;
+
 			for(int p =0;p<N;p++) {
 				for(int w=0;w<W;w++) {
 					oneProvider = (Provider)care.providers.objs[w];
@@ -466,6 +464,7 @@ public class Tests {
 					for(int i =0;i<C_p_w_i[0][0].length;i++) {
 						globalCW += C_p_w_i[p][this_W][i];
 					}
+
 					assertTrue(oneProvider.SumC_w[p] == globalCW, "Provider and Patient representations are different "+ "seed: "+currentSeed);
 					globalCW = 0;
 				}	

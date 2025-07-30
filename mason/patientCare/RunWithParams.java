@@ -25,43 +25,46 @@ public class RunWithParams {
 	Boolean obsT= false;
 	Boolean obsE= false;
 	Boolean obsB= false;
+	Boolean simpleC = false;
+	Boolean simpleE = false;
+	Boolean simpleB = false;
 	Boolean configure_pathfinder = false; // configure simulation via pathfinder
 	
 	public RunWithParams(String par) {
 		params = new JSONObject(par);
-		populateParameters();
-		if (seed ==0) {simulation = new Care(System.currentTimeMillis());
-System.out.println("Configuring with random seed");
-}
-		else {simulation = new Care(seed);
-System.out.println("Configuring with seed "+seed);
-} 
+		readParameters();
+		if (seed ==0) {simulation = new Care(System.currentTimeMillis());}
+		else {simulation = new Care(seed);} 
+		
 		if (configure_pathfinder) {
-			configure_pathfinder(simulation);
+			configure_pathfinder();
 		} else {
-			regularParamImplementation(simulation);
+			regularParamImplementation();
 		}
+		simulation.start();
+		//override custom observer: (do this safetely after start has set the
+		//defenitive N and W
+		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB, 
+				simpleC, simpleE, simpleB);
 	}
 	
-	protected void regularParamImplementation(Care simulation) {
+	protected void regularParamImplementation() {
 		simulation.setN(N);
 		simulation.setvarsigma(varsigma);
 		simulation.setW(W);
 		simulation.setPATIENT_INIT(PATIENT_INIT);
 		simulation.setPROVIDER_INIT(PROVIDER_INIT);
 		simulation.setOBS_PERIOD(OBS_PERIOD);
-		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB);
 	}
 	
-	protected void configure_pathfinder(Care simulation){
+	protected void configure_pathfinder(){
 		PathFinder pathfinder = new PathFinder(new String[] {
 				"varsigma", String.valueOf(varsigma), "TIMES", "2", "testing", "true"});
 		pathfinder.configureCare(simulation);
 		simulation.setOBS_PERIOD(OBS_PERIOD);
-		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB);
 	}
 	
-	private void populateParameters() {
+	private void readParameters() {
 		Iterator<String> keys = params.keys();
 		
 		//iterate over keys and pass value params
@@ -112,23 +115,35 @@ System.out.println("Configuring with seed "+seed);
 			case "obsB":
 				obsB = true;
 				break;
+			case "obsSimpleC":
+				simpleC = true;
+				break;
+			case "obsSimpleE":
+				simpleE = true;
+				break;
+			case "obsSimpleB":
+				simpleB = true;
+				break;
 		}}	
 	}
 	
 	
 	public String getParams() {
-		if(configure_pathfinder) {
-			HashMap<String, String> params = new HashMap();
-			params.put("pathfinder_varsigma", Integer.toString(varsigma));
-			params.put("pathfinder_seed", Long.toString(seed));
-			HashMap configured_params = simulation.getParams();
-			JSONObject sub_response = new JSONObject(configured_params);
-			params.put("configured_params", sub_response.toString());
 
-			JSONObject response = new JSONObject(params);
-			return(response.toString());
-		}
 		HashMap params = simulation.getParams();
+		params.put("pathfinder", Boolean.toString(configure_pathfinder));
+		params.put("PATIENT_INIT", PATIENT_INIT);
+		params.put("PROVIDER_INIT", PROVIDER_INIT);
+		params.put("obsH", Boolean.toString(obsH));
+		params.put("obsN", Boolean.toString(obsN));
+		params.put("obsC", Boolean.toString(obsC));
+		params.put("obsT", Boolean.toString(obsT));
+		params.put("obsE", Boolean.toString(obsE));
+		params.put("obsB", Boolean.toString(obsB));
+		params.put("obsSimpleC", Boolean.toString(simpleC));
+		params.put("obsSimpleE", Boolean.toString(simpleE));
+		params.put("obsSimpleB", Boolean.toString(simpleB));
+
 		JSONObject response = new JSONObject(params);
 		return(response.toString());
 	}

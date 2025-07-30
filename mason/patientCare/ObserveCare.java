@@ -12,6 +12,9 @@ public class ObserveCare implements Steppable{
 	double[][] N_p_i;
 	double[][] T_p_i;
 	double[][][] E_p_w_i;
+	int[][] simple_B_p_i;
+	int[][] simple_C_p_i;
+	double[][] simple_E_p_i;
 	
 	//internals
 	int arraysLength;
@@ -26,11 +29,17 @@ public class ObserveCare implements Steppable{
 	Boolean obsT= false;
 	Boolean obsE= false;
 	Boolean obsB= false;
+	Boolean obsSimpleC = false;
+	Boolean obsSimpleE = false;
+	Boolean obsSimpleB = false;
 	
 	Care care;
 	Patient patient;
 	
 	Boolean testing = false;
+	
+	int simple_sum_i;
+	double max_exp;
 	
 	//Time setep 0 is for initial conditions (the observe() method should be called from Care start()
 	//At the end of each time step (order N+1), the observer evaluates if it needs to save the state variables.
@@ -39,16 +48,17 @@ public class ObserveCare implements Steppable{
 		//this constructor for observing everything
 		care = sim;
 		set_arrays_length(value);
-		H_p_i = new double[care.N][arraysLength];obsH=true;
-		C_p_w_i = new int[care.N][care.W][arraysLength];obsC=true;
-		B_p_w_i = new int[care.N][care.W][arraysLength];obsB=true;
+		H_p_i = new double[care.N][arraysLength];obsH=true;obsH = true;
+		simple_C_p_i = new int[care.N][arraysLength];obsSimpleC=true;
+		simple_B_p_i = new int[care.N][arraysLength];obsSimpleB=true;
 		N_p_i = new double[care.N][arraysLength];obsN=true;
 		T_p_i = new double[care.N][arraysLength];obsT=true;
-		E_p_w_i = new double[care.N][care.W][arraysLength];obsE=true;
+		simple_E_p_i = new double[care.N][arraysLength];obsSimpleE=true;
 	}
 	
 	public ObserveCare(Care sim, int value, Boolean H, Boolean N, Boolean C, 
-			Boolean T, Boolean E, Boolean B) {
+			Boolean T, Boolean E, Boolean B, Boolean simple_C, Boolean simple_E,
+			Boolean simple_B) {
 		//this constructor for observing only the specified state variables
 		care = sim;
 		set_arrays_length(value);
@@ -58,6 +68,11 @@ public class ObserveCare implements Steppable{
 		if(T) {obsT = true; T_p_i = new double[care.N][arraysLength];}
 		if(E) {obsE = true; E_p_w_i = new double[care.N][care.W][arraysLength];}
 		if(B) {obsB = true; B_p_w_i = new int[care.N][care.W][arraysLength];}
+		
+		if(simple_C) {obsSimpleC = true; simple_C_p_i = new int[care.N][arraysLength];}
+		if(simple_E) {obsSimpleE = true; simple_E_p_i = new double[care.N][arraysLength];}
+		if(simple_B) {obsSimpleB = true; simple_B_p_i = new int[care.N][arraysLength];}
+
 	}
 	
 	private void set_arrays_length(int value) {
@@ -84,7 +99,7 @@ public class ObserveCare implements Steppable{
 	}
 	
 	public void observe(int loc, Care state) {
-		windows[loc] =(int)state.schedule.getSteps();
+		windows[loc] =(int)care.schedule.getSteps();
 
 		if(obsC) {observeC(loc);}
 		if(obsH) {observeH(loc);}
@@ -92,6 +107,10 @@ public class ObserveCare implements Steppable{
 		if(obsN) {observeN(loc);}
 		if(obsT) {observeT(loc);}
 		if(obsE) {observeE(loc);}
+		if(obsSimpleC) {observeSimpleC(loc);}
+		if(obsSimpleE) {observeSimpleE(loc);}
+		if(obsSimpleB) {observeSimpleB(loc);}
+
 	}
 	
 	
@@ -105,6 +124,17 @@ public class ObserveCare implements Steppable{
 			for(int w = 0; w<care.W;w++) {
 				C_p_w_i[patient.p][w][loc] = patient.c_p_i_1[w];
 			}}
+	}
+	
+	public void observeSimpleC(int loc) {
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			simple_sum_i = 0;
+			for(int w = 0; w<care.W;w++) {
+				simple_sum_i += patient.c_p_i_1[w];
+			}
+			simple_C_p_i[p][loc] = simple_sum_i;
+			}
 	}
 	
 	public void observeH(int loc) {
@@ -133,6 +163,19 @@ public class ObserveCare implements Steppable{
 			}}
 	}
 	
+	public void observeSimpleE(int loc){
+		//gives the max expectation across providers for a given patient
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			max_exp=patient.e_p_i_1[0];
+			for(int w = 1; w<care.W;w++) {
+				if(patient.e_p_i[w]>max_exp) {max_exp = patient.e_p_i[w];}
+			}
+			simple_E_p_i[patient.p][loc] = max_exp;
+			}
+	}
+
+	
 	public void observeB(int loc){
 		for(int p = 0; p<care.N;p++) {
 			patient = ((Patient)care.patients.objs[p]);
@@ -141,12 +184,27 @@ public class ObserveCare implements Steppable{
 			}}
 	}
 	
+	public void observeSimpleB(int loc){
+		for(int p = 0; p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			simple_sum_i=0;
+			for(int w = 0; w<care.W;w++) {
+				simple_sum_i += patient.b_p_i_1[w];
+			}
+			simple_B_p_i[patient.p][loc] = simple_sum_i;
+			}
+	}
+	
 	public int[][][] getC(){return C_p_w_i;}
 	public double[][] getH(){return H_p_i;}
 	public int[][][] getB(){return B_p_w_i;}
 	public double[][] getN(){return N_p_i;}
 	public double[][] getT(){return T_p_i;}
 	public double[][][] getE(){return E_p_w_i;}
+	public double[][] getSimpleE(){return simple_E_p_i;}
+	public int[][] getSimpleC(){return simple_C_p_i;}
+	public int[][] getSimpleB(){return simple_B_p_i;}
+
 	
 	public int getarraysLengthreturn() {return arraysLength;}
 	public int[] getWindows() {return windows;};
