@@ -57,7 +57,7 @@ public class TestPathFinder {
 	@Test
 	void check_seed_recover() {
 		PathFinder pathfinder = new PathFinder(
-				new String[] {"varsigma", "500", "path", "/Users/nicolasbarticevic/Desktop/CareEngineAnalytics/data/pathFinder", 
+				new String[] {"varsigma", "500", "path", testingPath, 
 						"TIMES", "8","testing", "true"});
 		long seed = 1752852775281L;
 		Care care = new Care(seed);
