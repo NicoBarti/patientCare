@@ -82,5 +82,27 @@ public class TestPathFinder {
 		
 	}
 	
+	@Test
+	void check_parameter_constraints() {
+		PathFinder pathfinder = new PathFinder(
+				new String[] {"varsigma", "500", "path", testingPath, 
+						"TIMES", "1","testing", "true"});
+		for (int i =0; i<500; i++) {
+		long seed = System.currentTimeMillis();
+		Care care = new Care(seed);
+		pathfinder.configureCare(care);
+		care.start();
+		assertTrue(care.totalCapacity/care.W < 200, "with seed "+seed+ 
+				" W " + care.W + " totalCapacity " + care.totalCapacity);
+		assertTrue(care.N/care.totalCapacity > 20, "with seed "+seed+ 
+				" N " + care.N + " totalCapacity " + care.totalCapacity);
+		assertTrue(care.pat_init.fixed_rho  < care.pat_init.fixed_capE, "with seed "+seed+ 
+				" fixed_rho " + care.pat_init.fixed_rho + " fixed_capE " + care.pat_init.fixed_capE);
+		assertTrue(care.pat_init.fixed_eta  < care.pat_init.fixed_capE, "with seed "+seed+ 
+				" fixed_rho " + care.pat_init.fixed_eta + " fixed_capE " + care.pat_init.fixed_capE);
+
+		}
+	}
+	
 
 }
