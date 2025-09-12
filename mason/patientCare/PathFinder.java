@@ -13,6 +13,7 @@ public class PathFinder {
 	double averages;
 	int storedRepetitions = 0;
 	long seed1 = 0L;
+	Boolean assignRandomSeed = true;
 	//long seed3;long seed4;long seed5;long seed6;long seed7;long seed8;
 	Care care1;Care care2;
 	//Care care3;Care care4;Care care5;Care care6;Care care7;Care care8;
@@ -60,7 +61,8 @@ public class PathFinder {
 	}
 	
 	protected void run_Care() {
-		if(seed1 == 0L) {seed1 = System.currentTimeMillis();}
+		if(assignRandomSeed) {
+			seed1 = System.currentTimeMillis();}
 		
 		//seed2 = seed1 + 8732435;
 
@@ -75,46 +77,16 @@ public class PathFinder {
 //		 care2.setJob(1);
 //		configureCare(care2);
 		
-//		 care3 = new Care(seed3);
-//		 care3.setJob(2);
-//		configureCare(care3);
-//		
-//		 care4 = new Care(seed4);
-//		 care4.setJob(3);
-//		configureCare(care4);
-//		
-//		 care5 = new Care(seed5);
-//		 care5.setJob(4);
-//		configureCare(care5);
-//		
-//		 care6 = new Care(seed6);
-//		 care6.setJob(5);
-//		configureCare(care6);
-//		
-//		 care7 = new Care(seed7);
-//		 care7.setJob(6);
-//		configureCare(care7);
-//		
-//		 care8 = new Care(seed8);
-//		 care8.setJob(7);
-//		configureCare(care8);
 		
 		for(int i=0;i<varsigma;i++) {
 			if(
 			care1.schedule.step(care1) //&& 
 			//care2.schedule.step(care2) 
-//			care3.schedule.step(care3) &&
-//			care4.schedule.step(care4) &&
-//			care5.schedule.step(care5) &&
-//			care6.schedule.step(care6) &&
-//			care7.schedule.step(care7) &&
-//			care8.schedule.step(care8)
+
 			) {}else{System.out.println("ups! failed Care"); break;}
 
 		}
 		care1.finish();//care2.finish();
-//		care3.finish();care4.finish();care5.finish();
-//		care6.finish();care7.finish();care8.finish();
 		
 		localStorage(care1, seed1); //localStorage(care2, seed2); 
 //		localStorage(care3, seed3);
@@ -169,6 +141,9 @@ public class PathFinder {
 
 			}
 		}
+		if(seed1!=0) {
+			System.out.println("Assigning seed "+seed1);
+			assignRandomSeed = false;}
 	}
 	
 	private void initializer() {

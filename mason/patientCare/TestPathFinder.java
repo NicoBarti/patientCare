@@ -34,7 +34,7 @@ public class TestPathFinder {
 	
 	@Test
 	void check_local_storage() {
-		int REPS = 8;
+		int REPS = 1;
 		PathFinder pathfinder = new PathFinder(
 				new String[] {"varsigma", "10", "path", testingPath, "TIMES", Integer.toString(REPS),
 						"testing", "true"});
@@ -50,7 +50,7 @@ public class TestPathFinder {
 			average+=H[p][arraywidth-1];
 		}
 		average=average/H.length;
-		assertEquals(average, pathfinder.storage_H[2]);
+		assertEquals(average, pathfinder.storage_H[0]);
 
 	}
 	

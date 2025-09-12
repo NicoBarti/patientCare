@@ -17,6 +17,8 @@ public class RunWithParams {
 	int N = 1000;
 	int varsigma = 150;
 	int W = 2;
+	int totalCapacity;
+	
 	String PATIENT_INIT = "random";
 	String PROVIDER_INIT = "random";
 	Boolean obsH= false;
@@ -29,17 +31,41 @@ public class RunWithParams {
 	Boolean simpleE = false;
 	Boolean simpleB = false;
 	Boolean configure_pathfinder = false; // configure simulation via pathfinder
+	Boolean reproduce_line = false; // configure reproduce line
+	
+	//Patient initializers
+	double fixed_delta;
+	double fixed_capN;
+	double fixed_rho;
+	double fixed_eta;
+	float fixed_kappa;
+	double fixed_capE;
+	double fixed_psi;
+	
+	//Provider initializers
+	double fixed_lambda;
+	double fixed_tau;
 	
 	public RunWithParams(String par) {
 		params = new JSONObject(par);
 		readParameters();
 		if (seed ==0) {simulation = new Care(System.currentTimeMillis());}
-		else {simulation = new Care(seed);} 
+		else {simulation = new Care(seed);
+		System.out.println("JAVA (RunWithParams.java) started with seed "+seed);} 
 		
 		if (configure_pathfinder) {
+			System.out.println("JAVA (RunWithParams.java) going to use configure_pathfinder");
+
 			configure_pathfinder();
 		} else {
+			if(reproduce_line) {
+				System.out.println("JAVA (RunWithParams.java) going to use reproduceLine");
+				reproduceLine();
+			}
+			else {
 			regularParamImplementation();
+			System.out.println("JAVA (RunWithParams.java) going to use regularParamImplementation");
+}
 		}
 		simulation.start();
 		//override custom observer: (do this safetely after start has set the
@@ -62,6 +88,28 @@ public class RunWithParams {
 				"varsigma", String.valueOf(varsigma), "TIMES", "2", "testing", "true"});
 		pathfinder.configureCare(simulation);
 		simulation.setOBS_PERIOD(OBS_PERIOD);
+	}
+	
+	protected void reproduceLine() {
+		simulation.setOBS_PERIOD(OBS_PERIOD);
+		simulation.setvarsigma(varsigma);
+		simulation.totalCapacity = totalCapacity;
+		simulation.W = W;
+		simulation.N = N;
+		simulation.pat_init = new PatientInitializer(simulation, "default");
+				simulation.pat_init.fixed_delta = fixed_delta;
+				simulation.pat_init.fixed_capN = fixed_capN;
+				simulation.pat_init.fixed_lambda = fixed_lambda;
+				simulation.pat_init.fixed_tau = fixed_tau;
+				simulation.pat_init.fixed_rho = fixed_rho;
+				simulation.pat_init.fixed_eta = fixed_eta;
+				simulation.pat_init.fixed_kappa = fixed_kappa;
+				simulation.pat_init.fixed_capE = fixed_capE;
+				simulation.pat_init.fixed_psi = fixed_psi;
+				
+		simulation.prov_init = new ProviderInitializer(simulation, "default");
+				simulation.prov_init.fixed_lambda = fixed_lambda;
+				simulation.prov_init.fixed_tau = fixed_tau;
 	}
 	
 	private void readParameters() {
@@ -94,6 +142,9 @@ public class RunWithParams {
 			case "pathfinder":
 				configure_pathfinder = true;
 				break;
+			case "reproduce_line":
+				reproduce_line = true;
+				break;
 			case "seed":
 				seed = a.getLong(0);
 				break;
@@ -124,6 +175,44 @@ public class RunWithParams {
 			case "obsSimpleB":
 				simpleB = true;
 				break;
+				
+			case "fixed_delta":
+				fixed_delta = a.getDouble(0);
+				break;
+				
+			case "fixed_capN":
+				fixed_capN = a.getDouble(0);
+				break;
+				
+			case "fixed_lambda":
+				fixed_lambda = a.getDouble(0);
+				break;
+			
+			case "fixed_tau":
+				fixed_tau = a.getDouble(0);
+				break;
+			
+			case "fixed_rho":
+				fixed_rho = a.getDouble(0);
+				break;
+			
+			case "fixed_eta":
+				fixed_eta = a.getDouble(0);
+				break;
+				
+			case "fixed_kappa":
+				fixed_kappa = a.getFloat(0);
+				break;
+				
+			case "fixed_capE":
+				fixed_capE = a.getDouble(0);
+				break;
+			case"fixed_psi":
+				fixed_psi = a.getDouble(0);
+				break;
+			case "totalCapacity":
+				totalCapacity = a.getInt(0);
+				break;
 		}}	
 	}
 	
@@ -132,6 +221,8 @@ public class RunWithParams {
 
 		HashMap params = simulation.getParams();
 		params.put("pathfinder", Boolean.toString(configure_pathfinder));
+		params.put("reproduce_line", Boolean.toString(reproduce_line));
+
 		params.put("PATIENT_INIT", PATIENT_INIT);
 		params.put("PROVIDER_INIT", PROVIDER_INIT);
 		params.put("obsH", Boolean.toString(obsH));
@@ -143,6 +234,7 @@ public class RunWithParams {
 		params.put("obsSimpleC", Boolean.toString(simpleC));
 		params.put("obsSimpleE", Boolean.toString(simpleE));
 		params.put("obsSimpleB", Boolean.toString(simpleB));
+		
 
 		JSONObject response = new JSONObject(params);
 		return(response.toString());

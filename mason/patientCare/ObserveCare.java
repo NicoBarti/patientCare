@@ -39,7 +39,7 @@ public class ObserveCare implements Steppable{
 	Boolean testing = false;
 	
 	int simple_sum_i;
-	double max_exp;
+	double mean_exp;
 	
 	//Time setep 0 is for initial conditions (the observe() method should be called from Care start()
 	//At the end of each time step (order N+1), the observer evaluates if it needs to save the state variables.
@@ -72,7 +72,6 @@ public class ObserveCare implements Steppable{
 		if(simple_C) {obsSimpleC = true; simple_C_p_i = new int[care.N][arraysLength];}
 		if(simple_E) {obsSimpleE = true; simple_E_p_i = new double[care.N][arraysLength];}
 		if(simple_B) {obsSimpleB = true; simple_B_p_i = new int[care.N][arraysLength];}
-
 	}
 	
 	private void set_arrays_length(int value) {
@@ -167,11 +166,11 @@ public class ObserveCare implements Steppable{
 		//gives the max expectation across providers for a given patient
 		for(int p = 0; p<care.N;p++) {
 			patient = ((Patient)care.patients.objs[p]);
-			max_exp=patient.e_p_i_1[0];
+			mean_exp=0;
 			for(int w = 1; w<care.W;w++) {
-				if(patient.e_p_i[w]>max_exp) {max_exp = patient.e_p_i[w];}
+				mean_exp+=patient.e_p_i_1[w];
 			}
-			simple_E_p_i[patient.p][loc] = max_exp;
+			simple_E_p_i[patient.p][loc] = mean_exp/care.W;
 			}
 	}
 

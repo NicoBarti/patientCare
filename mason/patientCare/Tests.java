@@ -20,6 +20,7 @@ public class Tests {
 	care.setvarsigma(varsigma);
 	care.setN(N);
 	care.setW(W);
+	care.PATIENT_INIT = "random-basal";
 	care.start();
 	care.startObserver();
 	

@@ -29,6 +29,10 @@ public class ProviderInitializer {
 				fixed_lambda = 1;
 				fixed_tau = 2;
 			break;
+			
+			default:
+				strategy = "apply_fixed";
+			break;
 		
 		}
 

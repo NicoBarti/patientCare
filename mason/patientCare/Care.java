@@ -50,9 +50,15 @@ public class Care extends SimState {
 
 	public void start() {
 		super.start();
-		
-		pat_init = new PatientInitializer(this, PATIENT_INIT);
-		prov_init = new ProviderInitializer(this, PROVIDER_INIT);
+		if(pat_init==null) {
+			//System.out.println("(JAVA Care.java) Configure patient initialization to "+PATIENT_INIT);
+		pat_init = new PatientInitializer(this, PATIENT_INIT);} else {System.out.println("(JAVA Care.java) Patient initialization pre-configured");}
+		if(prov_init==null) {
+			//System.out.println("(JAVA Care.java) Configure provider initialization to "+PROVIDER_INIT);
+			prov_init = new ProviderInitializer(this, PROVIDER_INIT);
+		}  else {
+			//System.out.println("(JAVA Care.java) Provider initialization pre-configured");
+			}
 
 		prioritize = new Prioritizator(this, Pi);
 		if(OBS_PERIOD == 0) {OBS_PERIOD = varsigma;}
@@ -122,7 +128,7 @@ public class Care extends SimState {
 		params.put("N", Integer.toString(getN()));
 		params.put("varsigma", Integer.toString(getvarsigma()));
 		params.put("W", Double.toString(getW()));
-		params.put("totalCapacity", Integer.toString(this.W*(int)(this.totalCapacity/this.W)));
+		params.put("totalCapacity", Integer.toString(totalCapacity));
 		params.put("Pi", getPi());
 		params.put("PROVIDER_INIT", getPROVIDER_INIT());
 		params.put("PATIENT_INIT", getPATIENT_INIT());

@@ -9,8 +9,8 @@ public class PatientInitializer {
 	//for Fixed strategies
 	double fixed_delta;
 	double fixed_capN;
-	double fixed_lambda;
-	double fixed_tau;
+	double fixed_lambda; //esta variable se podría eliminar, testear
+	double fixed_tau;//esta variable se podría eliminar, testear
 	double fixed_rho;
 	double fixed_eta;
 	float fixed_kappa;
@@ -54,6 +54,8 @@ public class PatientInitializer {
 				fixed_psi = 0.5;				
 				strategy = "apply_fixed";
 			break;	
+			default:
+				strategy = "apply_fixed";
 		
 		}
 	}
@@ -84,12 +86,12 @@ public class PatientInitializer {
 	public void h(Patient patient) {
 		switch(strategy) {
 		case "random-basal": patient.h_p_i_1 = care.random.nextDouble()*patient.capN_p;break;
-		default: patient.h_p_i_1 = 0;
+		default: patient.h_p_i_1 = 0;break;
 		}}
 	
 	public void t(Patient patient) {
 		switch(strategy) {
-		default: patient.t_p_i_1 = 0;
+		default: patient.t_p_i_1 = 0;break;
 		}}
 	
 	public void e(Patient patient) {
@@ -105,6 +107,7 @@ public class PatientInitializer {
 			for(int i=0;i<patient.e_p_i_1.length;i++) {
 				patient.e_p_i_1[i] = patient.capE_p/2;
 			}
+			break;
 		}}
 	
 	public void c(Patient patient) {
@@ -122,6 +125,7 @@ public class PatientInitializer {
 			for(int w = 0; w < care.W; w++) {
 				patient.c_p_i_1[w] = 0;
 			}
+			break;
 		}}
 	
 	public void b(Patient patient) {
@@ -135,6 +139,7 @@ public class PatientInitializer {
 			for(int w = 0; w < care.W; w++) {
 				patient.c_p_i_1[w] = 0;
 			}
+			break;
 		}}
 
 	public void delta_p(Patient patient) {
@@ -146,7 +151,8 @@ public class PatientInitializer {
 			patient.delta_p = fixed_delta;
 			break;
 		default: 
-			patient.delta_p = 1;}
+			patient.delta_p = 1;
+			break;}
 	}
 	
 	public void progressProbability(Patient patient) {
