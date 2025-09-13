@@ -110,7 +110,7 @@ public class Patient implements Steppable {
 			}
 			
 			//limit expecations
-			if(e_p_i[w] >5) {e_p_i[w] = capE_p;}
+			if(e_p_i[w] >capE_p) {e_p_i[w] = capE_p;}
 			if(e_p_i[w] <= 0) {e_p_i[w] = 0;}
 		}
 	}

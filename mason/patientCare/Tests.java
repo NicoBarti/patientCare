@@ -146,9 +146,11 @@ public class Tests {
 		care.setN(N);
 		care.start();
 		
+		
 		care.pat_init.setrho(care.patients,1);
 		care.pat_init.seteta(care.patients, 1);
 		care.pat_init.setkappa(care.patients,0);
+		care.pat_init.setcapE(care.patients, 10);
 
 
 		//Set scenario
@@ -182,30 +184,42 @@ public class Tests {
 	
 	@Test
 	void e4_formExpetations() {
-		int W = 1; int N = 1;
+		int W = 10; int N = 100;
+		Patient patient;
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);
 		care.setW(W);
 		care.setN(N);
 		care.start();
 		
-		care.pat_init.setrho(care.patients,0.5);
-		care.pat_init.seteta(care.patients, 0.5);
-		care.pat_init.setkappa(care.patients,1);
-
-		int n = 1000;
-		double[] sampleFluctutations = new double[n];
-		double meanFluctuation =0;
-		for(int i=0;i<n;i++) {
-			((Patient)care.patients.objs[0]).expectationFormation(care);
-			sampleFluctutations[i] = ((Patient)care.patients.objs[0]).e_fluctuation;
-			meanFluctuation +=sampleFluctutations[i];
+		for (int i =0; i<100;i++) {
+			care.schedule.step(care);
+			for (int p =0; p< care.patients.numObjs; p++) {
+				patient = (Patient)care.patients.objs[p];
+				for (int w=0; w< care.W; w++) {
+					assertTrue(patient.e_p_i[w] <= patient.capE_p, "capE_p not effective. capE: "+patient.capE_p + " E: "+patient.e_p_i[w]+" seed "+currentSeed);
+				}
+			}
 		}
-		meanFluctuation = meanFluctuation/n;
-		double variance = 0;
-		for(int i =0;i<n;i++) {
-			variance += (sampleFluctutations[i] - meanFluctuation)*(sampleFluctutations[i] - meanFluctuation);
-		}
+		
+//		care.pat_init.setrho(care.patients,0.5);
+//		care.pat_init.seteta(care.patients, 0.5);
+//		care.pat_init.setkappa(care.patients,1);
+//
+//		int n = 1000;
+//		double[] sampleFluctutations = new double[n];
+//		double meanFluctuation =0;
+//		for(int i=0;i<n;i++) {
+//			((Patient)care.patients.objs[0]).expectationFormation(care);
+//			sampleFluctutations[i] = ((Patient)care.patients.objs[0]).e_fluctuation;
+//			meanFluctuation +=sampleFluctutations[i];
+//		}
+//		meanFluctuation = meanFluctuation/n;
+//		double variance = 0;
+//		for(int i =0;i<n;i++) {
+//			variance += (sampleFluctutations[i] - meanFluctuation)*(sampleFluctutations[i] - meanFluctuation);
+//		}
+		
 	}
 	
 	@Test

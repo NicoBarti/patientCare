@@ -163,7 +163,7 @@ public class ObserveCare implements Steppable{
 	}
 	
 	public void observeSimpleE(int loc){
-		//gives the max expectation across providers for a given patient
+		//gives the mean expectation across providers for a given patient
 		for(int p = 0; p<care.N;p++) {
 			patient = ((Patient)care.patients.objs[p]);
 			mean_exp=0;
