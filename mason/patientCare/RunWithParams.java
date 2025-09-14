@@ -85,7 +85,7 @@ public class RunWithParams {
 	
 	protected void configure_pathfinder(){
 		PathFinder pathfinder = new PathFinder(new String[] {
-				"varsigma", String.valueOf(varsigma), "TIMES", "2", "testing", "true"});
+				"varsigma", String.valueOf(varsigma), "TIMES", "1", "testing", "true"});
 		pathfinder.configureCare(simulation);
 		simulation.setOBS_PERIOD(OBS_PERIOD);
 	}
