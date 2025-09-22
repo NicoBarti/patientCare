@@ -37,12 +37,16 @@ public class Patient implements Steppable {
 	
 	//debug test
 	protected Boolean testing=false;
+	double testing_prev_H;
 	
 	
 	public void step(SimState state) {
 		//System.out.println("Patient "+p+" delta "+delta_p);
 		care = (Care) state;
 		interact = false;
+		
+		//for policy prioritization tesging
+		if (testing) {testing_order();}
 		
 		//disease progression
 		diseaseEvolution(care);
@@ -71,7 +75,9 @@ public class Patient implements Steppable {
 				}
 			}
 		
+
 		stepForwardStateVariables();
+		
 		} 
 
 	
@@ -134,8 +140,8 @@ public class Patient implements Steppable {
 	
 	
 	public void stepForwardStateVariables(){
-		h_p_i_1 = h_p_i;	h_p_i = 0;
-		t_p_i_1 = t_p_i;	t_p_i = 0;
+		h_p_i_1 = Double.valueOf(h_p_i) ;	h_p_i = 0;
+		t_p_i_1 = Double.valueOf(t_p_i) ;	t_p_i = 0;
 		for(int i = 0; i< e_p_i.length;i++) {
 			e_p_i_1[i] = e_p_i[i];
 			e_p_i[i]=0;}
@@ -146,4 +152,20 @@ public class Patient implements Steppable {
 			b_p_i_1[i] = b_p_i[i];
 			b_p_i[i]=0;}
 	}	
+
+	public double get_MeanE() {
+		double meanE = 0;
+		for (int i=0;i<e_p_i_1.length;i++) {
+			meanE += e_p_i_1[i];
+		}
+		return meanE/e_p_i_1.length;
+	}
+
+	//captures the variables that lead to this ordering
+	public void testing_order() {
+		care.test_registerOrder(p, h_p_i_1, n_p_i, get_MeanE() );
+	}
+
+
+	
 }

@@ -83,6 +83,22 @@ public class TestPathFinder {
 	}
 	
 	@Test
+	void check_seed_recover2() {
+		PathFinder pathfinder = new PathFinder(
+				new String[] {"varsigma", "500", "path", testingPath, 
+						"TIMES", "1","testing", "true", "seed", "1757818066694"});
+		pathfinder.runRepetitions();
+		double average = 0;
+		double[][] H = pathfinder.care1.observer.getH();
+			for(int p=0; p<H.length;p++) {
+				average += H[p][H[0].length-1];
+			}
+		System.out.println("Patients in sim "+pathfinder.care1.N);
+		System.out.println("RECOVERED H: "+average/pathfinder.care1.N);
+		
+	}
+	
+	@Test
 	void check_parameter_constraints() {
 		PathFinder pathfinder = new PathFinder(
 				new String[] {"varsigma", "500", "path", testingPath, 

@@ -1,4 +1,6 @@
 package patientCare;
+import java.util.HashMap;
+
 
 public class PathFinder {
 	
@@ -6,18 +8,25 @@ public class PathFinder {
 	static String path;
 	static int TIMES;
 	static String id;
+	String csvSeedsPath = null;
 
 	//internals
 	double[] storage_H; 
 	long[] storage_SEED;
+	HashMap[] params;
 	double averages;
 	int storedRepetitions = 0;
 	long seed1 = 0L;
+	long[] seedsFromCSV;
+	String observed = "H";
 	Boolean assignRandomSeed = true;
+	Boolean useSeedFromCSV = false;
+	int CSVseedsCounter = 0;
 	//long seed3;long seed4;long seed5;long seed6;long seed7;long seed8;
 	Care care1;Care care2;
 	//Care care3;Care care4;Care care5;Care care6;Care care7;Care care8;
 	Boolean write = true;
+	Boolean alltogether = false; //for combine output into one file
 	
 	//testing
 	Boolean testing = false;
@@ -30,12 +39,35 @@ public class PathFinder {
 		if(!testing) { runRepetitions();}
 	}
 	
+	private void initializer() {
+		id = Long.toString(System.currentTimeMillis()) ;
+
+		if(seed1 !=0 & csvSeedsPath != null) {
+			System.out.println("Too many parameters: seed and seeds_csv");
+			System.exit(0);
+		}
+		if(seed1!=0) {
+			System.out.println("Assigning seed "+seed1);
+			assignRandomSeed = false;
+			TIMES = 1;}
+		if (csvSeedsPath != null) {
+			csvReader reader = new csvReader(csvSeedsPath);
+			seedsFromCSV = reader.readSeeds();
+			useSeedFromCSV = true;
+			System.out.println("(Java)PathFinder will use seeds in "+csvSeedsPath);
+			TIMES = seedsFromCSV.length;
+		}
+		params = new HashMap[TIMES];
+		storage_H = new double[TIMES]; 
+		storage_SEED = new long[TIMES];
+	}
+	
 	public void runRepetitions() {
 		//long timer = System.currentTimeMillis();
 
 		int fromRep = 0;
 		//finalpath = "/Users/nicolasbarticevic/Desktop/CareEngineAnalytics/data/sensitivity_1/normalizedH/"+"varsigma_"+varsigma+"_ex1seed"+seed+".csv";
-		System.out.println("Running "+TIMES+" random simulations with varsigma "+varsigma);
+		System.out.println("Running "+TIMES+" random simulations with varsigma "+varsigma + " observing "+ observed);
 
 		//repetitionsDone = 0;
 		while(storedRepetitions < TIMES){
@@ -46,11 +78,18 @@ public class PathFinder {
 			if(write) {
 			if(((storedRepetitions)%64 ==0 & storedRepetitions >=64) | storedRepetitions > TIMES-1) {
 				System.out.println("Saving repetitions "+fromRep+" to "+storedRepetitions+" in "+path);
-				outputWriter writer1 = new outputWriter(path, fromRep, storedRepetitions, "H");
+
+				if (alltogether) {
+					outputWriter writer_all = new outputWriter(path, fromRep, storedRepetitions, observed);
+					writer_all.write(storage_H, params, storedRepetitions, id);
+					fromRep = storedRepetitions;
+				}
+				else { //for old implementation two output files
+				outputWriter writer1 = new outputWriter(path, fromRep, storedRepetitions, observed);
 				writer1.write(storage_H, storedRepetitions, id);
 				outputWriter writer2 = new outputWriter(path, fromRep, storedRepetitions, "seeds");
 				writer2.write(storage_SEED, storedRepetitions, id);
-				fromRep = storedRepetitions;
+				fromRep = storedRepetitions;}
 			}
 			}
 		}
@@ -64,13 +103,21 @@ public class PathFinder {
 		if(assignRandomSeed) {
 			seed1 = System.currentTimeMillis();}
 		
-		//seed2 = seed1 + 8732435;
+		if(useSeedFromCSV) {
+			seed1 = seedsFromCSV[CSVseedsCounter];
+			CSVseedsCounter+=1;
+		}
 
 		care1 = new Care(seed1);
 		care1.setJob(0);
 		configureCare(care1);
 		care1.start();
-		care1.startObserver(true, false, false, false, false, false, false, false, false);
+		if(observed.equals("H")) {
+			care1.startObserver(true, false, false, false, false, false, false, false, false);}
+		
+		if(observed.equals("SimpleE")) {
+			care1.startObserver(false, false, false, false, false, false, false, true, false);
+		}
 
 		
 //		 care2 = new Care(seed2);
@@ -98,11 +145,20 @@ public class PathFinder {
 	protected void localStorage(Care care, long seed) {
 		//average among p and store H:
 		averages = 0;
-		for(int p=0;p<care.observer.getH().length;p++) {
+		if(observed.equals("H")) {
+			for(int p=0;p<care.observer.getH().length;p++) {
 			averages += care.observer.getH()[p][care.observer.getH()[0].length-1];
+			}
+			storage_H[storedRepetitions] = averages/care.observer.getH().length;
 		}
-		storage_H[storedRepetitions] = averages/care.observer.getH().length;
+		if(observed.equals("SimpleE")) {
+			for(int p=0;p<care.observer.getSimpleE().length;p++) {
+			averages += care.observer.getSimpleE()[p][care.observer.getSimpleE()[0].length-1];
+			}
+			storage_H[storedRepetitions] = averages/care.observer.getSimpleE().length;
+		}
 		storage_SEED[storedRepetitions] = seed;
+		params[storedRepetitions] = care.getParams();
 		//System.out.println("saving " +averages/care.observer.getH().length + " in storedRepetitions "+storedRepetitions);
 		storedRepetitions+=1;
 	}
@@ -138,17 +194,18 @@ public class PathFinder {
 			case "seed":
 				seed1 = Long.valueOf(args[argNumber+1]);
 				break;
-
+			case "CSV_seeds":
+				csvSeedsPath = args[argNumber+1];
+				break;
+			case "observe":
+				observed = args[argNumber+1];
+				break;
+			case "alltogether":
+				alltogether = true;
+	
 			}
 		}
-		if(seed1!=0) {
-			System.out.println("Assigning seed "+seed1);
-			assignRandomSeed = false;}
 	}
 	
-	private void initializer() {
-		id = Long.toString(System.currentTimeMillis()) ;
-		storage_H = new double[TIMES]; 
-		storage_SEED = new long[TIMES];
-	}
+
 }

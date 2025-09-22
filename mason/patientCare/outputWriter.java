@@ -1,6 +1,8 @@
 package patientCare;
 
 import java.io.FileWriter;
+import java.util.HashMap;
+
 import java.io.IOException;
 
 import com.opencsv.CSVWriter;
@@ -36,7 +38,7 @@ public class outputWriter {
 	
 	public void write(double[] output , int number, String id) {
 		try (CSVWriter writer = new CSVWriter(new FileWriter(path+"/"+dir+"/"+"time_"+number+"pathFinder_"+id+".csv"))) {
-			String[] header = new String[] {"H"};
+			String[] header = new String[] {dir};
 					int headerIndex = 0;
 			writer.writeNext(header,true);
 			
@@ -53,7 +55,7 @@ public class outputWriter {
 	
 	public void write(long[] output , int number, String id) {
 		try (CSVWriter writer = new CSVWriter(new FileWriter(path+"/"+dir+"/"+"time_"+number+"pathFinder_"+id+".csv"))) {
-			String[] header = new String[] {"H"};
+			String[] header = new String[] {dir};
 					int headerIndex = 0;
 			writer.writeNext(header,true);
 			
@@ -92,5 +94,37 @@ public class outputWriter {
 		}
 	}
 	
+	//To write the seed, params, and data alltogether. Seeds is in Hash
+	public void write(double[] output, HashMap[] params, int number, String id) {
+		try (CSVWriter writer = new CSVWriter(new FileWriter(path+"/"+dir+"_all/"+"varsigma_"+number+"_ex1_runID"+id+".csv"))) {
+			String[] header = new String[params[0].size()+1];
+			header[0] = dir;
+			for(int i =1;i<params[0].size()+1;i++) {
+				header[i] = (String)params[0].keySet().toArray()[i-1];
+			}
+			writer.writeNext(header,true);			
+			for(int repetition = start_REP; repetition<end_REP;repetition++) {
+				//int storedIndex = 0;
+				String[] line = new String[params[0].size()+1];
+				line[0] = Double.toString(output[repetition]);
+				for(int par =1;par<params[0].size()+1;par++) {
+					line[par] = (String)params[repetition].get(header[par]);
+				}
+							
+				writer.writeNext(line,true);
+			}
+
+		} catch (IOException e) {
+			System.out.println("Problem in CS Writer " + e);
+			System.exit(0);
+		}
+	}
+	
 	
 }
+
+
+
+
+
+

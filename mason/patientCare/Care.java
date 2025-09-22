@@ -14,7 +14,7 @@ public class Care extends SimState {
 	public int varsigma = 150; 
 	public int W = 2;
 	public int totalCapacity = 50;
-	public String Pi = "random allocation";
+	public String Pi = "basal";
 	public String PROVIDER_INIT = "random";
 	public String PATIENT_INIT = "random";
 
@@ -25,12 +25,14 @@ public class Care extends SimState {
 	public Appointer appointer;
 	public Prioritizator prioritize;
 	Patient patient;
+	Patient pat;
 	Provider provider;
 	ProviderInitializer prov_init;
 	PatientInitializer pat_init;
 	ObserveCare observer;
 	
 	long storedSeed;
+	
 	
 	public Care(long seed) {
 		super(seed);
@@ -86,12 +88,17 @@ public class Care extends SimState {
 		}
 		
 		//create anonymus agent that scheddules patients wit priority hat_o 
-		//this agent acts at the end of each state (order N+1)
-	schedule.scheduleRepeating(schedule.EPOCH, N+3, new Steppable(){ //copied
+		//this agent acts at the end of each state ( max_priority+3)
+	schedule.scheduleRepeating(schedule.EPOCH, prioritize.maxPriority() +3, new Steppable(){ //copied
 				public void step(SimState state) { 
-					//System.out.println(schedule.getSteps());
 					for(int i=0;i<patients.numObjs;i++) {
-	schedule.scheduleOnce((Patient)(patients.objs[i]),prioritize.hat_o(patient)); //orders 2 to N+2
+				//boolean scheduled = false;
+						pat = (Patient)(patients.objs[i]);
+						if(! schedule.scheduleOnce(pat,prioritize.hat_o(pat))) {
+							System.out.println("Failed scheduing agent! FATAL ERROR. STOPPING HERE.");
+							System.out.println("The seed was "+storedSeed);
+							System.exit(0);
+						}
 					}}
 				});
 		
@@ -153,4 +160,18 @@ public class Care extends SimState {
 		return params;
 	}
 
+	
+	//testing:
+	boolean testing = false;
+	long[] order;
+	int patientOrder = 0;
+	double[] H_at_Order;
+	double[] NE_at_Order;
+	
+	public void test_registerOrder(int p, double H, double N, double E) {
+		order[p] = patientOrder;
+		H_at_Order[p] = H;
+		NE_at_Order[p] = N-E;
+		patientOrder+=1;
+	}
 }

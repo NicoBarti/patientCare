@@ -27,8 +27,6 @@ public class PatientInitializer {
 			break;
 			
 			case "sensitivity_1":
-				int provW; int provCapacity; double provRho; double provEta;
-				boolean assignedW = false; boolean assignedCapacity = false; boolean assignedRho = false; boolean assignedEta = false;
 				//initialize Care level (maybe this can be handled elsewhere)
 				care.N = care.random.nextInt(4499)+501;
 				//implement contrasins:
@@ -39,22 +37,6 @@ public class PatientInitializer {
 				if (care.W <1) {care.W=1;}
 				
 				
-//				do {
-//					provCapacity = care.random.nextInt(4999)+1;
-//					if(care.N/provCapacity > 20) {
-//						care.totalCapacity = provCapacity;
-//						assignedCapacity = true;
-//					}
-//				} while (!assignedCapacity);
-				
-				
-//				do {
-//				provW = care.random.nextInt(49)+1;
-//				if (care.totalCapacity/provW<200) {
-//					care.W = provW;	
-//					assignedW = true;
-//				}} while (!assignedW);
-				
 				//initialize fixed params
 				fixed_delta = care.random.nextDouble()*10;
 				fixed_capN = care.random.nextDouble()*10;
@@ -63,20 +45,6 @@ public class PatientInitializer {
 				fixed_capE = care.random.nextDouble(true,true)*10;
 				fixed_rho = care.random.nextDouble()*fixed_capE; //constrain rho
 				fixed_eta = care.random.nextDouble()*fixed_capE; // constrain eta
-//				do {
-//					provRho = care.random.nextDouble()*10;
-//					if (provRho <= fixed_capE) {
-//						fixed_rho = provRho;
-//						assignedRho = true;
-//					}
-//				} while (!assignedRho);
-//				do {
-//					provEta = care.random.nextDouble()*10;
-//					if(provEta <= fixed_capE) {
-//						fixed_eta = provEta;
-//						assignedEta	= true;
-//					}
-//				} while(!assignedEta);
 				fixed_kappa = care.random.nextFloat(true, true);
 				fixed_psi = care.random.nextDouble();
 				strategy = "apply_fixed";
