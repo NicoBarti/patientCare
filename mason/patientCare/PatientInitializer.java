@@ -17,6 +17,7 @@ public class PatientInitializer {
 	double fixed_capE;
 	double fixed_psi;	
 	
+	
 	public PatientInitializer(Care _care, String _strategy) {
 		care = _care;
 		strategy = _strategy;
@@ -35,7 +36,6 @@ public class PatientInitializer {
 				// Limit max provider appointments to 200
 				care.W = care.random.nextInt(50-(int)(care.totalCapacity/200+1))+(int)(care.totalCapacity/200+1);
 				if (care.W <1) {care.W=1;}
-				
 				
 				//initialize fixed params
 				fixed_delta = care.random.nextDouble()*10;
@@ -64,6 +64,12 @@ public class PatientInitializer {
 				strategy = "apply_fixed";
 		
 		}
+	}
+	
+	private void initializerCompatibility(Care _care, String _strategy) {
+		// pulse the random generator the same number of times for all initialization
+		// before using it to set initial conditions and run simulation:
+		
 	}
 
 	//random-basal strategy: fixed N, varsigma, meanDelta

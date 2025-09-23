@@ -21,6 +21,7 @@ public class RunWithParams {
 	
 	String PATIENT_INIT = "random";
 	String PROVIDER_INIT = "random";
+	String pi = "basal";
 	Boolean obsH= false;
 	Boolean obsN= false;
 	Boolean obsC= false;
@@ -96,6 +97,7 @@ public class RunWithParams {
 		simulation.totalCapacity = totalCapacity;
 		simulation.W = W;
 		simulation.N = N;
+		simulation.setPi(pi);
 		simulation.pat_init = new PatientInitializer(simulation, "default");
 				simulation.pat_init.fixed_delta = fixed_delta;
 				simulation.pat_init.fixed_capN = fixed_capN;
@@ -213,9 +215,11 @@ public class RunWithParams {
 			case "totalCapacity":
 				totalCapacity = a.getInt(0);
 				break;
+			case "Pi":
+				pi = a.getString(0);
+				break;
 		}}	
 	}
-	
 	
 	public String getParams() {
 

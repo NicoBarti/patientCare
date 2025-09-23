@@ -7,7 +7,14 @@ public class TestInterfaces {
 	RunWithParams runWithParams;
 	
 	@Test
-	void try_a_parametrized_run_Run_With_Params() {
+	//TODO maybe only test if the retreived params are ok, and the corresponding arrays exist
+	//In a pathfinder run you specify a varsigma, and some outcome to look; usually only the final result
+	//It's called a path finder because you get several repetitions keeping only varsigma stable and all the 
+	//other params move at random.
+	//The output is the params, and the seed, so you can reproduce it.
+	//Also, a pathFinder with seed reproduces the call (but maybe this behaviour should be dealt with by a 
+	//standard run with params.
+	void try_a_pathFinder_run_Run_With_Params() {
 		//runWithParams = new RunWithParams("{\"varsigma\": [500], \"OBS_PERIOD\": [1], \"seed\": [1752865141452], \"pathfinder\": [\"t\"], \"obsH\": [\"t\"]}");
 		//runWithParams.runSimulation();
 		//runWithParams = new RunWithParams("{\"varsigma\": [500], \"OBS_PERIOD\": [1], \"seed\": [1752871014452], \"pathfinder\": [\"t\"], \"obsH\": [\"t\"], \"obsSimpleE\": [\"t\"]}");
