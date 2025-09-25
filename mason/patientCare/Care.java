@@ -68,7 +68,10 @@ public class Care extends SimState {
 				
 		providers = new Bag(W);
 		patients = new Bag(N);
-
+		
+		//FOR CONSISTENCY AMONG IMPLEMENTATIONS, THE SEED IS RESET BEFORE
+		//INITIALIZING AGENTS
+		this.random.setSeed(storedSeed+100);
 		// create and initialize providers
 		for(int i =0;i<W;i++) {
 			provider = new Provider();
@@ -104,6 +107,9 @@ public class Care extends SimState {
 		
 		
 		appointer = new Appointer(this);
+		//FOR CONSISTENCY AMONG IMPLEMENTATIONS, THE SEED IS RESET AFTER
+		//INITIALIZING AGENTS, BEFORE STEPPING THE SIMULATION
+		this.random.setSeed(storedSeed);
 	}
 	
 	

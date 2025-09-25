@@ -30,6 +30,7 @@ public class PathFinder {
 	
 	//testing
 	Boolean testing = false;
+	Boolean dontExit = false;
 	
 	public PathFinder(String[] args) {
 		argsParser(args);
@@ -96,7 +97,7 @@ public class PathFinder {
 		
 		//System.out.println(System.currentTimeMillis() - timer);
 		System.out.println("All done");
-		if(!testing) { System.out.println("Exiting");System.exit(0);}
+		if(!testing & !dontExit) { System.out.println("Exiting");System.exit(0);}
 	}
 	
 	protected void run_Care() {
@@ -190,6 +191,7 @@ public class PathFinder {
 				break;
 			case "testing":
 				testing = Boolean.valueOf(args[argNumber+1]);
+				dontExit = true;
 				break;
 			case "seed":
 				seed1 = Long.valueOf(args[argNumber+1]);
@@ -202,6 +204,10 @@ public class PathFinder {
 				break;
 			case "alltogether":
 				alltogether = true;
+				break;
+			case "dontExit":
+				dontExit = true;
+				break;
 	
 			}
 		}
