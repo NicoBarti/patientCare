@@ -15,8 +15,7 @@ public class PatientInitializer {
 	double fixed_eta;
 	float fixed_kappa;
 	double fixed_capE;
-	double fixed_psi;	
-	
+	double fixed_psi;		
 	
 	public PatientInitializer(Care _care, String _strategy) {
 		care = _care;
@@ -49,6 +48,24 @@ public class PatientInitializer {
 				fixed_psi = care.random.nextDouble();
 				strategy = "apply_fixed";
 			break;
+			
+			case "fixed_capacity":
+				// Limit max provider appointments to 200
+				care.W = care.random.nextInt(50-(int)(care.totalCapacity/200+1))+(int)(care.totalCapacity/200+1);
+				if (care.W <1) {care.W=1;}
+				
+				//initialize fixed params
+				fixed_delta = care.random.nextDouble()*10;
+				fixed_capN = care.random.nextDouble()*10;
+				fixed_lambda = care.random.nextDouble()*10;
+				fixed_tau = care.random.nextDouble()*10;
+				fixed_capE = care.random.nextDouble(true,true)*10;
+				fixed_rho = care.random.nextDouble()*fixed_capE; //constrain rho
+				fixed_eta = care.random.nextDouble()*fixed_capE; // constrain eta
+				fixed_kappa = care.random.nextFloat(true, true);
+				fixed_psi = care.random.nextDouble();
+				strategy = "apply_fixed";
+			break;
 				
 			case "basal":
 				fixed_delta = 3;
@@ -60,17 +77,18 @@ public class PatientInitializer {
 				fixed_psi = 0.5;				
 				strategy = "apply_fixed";
 			break;	
+			
+			case "classExample":
+				strategy = "classExample";
+				System.out.println("(PatientInit JAVA)class stratefy");
+			break;
+			
 			default:
 				strategy = "apply_fixed";
 		
 		}
 	}
 	
-	private void initializerCompatibility(Care _care, String _strategy) {
-		// pulse the random generator the same number of times for all initialization
-		// before using it to set initial conditions and run simulation:
-		
-	}
 
 	//random-basal strategy: fixed N, varsigma, meanDelta
 	
@@ -110,7 +128,7 @@ public class PatientInitializer {
 		patient.e_p_i_1 = new double[care.W];
 		patient.e_p_i = new double[care.W];
 		switch(strategy) {
-		case "random-basal": 
+		case "random-basal": case "classExample":
 			for(int i=0;i<patient.e_p_i_1.length;i++) {
 				patient.e_p_i_1[i] = care.random.nextDouble()*patient.capE_p;
 			}
@@ -125,6 +143,7 @@ public class PatientInitializer {
 	public void c(Patient patient) {
 		patient.c_p_i_1 = new int[care.W];
 		patient.c_p_i = new int[care.W];
+		patient.c_p_i_counter = new int[care.W];
 		switch(strategy) {
 		case "random-basal": 
 			int remainderCapacity = care.totalCapacity;
@@ -162,6 +181,9 @@ public class PatientInitializer {
 		case "apply_fixed":
 			patient.delta_p = fixed_delta;
 			break;
+		case "classExample":
+			patient.delta_p = (care.random.nextInt(3)+1)*2;
+			break;
 		default: 
 			patient.delta_p = 1;
 			break;}
@@ -176,7 +198,7 @@ public class PatientInitializer {
 		case "random-basal": 
 			patient.capN_p = care.random.nextDouble()*10;
 			break;
-		case "apply_fixed":
+		case "apply_fixed": case "classExample":
 			patient.capN_p = fixed_capN;
 			break;
 		default: 
@@ -188,7 +210,7 @@ public class PatientInitializer {
 		case "random-basal": 
 			patient.rho_p = care.random.nextDouble();
 			break;
-		case "apply_fixed":
+		case "apply_fixed": case "classExample":
 			patient.rho_p = fixed_rho;
 			break;
 		default: 
@@ -200,7 +222,7 @@ public class PatientInitializer {
 		case "random-basal": 
 			patient.eta_p = care.random.nextDouble();
 			break;
-		case "apply_fixed":
+		case "apply_fixed": case "classExample":
 			patient.eta_p = fixed_eta;
 			break;
 		default: 
@@ -212,7 +234,7 @@ public class PatientInitializer {
 		case "random-basal": 
 			patient.capE_p = care.random.nextDouble()*10;
 			break;
-		case "apply_fixed":
+		case "apply_fixed": case "classExample":
 			patient.capE_p = fixed_capE;
 			break;
 		default: 
@@ -224,7 +246,7 @@ public class PatientInitializer {
 		case "random-basal": 
 			patient.psi_p = care.random.nextDouble();
 			break;
-		case "apply_fixed":
+		case "apply_fixed": case "classExample":
 			patient.psi_p = fixed_psi;
 			break;
 		default: 
@@ -241,7 +263,7 @@ public class PatientInitializer {
 		case "random-basal": 
 			patient.kappa_p = (float)care.random.nextDouble();
 			break;
-		case "apply_fixed":
+		case "apply_fixed": case "classExample":
 			patient.kappa_p = fixed_kappa;
 			break;
 		default: 

@@ -25,6 +25,12 @@ public class ProviderInitializer {
 				strategy = "apply_fixed";
 			break;
 			
+			case "fixed_capacity":
+				fixed_lambda = care.random.nextDouble(true,true)*10;
+				fixed_tau = care.random.nextDouble(true,true)*10;
+				strategy = "apply_fixed";
+			break;
+			
 			case "basal":
 				fixed_lambda = 1;
 				fixed_tau = 2;

@@ -44,6 +44,12 @@ public class Care extends SimState {
 		observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
 	}
+	//provisional method for class example
+	//public void startObserver(Boolean obsH, Boolean obsN, Boolean obsC, 
+    //			Boolean obsT, Boolean obsE, Boolean obsB, Boolean simpleC, Boolean simpleE, Boolean simpleB, Boolean delta) {
+	//	observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB, delta);
+	//	schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
+	//}
 	
 	public void startObserver() {
 		observer = new ObserveCare(this, OBS_PERIOD);
@@ -132,6 +138,8 @@ public class Care extends SimState {
 	public String getPATIENT_INIT() {return PATIENT_INIT;}
 	public void setOBS_PERIOD(int val) {OBS_PERIOD = val;}
 	public int getOBS_PERIOD() {return OBS_PERIOD;}
+	public void settotalCapacity(int val) {totalCapacity = val;}
+	public int gettotalCapacity() {return totalCapacity;}
 
 	
 	public HashMap getParams() {

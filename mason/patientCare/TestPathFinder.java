@@ -120,5 +120,16 @@ public class TestPathFinder {
 		}
 	}
 	
+	@Test
+	void fixed_capacity_initialization() {
+		for(int i = 0; i<6;i++) {
+		PathFinder pathfinder = new PathFinder(
+				new String[] {"varsigma", "500", "path", testingPath, 
+						"TIMES", "1","testing", "true",
+						"N", "5000", "totalCapacity", "100" });
+		pathfinder.run_Care();
+		assertTrue(pathfinder.care1.N == 5000);
+		assertTrue(pathfinder.care1.totalCapacity == 100);}
+	}
 
 }

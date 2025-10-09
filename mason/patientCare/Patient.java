@@ -9,6 +9,7 @@ public class Patient implements Steppable {
 	double t_p_i;	double t_p_i_1;
 	double[] e_p_i;	double[] e_p_i_1;
 	int[] c_p_i;	int[] c_p_i_1;
+	int[] c_p_i_counter;
 	int[] b_p_i;	int[] b_p_i_1;
 	double n_p_i;
 	
@@ -72,6 +73,7 @@ public class Patient implements Steppable {
 			} else {
 				c_p_i[(int)interaction[0]] = 1; //w or another available provider
 				t_p_i = interaction[1];
+				c_p_i_counter[w] +=1;
 				}
 			}
 		

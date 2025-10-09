@@ -19,8 +19,8 @@ public class RunWithParams {
 	int W = 2;
 	int totalCapacity;
 	
-	String PATIENT_INIT = "random";
-	String PROVIDER_INIT = "random";
+	String PATIENT_INIT = "default";
+	String PROVIDER_INIT = "default";
 	String pi = "basal";
 	Boolean obsH= false;
 	Boolean obsN= false;
@@ -71,8 +71,14 @@ public class RunWithParams {
 		simulation.start();
 		//override custom observer: (do this safetely after start has set the
 		//defenitive N and W
+//		if(PATIENT_INIT.equals("classExample")) {
+//			Boolean delta = true;
+//			simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB, 
+//					simpleC, simpleE, simpleB, delta);
+//		} else {
 		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB, 
 				simpleC, simpleE, simpleB);
+		//}
 	}
 	
 	protected void regularParamImplementation() {
@@ -89,16 +95,19 @@ public class RunWithParams {
 				"varsigma", String.valueOf(varsigma), "TIMES", "1", "testing", "true"});
 		pathfinder.configureCare(simulation);
 		simulation.setOBS_PERIOD(OBS_PERIOD);
+		simulation.setPi(pi); //this allows to change a pathfinder line's pi (and we could add other params)
 	}
 	
 	protected void reproduceLine() {
 		simulation.setOBS_PERIOD(OBS_PERIOD);
 		simulation.setvarsigma(varsigma);
-		simulation.totalCapacity = totalCapacity;
+		simulation.settotalCapacity(totalCapacity);
 		simulation.W = W;
 		simulation.N = N;
 		simulation.setPi(pi);
-		simulation.pat_init = new PatientInitializer(simulation, "default");
+		
+		simulation.pat_init = new PatientInitializer(simulation, "applyFixed");
+				simulation.setPATIENT_INIT("applyFixed"); //for params comparison before simulation compatibility
 				simulation.pat_init.fixed_delta = fixed_delta;
 				simulation.pat_init.fixed_capN = fixed_capN;
 				simulation.pat_init.fixed_lambda = fixed_lambda;
@@ -109,7 +118,8 @@ public class RunWithParams {
 				simulation.pat_init.fixed_capE = fixed_capE;
 				simulation.pat_init.fixed_psi = fixed_psi;
 				
-		simulation.prov_init = new ProviderInitializer(simulation, "default");
+		simulation.prov_init = new ProviderInitializer(simulation, "applyFixed");
+				simulation.setPROVIDER_INIT("applyFixed");
 				simulation.prov_init.fixed_lambda = fixed_lambda;
 				simulation.prov_init.fixed_tau = fixed_tau;
 	}

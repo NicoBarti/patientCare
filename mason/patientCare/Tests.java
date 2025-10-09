@@ -605,6 +605,7 @@ public class Tests {
 
 	@Test
 	void check_patient_centred() {
+
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
 		//care.setPi("basal");
@@ -644,4 +645,35 @@ public class Tests {
 			}
 		}
 	}
+
+	@Test
+	void check_observer_visitsCounter() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 200; int W = 30; int varsigma = 500; 
+		care.startObserver(false, false, false, false, false, false, true, false, false);
+		care.start();
+		int sum;
+		int[] internalC = new int[W];
+		int[][] trackC = new int[N][W];
+		int[][] observerC = new int[N][W];
+		for(int i=0; i < varsigma; i++) {
+			care.schedule.step(care);
+			for (int p = 0; p<care.patients.numObjs;p++) {
+				onePatient = (Patient)care.patients.objs[p];
+				internalC = onePatient.c_p_i_1;
+				sum = 0;
+				for (int w = 0;w<care.W;w++) {
+					//trackC[p][w] = internalC[w]; //TODO test the detailed array, I'm missing the windows here. Maybe capture the whole and then only compare windows
+					sum = sum + internalC[w];
+				}
+				assertTrue(sum<2, "a patient can't have more than 1 interaction per step. Seed: "+currentSeed);
+			}
+		}
+		observerC = care.observer.getSimpleC();
+		
+		//assertEquals(observerC, trackC, "arrays differ. Seed: "+currentSeed);
+		
+	}
 }
+
+

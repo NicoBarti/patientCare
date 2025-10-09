@@ -23,10 +23,14 @@ public class PathFinder {
 	Boolean useSeedFromCSV = false;
 	int CSVseedsCounter = 0;
 	//long seed3;long seed4;long seed5;long seed6;long seed7;long seed8;
-	Care care1;Care care2;
+	Care care1;//Care care2;
 	//Care care3;Care care4;Care care5;Care care6;Care care7;Care care8;
 	Boolean write = true;
 	Boolean alltogether = false; //for combine output into one file
+	//Fixed capacity strategy
+	int totCap = 0;
+	int fixN = 0;
+	boolean fixed_capacity_initialization = false;
 	
 	//testing
 	Boolean testing = false;
@@ -57,6 +61,10 @@ public class PathFinder {
 			useSeedFromCSV = true;
 			System.out.println("(Java)PathFinder will use seeds in "+csvSeedsPath);
 			TIMES = seedsFromCSV.length;
+		}
+		if (fixN >0 & totCap >0) {
+			System.out.println("Will use fixed capacity with N "+fixN+" and totalCap "+totCap);
+			fixed_capacity_initialization = true;
 		}
 		params = new HashMap[TIMES];
 		storage_H = new double[TIMES]; 
@@ -111,7 +119,10 @@ public class PathFinder {
 
 		care1 = new Care(seed1);
 		care1.setJob(0);
-		configureCare(care1);
+		if(fixed_capacity_initialization) {
+			configureCare(care1, "fixed_capacity");
+		} else {
+		configureCare(care1);}
 		care1.start();
 		if(observed.equals("H")) {
 			care1.startObserver(true, false, false, false, false, false, false, false, false);}
@@ -171,6 +182,16 @@ public class PathFinder {
 		care.setvarsigma(varsigma);
 	}
 	
+	protected void configureCare(Care care, String init) {
+		care.setvarsigma(varsigma);
+		care.setOBS_PERIOD(varsigma);
+		care.setN(fixN);
+		care.settotalCapacity(totCap);
+		care.setPATIENT_INIT(init);
+		care.setPROVIDER_INIT(init);
+
+	}
+	
 	public static void main(String[] args) {
 		new PathFinder(args);
 	}
@@ -207,6 +228,12 @@ public class PathFinder {
 				break;
 			case "dontExit":
 				dontExit = true;
+				break;
+			case "totalCapacity":
+				totCap = Integer.valueOf(args[argNumber+1]);
+				break;
+			case "N":
+				fixN = Integer.valueOf(args[argNumber+1]);
 				break;
 	
 			}

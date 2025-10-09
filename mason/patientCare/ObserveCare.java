@@ -15,6 +15,7 @@ public class ObserveCare implements Steppable{
 	int[][] simple_B_p_i;
 	int[][] simple_C_p_i;
 	double[][] simple_E_p_i;
+	double[][] delta_i;
 	
 	//internals
 	int arraysLength;
@@ -32,6 +33,7 @@ public class ObserveCare implements Steppable{
 	Boolean obsSimpleC = false;
 	Boolean obsSimpleE = false;
 	Boolean obsSimpleB = false;
+	Boolean obsDelta = false;
 	
 	Care care;
 	Patient patient;
@@ -44,8 +46,8 @@ public class ObserveCare implements Steppable{
 	//Time setep 0 is for initial conditions (the observe() method should be called from Care start()
 	//At the end of each time step (order N+1), the observer evaluates if it needs to save the state variables.
 	
+	//this constructor for observing everything
 	public ObserveCare(Care sim, int value) {
-		//this constructor for observing everything
 		care = sim;
 		set_arrays_length(value);
 		H_p_i = new double[care.N][arraysLength];obsH=true;obsH = true;
@@ -56,10 +58,10 @@ public class ObserveCare implements Steppable{
 		simple_E_p_i = new double[care.N][arraysLength];obsSimpleE=true;
 	}
 	
+	//this constructor for observing only the specified state variables
 	public ObserveCare(Care sim, int value, Boolean H, Boolean N, Boolean C, 
 			Boolean T, Boolean E, Boolean B, Boolean simple_C, Boolean simple_E,
 			Boolean simple_B) {
-		//this constructor for observing only the specified state variables
 		care = sim;
 		set_arrays_length(value);
 		if(H) {obsH = true; H_p_i = new double[care.N][arraysLength];}
@@ -73,6 +75,28 @@ public class ObserveCare implements Steppable{
 		if(simple_E) {obsSimpleE = true; simple_E_p_i = new double[care.N][arraysLength];}
 		if(simple_B) {obsSimpleB = true; simple_B_p_i = new int[care.N][arraysLength];}
 	}
+
+	//provisional constructor, exporting delta per patient. For a class example
+	//this constructor for observing only the specified state variables
+	public ObserveCare(Care sim, int value, Boolean H, Boolean N, Boolean C, 
+			Boolean T, Boolean E, Boolean B, Boolean simple_C, Boolean simple_E,
+			Boolean simple_B, Boolean delta) {
+		care = sim;
+		set_arrays_length(value);
+		if(H) {obsH = true; H_p_i = new double[care.N][arraysLength];}
+		if(N) {obsN = true; N_p_i = new double[care.N][arraysLength];}
+		if(C) {obsC = true; C_p_w_i = new int[care.N][care.W][arraysLength];}
+		if(T) {obsT = true; T_p_i = new double[care.N][arraysLength];}
+		if(E) {obsE = true; E_p_w_i = new double[care.N][care.W][arraysLength];}
+		if(B) {obsB = true; B_p_w_i = new int[care.N][care.W][arraysLength];}
+		
+		if(simple_C) {obsSimpleC = true; simple_C_p_i = new int[care.N][arraysLength];}
+		if(simple_E) {obsSimpleE = true; simple_E_p_i = new double[care.N][arraysLength];}
+		if(simple_B) {obsSimpleB = true; simple_B_p_i = new int[care.N][arraysLength];}
+		
+		if(delta) {obsDelta = true; delta_i =  new double[care.N][arraysLength];} 
+	}
+	
 	
 	private void set_arrays_length(int value) {
 		period = value;
@@ -109,6 +133,7 @@ public class ObserveCare implements Steppable{
 		if(obsSimpleC) {observeSimpleC(loc);}
 		if(obsSimpleE) {observeSimpleE(loc);}
 		if(obsSimpleB) {observeSimpleB(loc);}
+		if(obsDelta) {obsDelta(loc);}
 
 	}
 	
@@ -130,7 +155,7 @@ public class ObserveCare implements Steppable{
 			patient = ((Patient)care.patients.objs[p]);
 			simple_sum_i = 0;
 			for(int w = 0; w<care.W;w++) {
-				simple_sum_i += patient.c_p_i_1[w];
+				simple_sum_i += patient.c_p_i_counter[w];
 			}
 			simple_C_p_i[p][loc] = simple_sum_i;
 			}
@@ -194,6 +219,14 @@ public class ObserveCare implements Steppable{
 			}
 	}
 	
+	public void obsDelta(int loc) {
+		for(int p=0;p<care.N;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			delta_i[patient.p][loc] = patient.delta_p;
+		}
+		
+	}
+	
 	public int[][][] getC(){return C_p_w_i;}
 	public double[][] getH(){return H_p_i;}
 	public int[][][] getB(){return B_p_w_i;}
@@ -203,6 +236,7 @@ public class ObserveCare implements Steppable{
 	public double[][] getSimpleE(){return simple_E_p_i;}
 	public int[][] getSimpleC(){return simple_C_p_i;}
 	public int[][] getSimpleB(){return simple_B_p_i;}
+	public double[][] getDelta(){return delta_i;} 
 
 	
 	public int getarraysLengthreturn() {return arraysLength;}

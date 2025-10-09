@@ -26,6 +26,8 @@ public class JSONResponse {
 			buildResults_json("N", simulation.observer.getN());
 
 			buildResults_json("windows", simulation.observer.getWindows());
+			
+			buildResults_json("delta", simulation.observer.getDelta());
 	}
 	
 	private JSONObject buildResults_json(String name, Object array) {
