@@ -60,7 +60,8 @@ public class Care extends SimState {
 		super.start();
 		if(pat_init==null) {
 			//System.out.println("(JAVA Care.java) Configure patient initialization to "+PATIENT_INIT);
-		pat_init = new PatientInitializer(this, PATIENT_INIT);} else {System.out.println("(JAVA Care.java) Patient initialization pre-configured");}
+		pat_init = new PatientInitializer(this, PATIENT_INIT);} 
+			//else {System.out.println("(JAVA Care.java) Patient initialization pre-configured");}
 		if(prov_init==null) {
 			//System.out.println("(JAVA Care.java) Configure provider initialization to "+PROVIDER_INIT);
 			prov_init = new ProviderInitializer(this, PROVIDER_INIT);

@@ -18,6 +18,8 @@ public class PatientInitializer {
 	double fixed_psi;		
 	
 	public PatientInitializer(Care _care, String _strategy) {
+		//TODO: Total capacity should be sorted out at Care (or "general initializer", 
+		//TODO: the params could be randomized only when the haven't been initialized (are -1 for instance)
 		care = _care;
 		strategy = _strategy;
 		switch(strategy) {
@@ -55,7 +57,7 @@ public class PatientInitializer {
 				if (care.W <1) {care.W=1;}
 				
 				//initialize fixed params
-				fixed_delta = care.random.nextDouble()*10;
+				if (fixed_delta <0) {fixed_delta = care.random.nextDouble()*10;}
 				fixed_capN = care.random.nextDouble()*10;
 				fixed_lambda = care.random.nextDouble()*10;
 				fixed_tau = care.random.nextDouble()*10;

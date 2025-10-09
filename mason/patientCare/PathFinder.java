@@ -28,9 +28,12 @@ public class PathFinder {
 	Boolean write = true;
 	Boolean alltogether = false; //for combine output into one file
 	//Fixed capacity strategy
-	int totCap = 0;
-	int fixN = 0;
-	boolean fixed_capacity_initialization = false;
+	int totCap = -1;
+	int fixN = -1;
+	double fixDelta = -1;
+	String fix_initialization = "";
+	//boolean fixed_capacity_initialization = false;
+	//boolean fixed_capacity_delta_initialization = false;
 	
 	//testing
 	Boolean testing = false;
@@ -62,9 +65,17 @@ public class PathFinder {
 			System.out.println("(Java)PathFinder will use seeds in "+csvSeedsPath);
 			TIMES = seedsFromCSV.length;
 		}
-		if (fixN >0 & totCap >0) {
+		if (fixN >-1 & totCap >-1 & fixDelta < 0) {
 			System.out.println("Will use fixed capacity with N "+fixN+" and totalCap "+totCap);
-			fixed_capacity_initialization = true;
+			//fixed_capacity_initialization = true;
+			fix_initialization = "fix_capacity";
+		}
+		if (fixN >-1 & totCap >-1 & fixDelta > -1) {
+			System.out.println("Will use fixed capacity with N "+fixN+", totalCap "+totCap +
+					" and fixDelta "+fixDelta);
+			//fixed_capacity_delta_initialization = true;
+			fix_initialization = "fix_capacity_delta";
+
 		}
 		params = new HashMap[TIMES];
 		storage_H = new double[TIMES]; 
@@ -119,10 +130,21 @@ public class PathFinder {
 
 		care1 = new Care(seed1);
 		care1.setJob(0);
-		if(fixed_capacity_initialization) {
+		switch(fix_initialization) {
+		case "fix_capacity":
 			configureCare(care1, "fixed_capacity");
-		} else {
-		configureCare(care1);}
+			break;
+		case "fix_capacity_delta":
+			configureCare(care1, "fixed_capacity", fixDelta);
+			break;
+		default:
+			configureCare(care1);
+			break;
+		}
+		//if(fixed_capacity_initialization) {
+		//	configureCare(care1, "fixed_capacity");
+		//} else {
+		//configureCare(care1);}
 		care1.start();
 		if(observed.equals("H")) {
 			care1.startObserver(true, false, false, false, false, false, false, false, false);}
@@ -189,7 +211,17 @@ public class PathFinder {
 		care.settotalCapacity(totCap);
 		care.setPATIENT_INIT(init);
 		care.setPROVIDER_INIT(init);
-
+	}
+	
+	protected void configureCare(Care care, String init, Double delta) {
+		care.setvarsigma(varsigma);
+		care.setOBS_PERIOD(varsigma);
+		care.setN(fixN);
+		care.settotalCapacity(totCap);
+		care.setPATIENT_INIT(init);
+		care.pat_init = new PatientInitializer(care, init);
+		care.pat_init.fixed_delta = delta;
+		care.setPROVIDER_INIT(init);
 	}
 	
 	public static void main(String[] args) {
@@ -234,6 +266,9 @@ public class PathFinder {
 				break;
 			case "N":
 				fixN = Integer.valueOf(args[argNumber+1]);
+				break;
+			case "fixedDelta":
+				fixDelta = Integer.valueOf(args[argNumber+1]);
 				break;
 	
 			}

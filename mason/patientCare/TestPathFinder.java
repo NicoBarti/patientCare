@@ -8,6 +8,7 @@ public class TestPathFinder {
 	
 	String testingPath = "/Users/nicolasbarticevic/Git/testingTrash";
 	Care care;
+	Patient patient;
 
 	@Test
 	void initialize_storage_internals_given_args() {
@@ -122,14 +123,36 @@ public class TestPathFinder {
 	
 	@Test
 	void fixed_capacity_initialization() {
+		long seed = System.currentTimeMillis();
+		care = new Care(seed);
+		for(int i = 0; i<6;i++) {
+			int N = care.random.nextInt(5000);
+			int totCap = care.random.nextInt(300);
+		PathFinder pathfinder = new PathFinder(
+				new String[] {"varsigma", "500", "path", testingPath, 
+						"TIMES", "1","testing", "true",
+						"N", Integer.toString(N), "totalCapacity", Integer.toString(totCap) });
+		pathfinder.run_Care();
+		assertTrue(pathfinder.care1.N == N, "failed with seed "+seed);
+		assertTrue(pathfinder.care1.totalCapacity == totCap, "failed with seed "+seed);}
+	}
+	
+	@Test
+	void fixed_capacity_and_delta_initialization() {
 		for(int i = 0; i<6;i++) {
 		PathFinder pathfinder = new PathFinder(
 				new String[] {"varsigma", "500", "path", testingPath, 
 						"TIMES", "1","testing", "true",
-						"N", "5000", "totalCapacity", "100" });
+						"N", "5000", "totalCapacity", "100", "fixedDelta", "3" });
 		pathfinder.run_Care();
 		assertTrue(pathfinder.care1.N == 5000);
-		assertTrue(pathfinder.care1.totalCapacity == 100);}
+		assertTrue(pathfinder.care1.totalCapacity == 100);
+		for (int p = 0; p<pathfinder.care1.patients.numObjs;p++) {
+			patient = (Patient)(pathfinder.care1.patients.objs[p]);
+			assertTrue( patient.delta_p == 3 );
+		}
+
+		}
 	}
 
 }
