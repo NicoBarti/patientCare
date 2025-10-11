@@ -99,10 +99,9 @@ public class TestInterfaces {
 			double[][] replicatedHs = reproduction.getSimulation().observer.getH();
 			double replicatedAverageH = 0; 
 			for(int p = 0;p<replicatedHs.length;p++) {
-				replicatedAverageH = replicatedAverageH + replicatedHs[p][1];
+				replicatedAverageH += (replicatedHs[p][1])/(replicatedHs.length);
 			}
-			replicatedAverageH = replicatedAverageH/replicatedHs.length;
-					
+			System.out.println("params_out H: " + params_and_outputs.get("H"));
 			assertEquals(params_and_outputs.get("H"), String.valueOf(replicatedAverageH));			//TODO try to have care to recover the seed before after starting the simulation for the recover case
 		}
 		

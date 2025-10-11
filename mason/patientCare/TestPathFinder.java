@@ -48,9 +48,10 @@ public class TestPathFinder {
 		//System.out.println("n patients "+ps);
 		//System.out.println("H[0].length "+arraywidth);
 		for (int p=0;p<ps;p++) {
-			average+=H[p][arraywidth-1];
+			average+=H[p][arraywidth-1]/H.length;
 		}
-		average=average/H.length;
+		//average=average/H.length;
+		System.out.println("average "+average);
 		assertEquals(average, pathfinder.storage_H[0]);
 
 	}
