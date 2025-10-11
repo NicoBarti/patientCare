@@ -149,7 +149,7 @@ public class Care extends SimState {
 		//Care level
 		params.put("N", Integer.toString(getN()));
 		params.put("varsigma", Integer.toString(getvarsigma()));
-		params.put("W", Double.toString(getW()));
+		params.put("W", Integer.toString(getW()));
 		params.put("totalCapacity", Integer.toString(totalCapacity));
 		params.put("Pi", getPi());
 		params.put("PROVIDER_INIT", getPROVIDER_INIT());
@@ -170,7 +170,6 @@ public class Care extends SimState {
 		params.put("fixed_tau", Double.toString(prov_init.fixed_tau));
 		//hyperparams
 		params.put("seed", Long.toString(storedSeed));
-		params.put("OBS_PERIOD", Integer.toString(OBS_PERIOD));
 		
 		return params;
 	}

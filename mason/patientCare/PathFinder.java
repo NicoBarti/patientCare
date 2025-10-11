@@ -181,15 +181,17 @@ public class PathFinder {
 		averages = 0;
 		if(observed.equals("H")) {
 			for(int p=0;p<care.observer.getH().length;p++) {
-			averages += care.observer.getH()[p][care.observer.getH()[0].length-1];
+			averages += care.observer.getH()[p][care.observer.getH()[0].length-1]/care.observer.getH().length;
 			}
-			storage_H[storedRepetitions] = averages/care.observer.getH().length;
+			//When dividing once at the end it doesn't match numpy's 
+			//storage_H[storedRepetitions] = averages/care.observer.getH().length;
 		}
 		if(observed.equals("SimpleE")) {
 			for(int p=0;p<care.observer.getSimpleE().length;p++) {
-			averages += care.observer.getSimpleE()[p][care.observer.getSimpleE()[0].length-1];
+			averages += care.observer.getSimpleE()[p][care.observer.getSimpleE()[0].length-1]/care.observer.getSimpleE().length;
 			}
-			storage_H[storedRepetitions] = averages/care.observer.getSimpleE().length;
+			//When dividing once at the end it doesn't match numpy's 
+			//storage_H[storedRepetitions] = averages/care.observer.getSimpleE().length;
 		}
 		storage_SEED[storedRepetitions] = seed;
 		params[storedRepetitions] = care.getParams();
