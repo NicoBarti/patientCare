@@ -6,11 +6,11 @@ import sim.util.*;
 import sim.engine.Steppable;
 
 /**
- * This is an "agent" that stores the state variables at given intervals (windows)
+ * This is an "agent" that stores the state variables at given intervals (windows).
  * Should be initialized from Care, after calling care.start() with the care.startObserver() method.
  * The observer agent is scheduled at the beginning of each time step, before any other agent.
  * The observer should be called at the end of the simulation from care.finish() to store the final state.
- * Window 0 is for initial conditions 
+ * The window = 0 is for initial conditions 
  */
 public class ObserveCare implements Steppable{
 	/**

@@ -7,6 +7,9 @@ import java.io.IOException;
 
 import com.opencsv.CSVWriter;
 
+/**
+ * Methods to write simulation outputs files
+ */
 public class outputWriter {
 
 	static String path;
