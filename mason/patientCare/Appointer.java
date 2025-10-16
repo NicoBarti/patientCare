@@ -2,6 +2,9 @@ package patientCare;
 import sim.util.*;
 
 
+/**
+ * Finds an appointment for a patient. It's instantiated at Care start(). The appoint() method is called by the Patients' "interact" subroutines.
+ */
 public class Appointer {
 	Bag providers;
 	Care care;
@@ -17,10 +20,14 @@ public class Appointer {
 		care = c;
 	}
 
+	/**
+	 * @param w The doctor's ID that the patient wants an appointment with.
+	 * @param p The patient's ID requesting the appointment
+	 * @param h The patien's health status
+	 * @return provider index if available, or -1 if no provider available; treatment:
+	 */
 	public double[] appoint(int w, int p, double h) { 
-		//w: desired provided
-		//id: patient identifier
-		// returns: provider index if available, or -1 if no provider available; treatment: 
+
 		double[] result = new double[] {-1, 0}; // default result [w,t]
 		
 		//localize desired provider

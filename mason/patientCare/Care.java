@@ -6,7 +6,9 @@ import java.util.HashMap;
 import sim.engine.*;
 import sim.util.*;
 
-
+/**
+ * Main class that holds all the agents and context.
+ */
 public class Care extends SimState {
 	
 	//control variables (params)
@@ -39,8 +41,8 @@ public class Care extends SimState {
 		storedSeed = seed;
 	}
 	
-	public void startObserver(Boolean obsH, Boolean obsN, Boolean obsC, 
-			Boolean obsT, Boolean obsE, Boolean obsB, Boolean simpleC, Boolean simpleE, Boolean simpleB) {
+	public void startObserver(boolean obsH, boolean obsN, boolean obsC, 
+			boolean obsT, boolean obsE, boolean obsB, boolean simpleC, boolean simpleE, boolean simpleB) {
 		observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
 	}

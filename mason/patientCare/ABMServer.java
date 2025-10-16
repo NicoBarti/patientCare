@@ -7,7 +7,14 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Class to interact with python Client.py through a socket. Instantiates a ResponseProtocol
+ */
 public class ABMServer {
+	/**
+	 * @param args Port number
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
         
         if (args.length != 1) {
