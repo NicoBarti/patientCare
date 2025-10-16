@@ -9,18 +9,45 @@ import sim.util.*;
 /**
  * Main class that holds all the agents and context.
  */
+/**
+ * 
+ */
 public class Care extends SimState {
 	
-	//control variables (params)
+	
+	/**
+	 * Number of patients. CONTROL VARIABLE.
+	 */
 	public int N = 1000;
+	/**
+	 * Number of steps. CONTROL VARIABLE.
+	 */
 	public int varsigma = 150; 
+	/**
+	 * Number of doctors. CONTROL VARIABLE.
+	 */
 	public int W = 2;
+	/**
+	 * Total available appointments at any given step. CONTROL VARIABLE.
+	 */
 	public int totalCapacity = 50;
+	/**
+	 * Resource allocation policy. CONTROL VARIABLE.
+	 */
 	public String Pi = "basal";
+	/**
+	 * How providers are initialized. CONTROL VARIABLE.
+	 */
 	public String PROVIDER_INIT = "random";
+	/**
+	 * How patients are initialized
+	 */
 	public String PATIENT_INIT = "random";
 
 	// internals
+	/**
+	 * Frequency, in steps, for state observations.
+	 */
 	public int OBS_PERIOD = 1;
 	public Bag providers;
 	public Bag patients;
@@ -46,18 +73,19 @@ public class Care extends SimState {
 		observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
 	}
-	//provisional method for class example
-	//public void startObserver(Boolean obsH, Boolean obsN, Boolean obsC, 
-    //			Boolean obsT, Boolean obsE, Boolean obsB, Boolean simpleC, Boolean simpleE, Boolean simpleB, Boolean delta) {
-	//	observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB, delta);
-	//	schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
-	//}
+
 	
 	public void startObserver() {
 		observer = new ObserveCare(this, OBS_PERIOD);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
 	}
 
+	/**
+	 * Initializes initializers (if not previously done). Initializes the Prioritizator.
+	 * SEED: It re-sets the seed after initializers configuration to keep consistency of replication. Its re-set again after agents initialization.
+	 * Creates and initializes and schedules providers and patients.
+	 * Creates anonymous agent that implements the policy. This is the last agent to called at the end of each step.
+	 */
 	public void start() {
 		super.start();
 		if(pat_init==null) {
@@ -79,7 +107,7 @@ public class Care extends SimState {
 		patients = new Bag(N);
 		
 		//FOR CONSISTENCY AMONG IMPLEMENTATIONS, THE SEED IS RESET BEFORE
-		//INITIALIZING AGENTS
+		//INITIALIZING AGENTS (configuring the initializers sometimes uses random number generator)
 		this.random.setSeed(storedSeed+100);
 		// create and initialize providers
 		for(int i =0;i<W;i++) {
@@ -184,6 +212,10 @@ public class Care extends SimState {
 	double[] H_at_Order;
 	double[] NE_at_Order;
 	
+	/**
+	 * Special method only used for testing. A bit convoluted.
+	 * Only way I came up with to see the order that the scheduler assigned to agents with same priority.
+	 */
 	public void test_registerOrder(int p, double H, double N, double E) {
 		order[p] = patientOrder;
 		H_at_Order[p] = H;

@@ -5,17 +5,54 @@ import sim.util.*;
 
 import sim.engine.Steppable;
 
+/**
+ * This is an "agent" that stores the state variables at given intervals (windows)
+ * Should be initialized from Care, after calling care.start() with the care.startObserver() method.
+ * The observer agent is scheduled at the beginning of each time step, before any other agent.
+ * The observer should be called at the end of the simulation from care.finish() to store the final state.
+ * Window 0 is for initial conditions 
+ */
 public class ObserveCare implements Steppable{
+	/**
+	 * H for patient p at window i
+	 */
 	double[][] H_p_i;
+	/**
+	 * Visit for patient p with provider w at window i
+	 */
 	int[][][] C_p_w_i;
+	/**
+	 * Seeking of patient p with provider w ar window i
+	 */
 	int[][][] B_p_w_i;
+	/**
+	 * Need for patient p at window i
+	 */
 	double[][] N_p_i;
+	/**
+	 * Treatment for patient p at time i
+	 */
 	double[][] T_p_i;
+	/**
+	 * Expectation of patient p for provider w at window i
+	 */
 	double[][][] E_p_w_i;
+	/**
+	 * Seeking of patient p at window i (1 if sought care with any provider, 0 if didn't)
+	 */
 	int[][] simple_B_p_i;
+	/**
+	 * Visit for patient p at window i (1 if saw a provider, 0 if didn't)
+	 */
 	int[][] simple_C_p_i;
+	/**
+	 * Average expectation across providers for patient p at window i
+	 */
 	double[][] simple_E_p_i;
-	double[][] delta_i;
+	/**
+	 * Delta for patient p 
+	 */
+	double[][] delta_p_i;
 	
 	//internals
 	int arraysLength;
@@ -24,27 +61,25 @@ public class ObserveCare implements Steppable{
 	int windowNumber = 0;
 	int[] windows; // array to export the timestep of each window
 
-	Boolean obsH = false;
-	Boolean obsN = false;
-	Boolean obsC= false;
-	Boolean obsT= false;
-	Boolean obsE= false;
-	Boolean obsB= false;
-	Boolean obsSimpleC = false;
-	Boolean obsSimpleE = false;
-	Boolean obsSimpleB = false;
-	Boolean obsDelta = false;
+	boolean obsH = false;
+	boolean obsN = false;
+	boolean obsC= false;
+	boolean obsT= false;
+	boolean obsE= false;
+	boolean obsB= false;
+	boolean obsSimpleC = false;
+	boolean obsSimpleE = false;
+	boolean obsSimpleB = false;
+	boolean obsDelta = false;
 	
 	Care care;
 	Patient patient;
 	
-	Boolean testing = false;
+	boolean testing = false;
 	
 	int simple_sum_i;
 	double mean_exp;
 	
-	//Time setep 0 is for initial conditions (the observe() method should be called from Care start()
-	//At the end of each time step (order N+1), the observer evaluates if it needs to save the state variables.
 	
 	//this constructor for observing everything
 	public ObserveCare(Care sim, int value) {
@@ -94,7 +129,7 @@ public class ObserveCare implements Steppable{
 		if(simple_E) {obsSimpleE = true; simple_E_p_i = new double[care.N][arraysLength];}
 		if(simple_B) {obsSimpleB = true; simple_B_p_i = new int[care.N][arraysLength];}
 		
-		if(delta) {obsDelta = true; delta_i =  new double[care.N][arraysLength];} 
+		if(delta) {obsDelta = true; delta_p_i =  new double[care.N][arraysLength];} 
 	}
 	
 	
@@ -222,7 +257,7 @@ public class ObserveCare implements Steppable{
 	public void obsDelta(int loc) {
 		for(int p=0;p<care.N;p++) {
 			patient = ((Patient)care.patients.objs[p]);
-			delta_i[patient.p][loc] = patient.delta_p;
+			delta_p_i[patient.p][loc] = patient.delta_p;
 		}
 		
 	}
@@ -236,7 +271,7 @@ public class ObserveCare implements Steppable{
 	public double[][] getSimpleE(){return simple_E_p_i;}
 	public int[][] getSimpleC(){return simple_C_p_i;}
 	public int[][] getSimpleB(){return simple_B_p_i;}
-	public double[][] getDelta(){return delta_i;} 
+	public double[][] getDelta(){return delta_p_i;} 
 
 	
 	public int getarraysLengthreturn() {return arraysLength;}

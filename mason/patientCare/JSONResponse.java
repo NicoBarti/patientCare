@@ -8,6 +8,9 @@ public class JSONResponse {
 	String params;
 	JSONObject results_json = new JSONObject();
 	
+	/** Builds a JSON output of the simulation
+	 * @param simulation
+	 */
 	public JSONResponse(Care simulation) {
 			
 			buildResults_json("C", simulation.observer.getC());

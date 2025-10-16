@@ -12,6 +12,9 @@ import java.util.HashMap;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
+/**
+ * A basic file reader whit functionality specific to this project. (Actually, some files are not necessarily csv).
+ */
 public class csvReader {
 	
 	static String path;
@@ -20,12 +23,17 @@ public class csvReader {
     int numberOfSeeds;
     //"/Users/nicolasbarticevic/Desktop/CareEngineAnalytics/data/care6_correction/allRuns.csv"
 	
+		/** 
+		 * @param value The complete path to the csv. 
+		 */
 		public csvReader(String value) {
 			path = value;
 		}
 
+		/** Reads a file that has one seed per line. No headings allowed. 
+		 * @return an array of seeds 
+		 */
 		public long[] readSeeds() {
-			//The csv is a one line per seed, without headings
 			numberOfSeeds=0;
 	        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 	            while((line = br.readLine()) != null) {
@@ -50,47 +58,11 @@ public class csvReader {
 	        
 	    }
 		
-		// Java code to illustrate reading a
-		// all data at once
-		public static void readAllDataAtOnce(String file)
-		{
-			 try {
-
-			        // Create an object of filereader
-			        // class with CSV file as a parameter.
-			        FileReader filereader = new FileReader(path+file);
-
-			        // create csvReader object passing
-			        // file reader as a parameter
-			        CSVReader csvReader = new CSVReader(filereader);
-			        String[] nextRecord;
-
-			        // we are going to read data line by line
-			        while ((nextRecord = csvReader.readNext()) != null) {
-			            for (String cell : nextRecord) {
-			                System.out.print(cell + "\t");
-			            }
-			            System.out.println();
-			        }
-			    }
-		    catch (Exception e) {
-		        e.printStackTrace();
-		    }
-		}
-		
-		public void readCSVreader(String file) {
-			List<List<String>> records = new ArrayList<List<String>>();
-			try (CSVReader csvReader = new CSVReader(new FileReader(path+file));) {
-			    String[] values = null;
-			    while ((values = csvReader.readNext()) != null) {
-			        records.add(Arrays.asList(values));
-			    }
-			}		    catch (Exception e) {
-		        e.printStackTrace();
-		    }
-		}
-		
-		
+		/** Reads a PathFinder generated csv that contains a simulation's results.
+		 * Contains a header with variable names (i.e. Seeds, H, SimpleE), and one line with one simulation.
+		 * @param file The file name (it's path was passed in the constructor).
+		 * @return A hash map with the recovered simulation output
+		 */
 		public HashMap readPathFinderOutput(String file) {
 			String line;
 			String delimiter = ",";
@@ -119,26 +91,6 @@ public class csvReader {
 			        }
 		return result;
 		}
-		
-//	    public static void main(String[] args) {
-//	        String filePath = "/Users/nicolasbarticevic/Desktop/CareEngineAnalytics/data/care6_correction/allRuns.csv";
-//	        String line;
-//	        String delimiter = ",";
-//
-//	        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-//	            while((line = br.readLine()) != null) {
-//	                String[] values = line.split(delimiter);
-//	                for (String value : values) {
-//	                    System.out.println(value + " ");
-//	                }
-//	                System.out.println();
-//	            }
-//	        } catch (IOException e) {
-//	            System.err.println(e.getMessage());
-//	        }
-//	    }
-	
-	
 	
 }
 
