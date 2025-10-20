@@ -3,6 +3,7 @@ package patientCare;
 import sim.engine.*;
 
 public class Patient implements Steppable {
+	private static final long serialVersionUID = 1L;
 	
 	//State variables for the patient agent
 	double h_p_i;	double h_p_i_1;
@@ -166,6 +167,10 @@ public class Patient implements Steppable {
 	//captures the variables that lead to this ordering
 	public void testing_order() {
 		care.test_registerOrder(p, h_p_i_1, n_p_i, get_MeanE() );
+	}
+	
+	public double getdelta() {
+		return delta_p;
 	}
 
 

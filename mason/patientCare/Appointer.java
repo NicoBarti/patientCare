@@ -1,11 +1,13 @@
 package patientCare;
 import sim.util.*;
+import sim.engine.*;
 
 
 /**
  * Finds an appointment for a patient. It's instantiated at Care start(). The appoint() method is called by the Patients' "interact" subroutines.
  */
-public class Appointer {
+public class Appointer implements Steppable {
+	private static final long serialVersionUID = 1L;
 	Bag providers;
 	Care care;
 	myUtil ut = new myUtil();
@@ -19,6 +21,8 @@ public class Appointer {
 		providers = c.providers;
 		care = c;
 	}
+	
+	public void step(SimState state) {}
 
 	/**
 	 * @param w The doctor's ID that the patient wants an appointment with.

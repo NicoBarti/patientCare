@@ -1,8 +1,10 @@
 package patientCare;
-
+import sim.engine.*;
 import sim.util.Bag;
 
-public class ProviderInitializer {
+public class ProviderInitializer implements Steppable{
+	private static final long serialVersionUID = 1L;
+	
 	Care care;
 	String strategy;
 	int rand;
@@ -11,9 +13,9 @@ public class ProviderInitializer {
 	
 	
 	//for Fixed strategies
-	double fixed_lambda;
-	double fixed_tau;
-	
+	public double fixed_lambda;
+	public double fixed_tau;
+	public void step(SimState state) {};
 	public ProviderInitializer(Care _care, String _strategy) {
 		care = _care;
 		strategy = _strategy;

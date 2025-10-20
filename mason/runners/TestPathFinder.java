@@ -1,6 +1,9 @@
-package patientCare;
+package runners;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import patientCare.Care;
+import patientCare.Patient;
 import sim.util.Bag;
 
 
@@ -150,7 +153,7 @@ public class TestPathFinder {
 		assertTrue(pathfinder.care1.totalCapacity == 100);
 		for (int p = 0; p<pathfinder.care1.patients.numObjs;p++) {
 			patient = (Patient)(pathfinder.care1.patients.objs[p]);
-			assertTrue( patient.delta_p == 3 );
+			assertTrue( patient.getdelta() == 3 );
 		}
 
 		}

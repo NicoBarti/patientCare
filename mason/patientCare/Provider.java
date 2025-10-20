@@ -4,6 +4,7 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 
 public class Provider implements Steppable {
+	private static final long serialVersionUID = 1L;
 	
 	// state variable
 	public int[] SumC_w;

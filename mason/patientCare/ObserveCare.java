@@ -13,6 +13,7 @@ import sim.engine.Steppable;
  * The window = 0 is for initial conditions 
  */
 public class ObserveCare implements Steppable{
+	private static final long serialVersionUID = 1L;
 	/**
 	 * H for patient p at window i
 	 */
@@ -277,6 +278,12 @@ public class ObserveCare implements Steppable{
 	public int getarraysLengthreturn() {return arraysLength;}
 	public int[] getWindows() {return windows;};
 	
-
+	public double getMeanFinalH() {
+		double FinalH = 0;
+		for (int p = 0; p< care.N; p++) {
+			FinalH += (H_p_i[p][arraysLength-1])/care.N;
+		}
+		return FinalH;
+	}
 	
 }

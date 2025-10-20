@@ -1,21 +1,25 @@
 package patientCare;
+import sim.engine.*;
 import sim.util.*;
 
 
-public class PatientInitializer {
+public class PatientInitializer implements Steppable {
+	private static final long serialVersionUID = 1L;
 	Care care;
 	String strategy;
 	
 	//for Fixed strategies
-	double fixed_delta;
-	double fixed_capN;
-	double fixed_lambda; //esta variable se podría eliminar, testear
-	double fixed_tau;//esta variable se podría eliminar, testear
-	double fixed_rho;
-	double fixed_eta;
-	float fixed_kappa;
-	double fixed_capE;
-	double fixed_psi;		
+	public double fixed_delta;
+	public double fixed_capN;
+	public double fixed_lambda; //esta variable se podría eliminar, testear
+	public double fixed_tau;//esta variable se podría eliminar, testear
+	public double fixed_rho;
+	public double fixed_eta;
+	public float fixed_kappa;
+	public double fixed_capE;
+	public double fixed_psi;		
+	
+	public void step(SimState state) {}
 	
 	public PatientInitializer(Care _care, String _strategy) {
 		//TODO: Total capacity should be sorted out at Care (or "general initializer", 

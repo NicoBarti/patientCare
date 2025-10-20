@@ -1,11 +1,26 @@
-package patientCare;
+package runners;
 import java.util.HashMap;
 
+import patientCare.Care;
+import patientCare.PatientInitializer;
 
+
+/**
+ * Runs simulations several times with random values for control variables according to "Model6_spec", for sensitivity analysis.
+ */
 public class PathFinder {
 	
+	/**
+	 * The steps for the simulation.
+	 */
 	static int varsigma;
+	/**
+	 * The path to output the simulation. 
+	 */
 	static String path;
+	/**
+	 * How many simulations to run.
+	 */
 	static int TIMES;
 	static String id;
 	String csvSeedsPath = null;

@@ -1,4 +1,4 @@
-package patientCare;
+package runners;
 
 import java.io.BufferedReader;
 import java.io.IOException;

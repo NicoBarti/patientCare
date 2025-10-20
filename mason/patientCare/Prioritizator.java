@@ -1,12 +1,17 @@
 package patientCare;
+import sim.engine.*;
 
-public class Prioritizator {
+public class Prioritizator implements Steppable {
+	private static final long serialVersionUID = 1L;
+	
 	Care care;
 	String policy;
 	
 	//internals
 	private int order_basal_policy = 10;
 	private int priority;
+	
+	public void step(SimState state) {};
 	
 	public Prioritizator(Care c,String p) {
 		care = c;
@@ -56,7 +61,9 @@ public class Prioritizator {
 		return priority;
 	}
 
-	public void changePolicy(String p) {}
+	public void changePolicy(String p) {
+		policy =p;
+	}
 	
 	private int basal(Patient patient) {
 		return order_basal_policy;

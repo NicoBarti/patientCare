@@ -1,4 +1,4 @@
-package patientCare;
+package runners;
 
 import java.io.FileWriter;
 import java.util.HashMap;
@@ -116,6 +116,29 @@ public class outputWriter {
 							
 				writer.writeNext(line,true);
 			}
+
+		} catch (IOException e) {
+			System.out.println("Problem in CS Writer " + e);
+			System.exit(0);
+		}
+	}
+	
+	//To write the seed, params, and data alltogether. Seeds is in Hash
+	public void write(double output, HashMap<String,String> params, String id) {
+		try (CSVWriter writer = new CSVWriter(new FileWriter(path+"/"+dir+"_all/"+"varsigma_runID"+id+".csv"))) {
+			String[] header = new String[params.size()+1];
+			header[0] = dir;
+			for(int i =1;i<params.size()+1;i++) {
+				header[i] = (String)params.keySet().toArray()[i-1];
+			}
+			writer.writeNext(header,true);			
+				//int storedIndex = 0;
+				String[] line = new String[params.size()+1];
+				line[0] = Double.toString(output);
+				for(int par =1;par<params.size()+1;par++) {
+					line[par] = (String)params.get(header[par]);
+				}
+				writer.writeNext(line,true);
 
 		} catch (IOException e) {
 			System.out.println("Problem in CS Writer " + e);

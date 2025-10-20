@@ -1,6 +1,11 @@
-package patientCare;
+package runners;
 
 import org.json.JSONObject;
+
+import patientCare.Care;
+import patientCare.PatientInitializer;
+import patientCare.ProviderInitializer;
+
 import org.json.JSONArray;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -233,7 +238,7 @@ public class RunWithParams {
 	
 	public String getParams() {
 
-		HashMap params = simulation.getParams();
+		HashMap<String, String> params = simulation.getParams();
 		params.put("pathfinder", Boolean.toString(configure_pathfinder));
 		params.put("reproduce_line", Boolean.toString(reproduce_line));
 

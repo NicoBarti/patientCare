@@ -1,4 +1,4 @@
-package patientCare;
+package runners;
 
 public class ResponseProtocol {
     private static final int WAITING = 0;

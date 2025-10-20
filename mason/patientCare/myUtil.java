@@ -1,6 +1,10 @@
 package patientCare;
+import sim.engine.*;
 
-public class myUtil {
+public class myUtil implements Steppable{
+	private static final long serialVersionUID = 1L;
+	
+	public void step(SimState state) {}
 	
 	public myUtil() {}
 

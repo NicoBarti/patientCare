@@ -13,6 +13,7 @@ import sim.util.*;
  * 
  */
 public class Care extends SimState {
+	private static final long serialVersionUID = 1L;
 	
 	
 	/**
@@ -56,9 +57,9 @@ public class Care extends SimState {
 	Patient patient;
 	Patient pat;
 	Provider provider;
-	ProviderInitializer prov_init;
-	PatientInitializer pat_init;
-	ObserveCare observer;
+	public ProviderInitializer prov_init;
+	public PatientInitializer pat_init;
+	public ObserveCare observer;
 	
 	long storedSeed;
 	
@@ -129,7 +130,8 @@ public class Care extends SimState {
 		
 		//create anonymus agent that scheddules patients wit priority hat_o 
 		//this agent acts at the end of each state ( max_priority+3)
-	schedule.scheduleRepeating(schedule.EPOCH, prioritize.maxPriority() +3, new Steppable(){ //copied
+	schedule.scheduleRepeating(schedule.EPOCH, prioritize.maxPriority() +3, new Steppable(){
+				private static final long serialVersionUID = 1L;
 				public void step(SimState state) { 
 					for(int i=0;i<patients.numObjs;i++) {
 				//boolean scheduled = false;
@@ -171,9 +173,13 @@ public class Care extends SimState {
 	public int getOBS_PERIOD() {return OBS_PERIOD;}
 	public void settotalCapacity(int val) {totalCapacity = val;}
 	public int gettotalCapacity() {return totalCapacity;}
+	public long getSeed() {return storedSeed;}
+	
+	//to access the observer 
+	//public 
 
 	
-	public HashMap getParams() {
+	public HashMap<String, String> getParams() {
 				
 		HashMap<String, String> params = new HashMap();
 		//Care level
