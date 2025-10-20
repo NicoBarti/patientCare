@@ -47,8 +47,7 @@ public class experimentWithProvidedLines {
 		basalSim.setPATIENT_INIT("applyFixed"); //for params comparison before simulation compatibility
 		basalSim.pat_init.fixed_delta = Double.parseDouble(params.get("fixed_delta"));
 		basalSim.pat_init.fixed_capN = Double.parseDouble(params.get("fixed_capN"));
-//		basalSim.pat_init.fixed_lambda = 8.159167;
-//		basalSim.pat_init.fixed_tau = 9.129899;
+
 		basalSim.pat_init.fixed_rho = Double.parseDouble(params.get("fixed_rho"));
 		basalSim.pat_init.fixed_eta = Double.parseDouble(params.get("fixed_eta"));
 		basalSim.pat_init.fixed_kappa = Float.parseFloat(params.get("fixed_kappa"));
