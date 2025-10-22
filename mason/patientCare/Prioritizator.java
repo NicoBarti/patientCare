@@ -65,6 +65,8 @@ public class Prioritizator implements Steppable {
 		policy =p;
 	}
 	
+	public String getPolicy() {return policy;}
+	
 	private int basal(Patient patient) {
 		return order_basal_policy;
 		}

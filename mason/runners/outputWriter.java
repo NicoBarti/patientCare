@@ -39,6 +39,10 @@ public class outputWriter {
 		dir = dir_value;
 	}
 	
+	public outputWriter(String path_value) {
+		path = path_value;
+	}
+	
 	public void write(double[] output , int number, String id) {
 		try (CSVWriter writer = new CSVWriter(new FileWriter(path+"/"+dir+"/"+"time_"+number+"pathFinder_"+id+".csv"))) {
 			String[] header = new String[] {dir};
@@ -144,6 +148,38 @@ public class outputWriter {
 			System.out.println("Problem in CS Writer " + e);
 			System.exit(0);
 		}
+	}
+	
+	//To write results from mid-term interventions on lines
+	public void writeEvaluationHash(HashMap<String, HashMap<String, String>> results) {
+		try (CSVWriter writer = new CSVWriter(new FileWriter(path))) {
+			//String[] header = (String[])results.get(results.keySet().toArray()[0]).keySet().toArray();
+			boolean h = false;
+			String[] header = {};
+			for(String seed : results.keySet()) {
+				if(!h) {
+					header = new String[results.get(seed).keySet().size()];
+					int i = 0;
+					for(String head : results.get(seed).keySet()) {
+						header[i] = head;
+						i+=1;
+					}
+					writer.writeNext(header,true);
+					h = true;
+				}
+				String[] line = new String[header.length];
+				for(int resultNumber = 0; resultNumber < header.length; resultNumber++) {
+					line[resultNumber] = results.get(seed).get(header[resultNumber]);
+				}
+				writer.writeNext(line,true);
+				}
+
+		} catch (IOException e) {
+			System.out.println("Problem in CS Writer " + e);
+			System.exit(0);
+		
+		
+	}
 	}
 	
 	

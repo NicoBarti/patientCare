@@ -286,4 +286,21 @@ public class ObserveCare implements Steppable{
 		return FinalH;
 	}
 	
+	public double getVarianceFinalH() {
+		double FinalVarH = 0;
+		double FinalMeanH = getMeanFinalH();
+		for (int p = 0; p< care.N; p++) {
+			FinalVarH += ((H_p_i[p][arraysLength-1] - FinalMeanH) * (H_p_i[p][arraysLength-1] - FinalMeanH))/care.N;
+		}
+		return FinalVarH;
+	}
+	
+	public double getSlopeHFinal() {
+		double anteFinalH = 0;
+		for (int p = 0; p< care.N; p++) {
+			anteFinalH += (H_p_i[p][arraysLength-2])/care.N;
+		}
+		return (getMeanFinalH()-anteFinalH)/period;
+	}
+	
 }

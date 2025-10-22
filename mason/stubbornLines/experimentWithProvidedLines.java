@@ -1,4 +1,4 @@
-package runners;
+package stubbornLines;
 
 import java.io.File;
 import java.util.HashMap;
@@ -6,6 +6,8 @@ import java.util.HashMap;
 import patientCare.Care;
 import patientCare.PatientInitializer;
 import patientCare.ProviderInitializer;
+import runners.csvReader;
+import runners.outputWriter;
 
 public class experimentWithProvidedLines {
 	
@@ -16,9 +18,12 @@ public class experimentWithProvidedLines {
 		new experimentWithProvidedLines("/Users/nicolasbarticevic/Desktop/simulationOutputs/paper1/500/PercentileLinesDelta4/");
 	}
 	
+	public experimentWithProvidedLines() {}
+	
 	public experimentWithProvidedLines(String path) {
 	 csvReader reader = new csvReader(path);
 	 HashMap<String, HashMap<String, String>> lines = reader.readPathFinderOutput("percenileLines.csv", true);
+	 HashMap<String, HashMap<String, String>> results = new HashMap<String, HashMap<String, String>>();
 	 
 	 for (String seed: lines.keySet()) {
 		 Care basalSim = parametrizeLine(lines.get(seed));
@@ -30,11 +35,15 @@ public class experimentWithProvidedLines {
 		 System.out.println("Basal final H: " + basalSim.observer.getMeanFinalH() + 
 				 " Intervention final H " + pureInterventionSim.observer.getMeanFinalH() +
 				 " Timed-Intervention final H " + timedInterventionSim.observer.getMeanFinalH());
+		 
+		 results.put(seed, buildEvaluationHash(basalSim,pureInterventionSim));
+		 outputWriter writer = new outputWriter("/Users/nicolasbarticevic/Desktop/simulationOutputs/paper1/500/sevenLines/evaluations.csv");
+		 writer.writeEvaluationHash(results);
 	 }
 	 
 	 }
 	
-	public Care parametrizeLine(HashMap<String,String> params) {
+	private Care parametrizeLine(HashMap<String,String> params) {
 	
 		Care basalSim = new Care(Long.parseLong(params.get("seeds")));
 		basalSim.setOBS_PERIOD(100);
@@ -62,7 +71,7 @@ public class experimentWithProvidedLines {
 		return basalSim;
 	}
 	
-	private Care basalRun(Care basalSim, String policy) {		
+	protected Care basalRun(Care basalSim, String policy) {		
 		basalSim.setPi(policy);
 		basalSim.start();
 		basalSim.startObserver(true, false, false, false, false, false, false, false, false);
@@ -80,7 +89,23 @@ public class experimentWithProvidedLines {
 		return basalSim;
 	}
 	
-	public Care interventionFromCheckpoint(String seed, String policy, int varsigma) {
+	private Care checkoutATRun(Care basalSim, String policy){		
+		basalSim.setPi(policy);
+		basalSim.start();
+		basalSim.startObserver(true, false, false, false, false, false, false, false, false);
+		basalSim.writeToCheckpoint(new File(checkpoint_path+"/"+Long.toString(basalSim.getSeed())+"_"+"initialization"));
+		for(int i=0;i<checkoutAT;i++) {
+			if( 
+				basalSim.schedule.step(basalSim) 
+
+			) {}else{System.out.println("ups! failed Care"); break;}	
+		}
+		basalSim.writeToCheckpoint(new File(checkpoint_path+"/"+Long.toString(basalSim.getSeed())+"_"+policy));
+		basalSim.finish();
+		return basalSim;
+	}
+	
+	protected Care interventionFromCheckpoint(String seed, String policy, int varsigma) {
 		Care interventionSim = null;
 		interventionSim = (Care)interventionSim.readFromCheckpoint(new File(checkpoint_path+"/"+seed+"_basal"));
 		interventionSim.prioritize.changePolicy("H_segmented");
@@ -93,4 +118,22 @@ public class experimentWithProvidedLines {
 		return interventionSim;
 	}
 	
+	private HashMap<String,String> buildEvaluationHash(Care basalSim, Care timedInterventionSim){
+		HashMap<String,String> results = new HashMap<String,String>();
+		results.put("seeds", Long.toString(basalSim.getSeed()));
+		results.put("basalFinalH", Double.toString(basalSim.observer.getMeanFinalH()));
+		results.put("interFInalH", Double.toString(timedInterventionSim.observer.getMeanFinalH()));
+		results.put("basalVarH", Double.toString(basalSim.observer.getVarianceFinalH()));
+		results.put("interVarH", Double.toString(timedInterventionSim.observer.getVarianceFinalH()));
+		results.put("basalSlope",Double.toString(basalSim.observer.getSlopeHFinal()));
+		results.put("interSlope",Double.toString(timedInterventionSim.observer.getSlopeHFinal()));
+		return results;
+	}
+	
+	public void setcheckpoint_path(String val){
+		checkpoint_path = val;
+	}
+	public String getcheckpoint_path() {
+		return checkpoint_path;
+	}
 }
