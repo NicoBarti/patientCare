@@ -1,5 +1,6 @@
 package stubbornLines;
 import java.io.File;
+import java.util.HashMap;
 
 import patientCare.Care;
 
@@ -8,24 +9,34 @@ import patientCare.Care;
  * Run simulations with random draws according to Sensitivity ranges, and see how they respond to
  * h_segmentation. Select the n ones that don't respond
  */
-public class findStubbornSystems {
+public class StubbornSystems {
 	experimentWithProvidedLines experimenter = new experimentWithProvidedLines();
 	int n = 100;
 	int counter = 0;
 
 	
 	public static void main(String[] args) {
-		findStubbornSystems finder = new findStubbornSystems();
+		StubbornSystems finder = new StubbornSystems(args[0]);
 	}
 	
-	public findStubbornSystems() {
+	public StubbornSystems(int numberOfLines) {
 		int found = 0;
-		while(found <501) {
+		while(found <numberOfLines) {
 		Care[] stuborn = findStubborn();
 		found+=1;
 		}
 		System.out.println("Needed "+counter+" trials.");
 	}
+	
+	public StubbornSystems(String path) {
+		experimenter.setcheckpoint_path(path);
+	}
+	
+//	public HashMap<String,String> find_describe_OneStubborn() {
+//		Care[] stuborn = findStubborn();
+//		HashMap<String,String> result = new HashMap<String,String>();
+//		
+//	}
 	
 	private Care[] findStubborn() {
 		boolean found = false;
