@@ -38,6 +38,13 @@ public class StubbornSystems {
 //		
 //	}
 	
+	public HashMap foundParamsAndFitness() {
+		Care FoundSystem = findStubborn()[1];
+		HashMap params = FoundSystem.getParams();
+		params.put("fit", FoundSystem.observer.getMeanFinalH());
+		return params;
+	}
+	
 	private Care[] findStubborn() {
 		boolean found = false;
 		Care basalSim = null;
