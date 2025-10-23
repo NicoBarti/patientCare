@@ -118,6 +118,46 @@ public class experimentWithProvidedLines {
 		return interventionSim;
 	}
 	
+	public Care tweakTheLine(String seed, int varsigma, double[] genoType) {
+		Care interventionSim = null;
+		interventionSim = (Care)interventionSim.readFromCheckpoint(new File(checkpoint_path+"/"+seed+"_basal"));
+		reparametrize(interventionSim, genoType);
+		for(int i=checkoutAT;i<varsigma;i++) {
+			if(
+					interventionSim.schedule.step(interventionSim) 
+			) {}else{System.out.println("ups! failed Care"); break;}
+		}
+		interventionSim.finish();
+		return interventionSim;
+
+	}
+	
+	private void reparametrize(Care sim, double[] genoType) {
+		//provider params:
+		sim.prov_init.setlambda(sim.providers, genoType[0]);
+		sim.prov_init.settau(sim.providers, genoType[1]);
+		//patient params:
+		sim.pat_init.setkappa(sim.patients, (float)genoType[2]);
+		sim.pat_init.setrho(sim.patients, genoType[3]);
+		sim.pat_init.seteta(sim.patients, genoType[4]);
+		sim.pat_init.setcapN(sim.patients, genoType[5]);
+		sim.pat_init.setcapE(sim.patients, genoType[6]);
+		sim.pat_init.setpsi(sim.patients, genoType[7]);
+
+		//context params:
+		//TODO
+		//sim.setN((int)genoType[8]); //Need a method to change observers and doctors
+		//sim.setW((int)genoType[9]);
+		
+		//patient params:
+		sim.pat_init.setdelta(sim.patients, genoType[10]);
+		
+		//context params:
+		//TODO
+		//sim.settotalCapacity
+		
+	}
+	
 	private HashMap<String,String> buildEvaluationHash(Care basalSim, Care timedInterventionSim){
 		HashMap<String,String> results = new HashMap<String,String>();
 		results.put("seeds", Long.toString(basalSim.getSeed()));

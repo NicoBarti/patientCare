@@ -13,6 +13,7 @@ public class StubbornSystems {
 	experimentWithProvidedLines experimenter = new experimentWithProvidedLines();
 	int n = 100;
 	int counter = 0;
+	Care FoundSystem = null;
 
 	
 	public static void main(String[] args) {
@@ -32,17 +33,39 @@ public class StubbornSystems {
 		experimenter.setcheckpoint_path(path);
 	}
 	
-//	public HashMap<String,String> find_describe_OneStubborn() {
-//		Care[] stuborn = findStubborn();
-//		HashMap<String,String> result = new HashMap<String,String>();
-//		
-//	}
 	
-	public HashMap foundParamsAndFitness() {
-		Care FoundSystem = findStubborn()[1];
-		HashMap params = FoundSystem.getParams();
-		params.put("fit", FoundSystem.observer.getMeanFinalH());
-		return params;
+	public double[] scaledFoundParams() {
+		if (FoundSystem == null) {
+			FoundSystem = findStubborn()[1];
+		}
+
+		vectorizeParams vectorize = new vectorizeParams();
+		return vectorize.toScaledOrderedArray(FoundSystem.getParams());
+
+	}
+	
+	public double[] rawFoundParams() {
+		if (FoundSystem == null) {
+			FoundSystem = findStubborn()[1];
+		}
+
+		vectorizeParams vectorize = new vectorizeParams();
+		return vectorize.toRawOrderedArray(FoundSystem.getParams());
+
+	}
+	
+	public double foundFit() {
+		if (FoundSystem == null) {
+			FoundSystem = findStubborn()[1];
+		}
+		return FoundSystem.observer.getMeanFinalH();
+	}
+	
+	public long seedFound() {
+		if (FoundSystem == null) {
+			FoundSystem = findStubborn()[1];
+		}
+		return FoundSystem.getSeed();
 	}
 	
 	private Care[] findStubborn() {
@@ -65,10 +88,6 @@ public class StubbornSystems {
 		timedInterventionSim = experimenter.interventionFromCheckpoint(Long.toString(seed), 
 				"basal", basalSim.getvarsigma());	
 		counter+=1;
-//		System.out.println("trials "+counter);
-//		System.out.println("Timed intervention: "+timedInterventionSim.observer.getMeanFinalH()+ " | basal: "+basalSim.observer.getMeanFinalH());
-//		System.out.println("Policy basal: "+basalSim.prioritize.getPolicy()+ " | policy intervention: "+timedInterventionSim.prioritize.getPolicy());
-//		System.out.println("varsigma: "+basalSim.getvarsigma());
 		if(timedInterventionSim.observer.getMeanFinalH() > basalSim.observer.getMeanFinalH()/2) {
 			found = true;
 		} else { 
@@ -78,7 +97,7 @@ public class StubbornSystems {
 			file.delete();}
 		}
 		Care[] result = {basalSim, timedInterventionSim};
-		return  result;
+		return result;
 		
 	}
 	
