@@ -12,6 +12,12 @@ import sim.util.*;
 /**
  * 
  */
+/**
+ * 
+ */
+/**
+ * 
+ */
 public class Care extends SimState {
 	private static final long serialVersionUID = 1L;
 	
@@ -69,6 +75,19 @@ public class Care extends SimState {
 		storedSeed = seed;
 	}
 	
+	
+	/** 
+	 * Generates an observer for the specified variables and scheddules it with priority 0
+	 * @param obsH
+	 * @param obsN
+	 * @param obsC
+	 * @param obsT
+	 * @param obsE
+	 * @param obsB
+	 * @param simpleC
+	 * @param simpleE
+	 * @param simpleB
+	 */
 	public void startObserver(boolean obsH, boolean obsN, boolean obsC, 
 			boolean obsT, boolean obsE, boolean obsB, boolean simpleC, boolean simpleE, boolean simpleB) {
 		observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB);
@@ -76,6 +95,9 @@ public class Care extends SimState {
 	}
 
 	
+	/**
+	 * Generate an observer for all state variables and scheddule it with priority 0
+	 */
 	public void startObserver() {
 		observer = new ObserveCare(this, OBS_PERIOD);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
@@ -118,6 +140,8 @@ public class Care extends SimState {
 			providers.add(provider);
 	schedule.scheduleRepeating(schedule.EPOCH,1,provider); //providers are stepped first thing at each step
 		}
+		// assure capacity is exact
+		prov_init.adjustCapacity(providers, totalCapacity);
 		
 		// create and initialize patients
 		for (int i = 0; i < N; i++) {
@@ -210,6 +234,77 @@ public class Care extends SimState {
 		return params;
 	}
 
+	
+	public void change_N_midwaytrhough(int newN) {
+		if (newN == N) {return;}
+		//1:
+		//method to increase
+		if(newN>N) {
+		//add n patients, and initialize them with PATIENT_INIT
+		patients.resize(N-newN);
+		for (int i=N;i<newN;i++) {
+			patient = new Patient();
+			patient.p = i;
+			pat_init.initialize(patient);
+			patients.add(patient);
+			schedule.scheduleOnce(patient, prioritize.hat_o(patient)); //orders 2 to N+2
+		}
+		//modify the observer
+		observer.increaseNmidway(newN);
+		//modify the provider's memory of interaction
+		for(int p = 0;p<providers.numObjs;p++) {
+			((Provider)providers.get(p)).increaseNmidway(newN);
+		}
+		//finally, update N
+		N = newN;
+		}
+		//2:
+		//method to decrease
+		if(N>newN) {
+		//pick N-newN patients at random and inactivate them
+		patients.shuffle(random);
+		for(int i =0;i<N-newN;i++) {
+			if(!((Patient)patients.get(i)).active) {System.out.println("(Care.java) Can't inactivate inactive patient"); System.exit(0);}
+			((Patient)patients.get(i)).active = false;
+		}
+		N = newN;
+		}
+	}
+	
+	public void change_W_midwaytrhough(int newW) {
+		if (newW == W) {return;}
+		//method to increase
+		if(newW>W) {
+		//add n providers, and initialize them with PROVIDER_INIT
+		providers.resize(W-newW);
+		for(int i =W;i<newW;i++) {
+		provider = new Provider();
+		provider.w = i;
+		prov_init.initialize(provider);
+		providers.add(provider);
+		schedule.scheduleRepeating(provider,1); //providers are stepped first thing at each step
+		}
+		prov_init.adjustCapacity(providers, totalCapacity);
+		observer.increaseWmidway(newW);
+		for(int p=0; p<patients.numObjs;p++) {
+			((Patient)patients.get(p)).increaseWmidway(newW);
+		}
+		
+		}
+		if(newW<W) {
+			//eliminate providers at random
+			providers.shuffle(random);
+			System.out.print("(Care cange_w_midway) elminated providers:");
+			for (int i = 0; i < W - newW; i++) {
+				provider = (Provider)providers.pop();
+				System.out.print(" "+provider.w);
+			}
+			System.out.println();
+
+		}
+		W = newW;
+		
+	}
 	
 	//testing:
 	boolean testing = false;

@@ -15,6 +15,7 @@ public class ProviderInitializer implements Steppable{
 	//for Fixed strategies
 	public double fixed_lambda;
 	public double fixed_tau;
+	
 	public void step(SimState state) {};
 	public ProviderInitializer(Care _care, String _strategy) {
 		care = _care;
@@ -61,7 +62,6 @@ public class ProviderInitializer implements Steppable{
 		default: 
 			for(int i = 0; i<care.N;i++) {provider.SumC_w[i] = 0;}
 			break;
-
 		}
 	}
 	
@@ -126,6 +126,24 @@ public class ProviderInitializer implements Steppable{
 			((Provider)providers.objs[w]).testing = value;
 		}
 	}
+	
+	public void adjustCapacity(Bag providers, int totalCapacity) {
+
+		//a. reassign truncated average capacity
+		int truncated_A_w = (int)(totalCapacity/providers.numObjs);
+		for(int p=0;p<providers.numObjs;p++) {
+			((Provider)providers.get(p)).A_w = truncated_A_w;
+		}
+		//b. reassess
+		if(truncated_A_w*providers.numObjs<totalCapacity) {
+			//c. add by ones randomly if needed
+			providers.shuffle(care.random);
+			for(int i = 0; i< totalCapacity - truncated_A_w*providers.numObjs;i++) {
+				((Provider)providers.get(i)).A_w+=1;
+			}
+
+		}
+	};
 	
 	
 }

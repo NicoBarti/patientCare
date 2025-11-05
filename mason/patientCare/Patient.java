@@ -23,6 +23,7 @@ public class Patient implements Steppable {
 	double psi_p;
 	double iota_p;
 	float kappa_p;
+	boolean active = true;
 	
 	//internals
 	protected Care care;
@@ -45,6 +46,11 @@ public class Patient implements Steppable {
 	public void step(SimState state) {
 		//System.out.println("Patient "+p+" delta "+delta_p);
 		care = (Care) state;
+		
+		if(!active) {
+			setMinusOnes();}
+		else {
+		
 		interact = false;
 		
 		//for policy prioritization tesging
@@ -62,13 +68,13 @@ public class Patient implements Steppable {
 		int w = -1;
 		for(int b_w = 0; b_w < care.W; b_w++) { //see if there is any b_w == 0
 			if(b_p_i[b_w] == 1) {
-				w = b_w;
+				w = b_w; //find intended provider
 				interact = true;
 				break;}}
 
 		if(interact) {
-			interaction = care.appointer.appoint(w, p, h_p_i);
-			if((int)interaction[0] == -1) {
+			interaction = care.appointer.appoint(w, p, h_p_i); //try to interact with prefered provider
+			if((int)interaction[0] == -1) { //no provider was available
 				c_p_i[w] = 0;
 				t_p_i = 0;
 			} else {
@@ -80,7 +86,7 @@ public class Patient implements Steppable {
 		
 
 		stepForwardStateVariables();
-		
+		}
 		} 
 
 	
@@ -173,6 +179,97 @@ public class Patient implements Steppable {
 		return delta_p;
 	}
 
+	protected void inactivatePatient() {
+		active = false;
+	}
+	
+	private void setMinusOnes() {
+		h_p_i = -1;	 h_p_i_1 = -1;
+	    t_p_i = -1;	 t_p_i_1=-1;
+	    for(int i=0; i< e_p_i.length; i++) {
+			e_p_i[i] = -1; e_p_i_1[i] = -1;
+			c_p_i[i] = -1; c_p_i_1[i] = -1;
+			c_p_i_counter[i] = -1;
+			b_p_i[i] = -1;	 b_p_i_1[i]= -1;
+	    }
+		n_p_i = -1;
+	}
+	
+	/**
+	 * Change the arrays that store w-repated information: e,c, and b
+	 * @param newW
+	 */
+	public void increaseWmidway(int newW) {
+		//double[] e_p_i;	double[] e_p_i_1;
+		//check if current array is small in w
+		if(e_p_i.length < newW) {
+			//this is a 0s array btween steps, so just re initialize it with new size
+			e_p_i = new double[newW];
+		}
+		if(e_p_i_1.length < newW) {
+			//create a new transitory array to copy info
+			double[] new_e_p_i = increaseSingle_newW(e_p_i_1, newW);
+			// assign (clone) to array
+			e_p_i_1 = new_e_p_i.clone();
+		}
+		//int[] c_p_i;	int[] c_p_i_1;
+		if(c_p_i.length < newW) {
+			//this is a 0s array btween steps, so just re initialize it with new size
+			c_p_i = new int[newW];
+		}
+		if(c_p_i_1.length < newW) {
+			//create a new transitory array to copy info
+			int[] new_c_p_i_1 = increaseSingle_newW(c_p_i_1, newW);
+			// assign (clone) to array
+			c_p_i_1 = new_c_p_i_1.clone();
+		}
+		//int[] b_p_i;	int[] b_p_i_1;
+		if(b_p_i.length < newW) {
+			//this is a 0s array btween steps, so just re initialize it with new size
+			b_p_i = new int[newW];
+		}
+		if(b_p_i_1.length < newW) {
+			//create a new transitory array to copy info
+			int[] new_b_p_i_1 = increaseSingle_newW(b_p_i_1, newW);
+			// assign (clone) to array
+			b_p_i_1 = new_b_p_i_1.clone();
+		}
+		
+		//int[] c_p_i_counter;
+		if(c_p_i_counter.length < newW) {
+			//create a new transitory array to copy info
+			int[] new_c_p_i_counter = increaseSingle_newW(c_p_i_counter, newW);
+			// assign (clone) to array
+			c_p_i_counter = new_c_p_i_counter.clone();
+		}
 
+		
+	}
+	
+	private double[] increaseSingle_newW(double[] old_e_p_i, int newW) {
+		double[] newArr_i = new double[newW];
+		for(int i=0; i<old_e_p_i.length;i++) {
+			newArr_i[i] = old_e_p_i[i];
+		}
+		return newArr_i;
+	}
+	
+	private int[] increaseSingle_newW(int[] old_e_p_i, int newW) {
+		int[] newArr_i = new int[newW];
+		for(int i=0; i<old_e_p_i.length;i++) {
+			newArr_i[i] = old_e_p_i[i];
+		}
+		return newArr_i;
+	}
+	
+	/**
+	 * This method makes a patient "forget" a provider. Its expactation to this provider is set to 0
+	 * I think this makes expectations very relational.
+	 * @param w the provider id
+	 */
+	public void removeExpectations(int w) {
+		e_p_i[w] = 0;
+		e_p_i_1[w] = 0;
+	}
 	
 }

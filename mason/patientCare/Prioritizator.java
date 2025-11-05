@@ -75,6 +75,9 @@ public class Prioritizator implements Steppable {
 		//For H between 0 and 1000
 		// H 0 gets priority 10001; H 1000 gets priority 1;
 		// priority 0 is reserved for 
+		//Handle inactive patients first
+		if(patient.h_p_i_1 == -1) {return order_basal_policy;}
+		//Handle active patients latter
 		int factor;
 		if(patient.h_p_i_1 > 1000) {
 			 factor = 1000;
@@ -91,6 +94,9 @@ public class Prioritizator implements Steppable {
 		//Npriority = 1001  for N = 0; and 0 for N = capN
 		//Epriority = 0 for E = 0; and 1001 for E = capE
 		//Final priority is Npriority + Npriority
+		//Handle inactive patients first
+		if(patient.h_p_i_1 == -1) {return order_basal_policy;}
+		//Handle active patients latter
 		int Npriority; int Epriority;
 		Npriority = (int)(1001 - (patient.n_p_i/patient.capN_p)*1000);
 		Epriority = (int)((patient.get_MeanE()/patient.capE_p)*1000);

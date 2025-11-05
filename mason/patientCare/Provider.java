@@ -7,7 +7,13 @@ public class Provider implements Steppable {
 	private static final long serialVersionUID = 1L;
 	
 	// state variable
+	/**
+	 * Array with the number of past visits for each patient with this provider
+	 */
 	public int[] SumC_w;
+	/**
+	 * Appointments left during the this time-step
+	 */
 	public int alpha_w;
 	
 	//borra:
@@ -29,7 +35,6 @@ public class Provider implements Steppable {
 	public void step(SimState state) {
 		care = (Care)state;
 		alpha_w = A_w; //open agenda
-
 	}
 
 	public double interactWithPatient(int p, double h) {
@@ -45,4 +50,15 @@ public class Provider implements Steppable {
 		if(alpha_w > 0) {return(true);
 		} else {return(false);}
 	}
+	
+	public void increaseNmidway(int newN) {
+		if(newN <= SumC_w.length) {return;}
+		int[] newSumC_w = new int[newN];
+		for (int i = 0; i< SumC_w.length; i++) {
+			newSumC_w[i] = SumC_w[i];
+		}
+		//SumC_w = new int[newN];
+		SumC_w = newSumC_w.clone();
+	}
 }
+
