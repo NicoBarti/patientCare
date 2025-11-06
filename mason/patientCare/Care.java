@@ -294,12 +294,15 @@ public class Care extends SimState {
 		if(newW<W) {
 			//eliminate providers at random
 			providers.shuffle(random);
-			//System.out.print("(Care cange_w_midway) elminated providers:");
+			System.out.print("(Care cange_w_midway) elminated providers:");
 			for (int i = 0; i < W - newW; i++) {
 				provider = (Provider)providers.pop();
-			//	System.out.print(" "+provider.w);
+				System.out.print(" "+provider.w+ " - ");
+				observer.unobserveProvider(provider.w);
+				System.out.println("(Care) Observer contains: observer.B_p_w_i[5][goneProdiver][25]"+observer.B_p_w_i[5][provider.w][25]);
 			}
-			//System.out.println();
+			System.out.println();
+			prov_init.adjustCapacity(providers, totalCapacity);
 
 		}
 		W = newW;

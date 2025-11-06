@@ -535,7 +535,10 @@ public class Tests {
 
 		
 		int patient1 = care.random.nextInt(N);
-		int patient2 = care.random.nextInt(patient1);
+		int patient2 = 0 ;
+		while (patient2 == 0) {
+			patient2 = care.random.nextInt(patient1);
+		}
 		int[] order1_more_order2 = new int[varsigma];
 		
 		for(int i=0; i< varsigma; i++) {
@@ -840,6 +843,8 @@ public class Tests {
 	
 	@Test
 	void test_ChangeInW_effects() {
+		//Check that arrays change right in observers witout loosing information and preserving order even after
+		//providers ceased to exist. The provider id (.w) is unique trhoughout the simulation.
 		//Start the system
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed); 
@@ -873,7 +878,7 @@ public class Tests {
 		assertEquals(5, ((Patient)care.patients.get(care.random.nextInt(20))).c_p_i.length);
 		assertEquals(5, ((Patient)care.patients.get(care.random.nextInt(20))).c_p_i_1.length);
 		//Check provider's availability
-		assertTrue(care.appointer.appoint(care.random.nextInt(5), care.random.nextInt(20), 2.0)[0] > -1, "Provider not available"); 
+		assertTrue(care.appointer.appoint(care.random.nextInt(5), care.random.nextInt(20), 2.0)[0] > -1, "Provider is not available, but should have"); 
 		//Check that observer has "W" providers in B, E, and C
 		assertEquals(5, care.observer.E_p_w_i[care.random.nextInt(20)].length);
 		assertEquals(5, care.observer.B_p_w_i[care.random.nextInt(20)].length);
@@ -889,13 +894,14 @@ public class Tests {
 
 		//care.observer.B_p_w_i[care.random.nextInt(pat)][pro][loc] = 6553200;
 
+		//2: INCREASE W
+		System.out.println("(TEST) increasing capacity");
 		care.change_W_midwaytrhough(10);		
 		for (int i=10;i<20;i++) {
 			care.schedule.step(care);
 
 		}
 		
-		//2: INCREASE W
 		//Check the number of providers
 		assertEquals(10, care.providers.numObjs);
 		//Check patient's E of providers
@@ -919,7 +925,7 @@ public class Tests {
 		assertEquals(10, care.observer.C_p_w_i[care.random.nextInt(20)].length);
 		assertEquals(10, care.observer.E_p_w_i[care.random.nextInt(20)].length);
 
-		//Check that an observation in B,E or C was preserved after adding W
+		//Check that information in B,E or C was preserved after adding W
 		assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
 		assertEquals(8200, care.observer.C_p_w_i[pat][pro][loc]);
 		assertEquals(1298, care.observer.E_p_w_i[pat][pro][loc]);
@@ -941,19 +947,54 @@ public class Tests {
 		care.observer.E_p_w_i[pat][pro][loc] = 1298;
 		
 		//3: DECREASE W
+		System.out.println("(TEST) reducing capacity");
 		care.change_W_midwaytrhough(3);
 		
-		for (int i=20;i<60;i++) {
+		
+		for (int i=20;i<30;i++) {
 			care.schedule.step(care);
 		}
 
 		//Check the number of providers
 		assertEquals(3, care.providers.numObjs);
+		//Total capacity was preserved
+		assertEquals(51, care.totalCapacity, "Total capacity should be 51");
+		//Check that total capacity was assigned correctly
+		currentCapacity = 0;
+		for (int p =0; p<care.providers.numObjs; p++) {
+			currentCapacity+=((Provider)care.providers.get(p)).A_w;
+		}
+		assertEquals(51, currentCapacity, "Total capacity should be 51");
+		//Check patient's arrays to providers
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_counter.length);
 
-		//Check patient's E to providers
-		//Check provider's availability
 		//Check that observer has "W" providers in B or E or C
+		assertEquals(10, care.observer.B_p_w_i[care.random.nextInt(20)].length);
+		assertEquals(10, care.observer.C_p_w_i[care.random.nextInt(20)].length);
+		assertEquals(10, care.observer.E_p_w_i[care.random.nextInt(20)].length);
+		
 		//Check that -1 are recorded for gone providers
+		//find a gone provider
+		int goneProdiver = 0;
+		boolean found;
+		for(int w=0;w<10;w++) {
+			goneProdiver = w; // candidate for gone
+			found = true;
+			for(int ow=0; ow<care.providers.numObjs; ow++) {
+				if(((Provider)care.providers.get(ow)).w == w) {
+					found = false;
+					break;}}
+			if(found) {
+			break;} //if you reached this point you found it}
+		}
+
+		
 	}
 	
 	

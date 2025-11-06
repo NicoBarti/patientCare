@@ -7,10 +7,12 @@ import sim.engine.Steppable;
 
 /**
  * This is an "agent" that stores the state variables at given intervals (windows).
+
  * Should be initialized from Care, after calling care.start() with the care.startObserver() method.
  * The observer agent is scheduled at the beginning of each time step, before any other agent.
  * The observer should be called at the end of the simulation from care.finish() to store the final state.
- * The window = 0 is for initial conditions 
+ * The window = 0 is for initial conditions.
+ * 
  */
 /**
  * 
@@ -63,7 +65,7 @@ public class ObserveCare implements Steppable{
 	int period;
 	int counter = 0;
 	/**
-	 * Window 0 is for initial conditions
+	 * The window for current observation. Window 0 is for initial conditions
 	 */
 	int windowNumber = 0; 
 	
@@ -413,6 +415,26 @@ public class ObserveCare implements Steppable{
 
 	}
 
+	/**
+	 * Records that a provider is gone from the system by setting all future observations to -1 in B, C and E
+	 * @param w
+	 */
+	public void unobserveProvider(int w) {
+		//scan B_p_w_i
+		System.out.println("(ObserveCare) Will -1 provider "+w+ "from windownumbe "+windowNumber+  " to "+arraysLength);
+		for(int p = 0; p < care.patients.numObjs; p++) {
+			for(int i = windowNumber; i< arraysLength; i++) {
+				B_p_w_i[p][w][i] = -1;
+				C_p_w_i[p][w][i] = -1;
+				E_p_w_i[p][w][i] = -1;
+			}
+		}
+		for(int ww= 0; ww<B_p_w_i[0].length;ww++) {
+		System.out.println("(ObserveCare) B_p_w_i[5][goneProdiver][25] for goneProvider "+ww+" = "+B_p_w_i[5][ww][25]);}
+	}
+	
+	
+	
 	protected double[][] increaseDouble_newN(double[][] oldArr_p_i, int newN) {
 		double[][] newArr_p_i = new double[newN][arraysLength];
 		for(int p = 0; p< oldArr_p_i.length;p++) {
