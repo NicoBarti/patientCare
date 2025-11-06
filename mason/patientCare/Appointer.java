@@ -72,7 +72,7 @@ public class Appointer implements Steppable {
 	}
 	
 	private void notifyPatientProviderNoLongerExists(int p, int w) {
-		for(int pp=0;pp<care.patients.numObjs;p++) {
+		for(int pp=0;pp<care.patients.numObjs;pp++) {
 			if(((Patient)care.patients.get(pp)).p == p) {
 				((Patient)care.patients.get(pp)).removeExpectations(w);
 				break;

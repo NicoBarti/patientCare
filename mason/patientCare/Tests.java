@@ -604,6 +604,91 @@ public class Tests {
 		}
 
 	}
+	
+	@Test
+	public void correctAppointments() {
+		//Check that i get the provider I want if there is capacity
+		//Check i don't get the provider because it ran out of appointments
+		//Check i don't gent the provider because it is gone
+		//Patient gets notified that provider no longer exists
+		
+		//Start the system
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=20; care.W=7;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.totalCapacity = 130; //unconstrained capacity
+		care.start();
+		care.startObserver();
+		care.pat_init.setdelta(care.patients, 10.0);
+		care.pat_init.setcapE(care.patients, 10);
+		care.pat_init.setexpectations(care.patients, 10);
+
+		
+		//Check that total capacity was assigned correctly
+		int currentCapacity = 0;
+		for (int p =0; p<care.providers.numObjs; p++) {
+			currentCapacity+=((Provider)care.providers.get(p)).A_w;
+		}
+		assertEquals(130, currentCapacity, "Capacity not assigned correctly");
+
+		//Run it for 10 steps
+		for (int i=0;i<10;i++) {
+			care.schedule.step(care);
+
+		}
+		
+		//Check that i get the provider I want if there is capacity
+		int pro;
+		for(int i=0;i<10;i++) {
+		pro = care.random.nextInt(7);
+		int ow = 0;
+		for(int w=0;w<care.providers.numObjs;w++) {
+			if(((Provider)care.providers.get(w)).w == pro) {
+				ow = w;
+				break;
+			}
+		}
+		assertEquals(pro, care.appointer.appoint(pro, 5, 6)[0], "Didn't get right provider. Providers A_w was enough: "+((Provider)care.providers.get(ow)).A_w);}
+	
+		//Check i don't get the provider because it ran out of appointments
+		for(int i=0; i<5; i++) {
+		pro = care.random.nextInt(7);
+		int ow = ((Provider)care.providers.get(pro)).w;
+		((Provider)care.providers.get(pro)).A_w = 0; ((Provider)care.providers.get(pro)).alpha_w = 0;
+		assertTrue(care.appointer.appoint(ow, 0, 1)[0] != ow, "Should not have got an appointment with unavailable provider "+ow);}
+		
+		//Check i don't get the provider because it is gone
+		care.change_W_midwaytrhough(3);
+			//find a gone provider
+			int goneProdiver = 0;
+			boolean found;
+			for(int w=0;w<7;w++) {
+				goneProdiver = w; // candidate for gone
+				found = true;
+				for(int ow=0; ow<care.providers.numObjs; ow++) {
+					if(((Provider)care.providers.get(ow)).w == w) {
+						found = false;
+						break;}}
+				if(found) {
+				break;} //if you reached this point you found it}
+			}
+		int patId = care.random.nextInt(20);
+			//find patient
+			Patient patient = null;
+			for(int i=0;i<care.patients.numObjs;i++) {
+				if(((Patient)care.patients.get(i)).p == patId) {
+					patient = ((Patient)care.patients.get(i));
+				}
+			}
+			//Patients expectatios for goneProvider are positive:
+			assertTrue(patient.e_p_i_1[goneProdiver] >0, "In this setting the expectations should be high");
+			//Patient' can't interact with goneProvider and learns that they are gone
+			assertTrue(care.appointer.appoint(goneProdiver, patId, 5)[0] != goneProdiver, "Should not have got an appointment with gone provider "+goneProdiver);
+			//Patient gets notified that provider no longer exists, so its expectations are 0
+			assertTrue(patient.e_p_i_1[goneProdiver] ==0, "Provider no longer exists, so its expectations should be 0");
+
+	}
 
 
 	@Test
@@ -864,58 +949,13 @@ public class Tests {
 
 		//Check the number of providers
 		assertEquals(3, care.providers.numObjs);
-		for(int p=0; p<10; p++) {
-			System.out.println("Provider "+p+" result "+care.appointer.appoint(p, 2, 2.0)[0]);
-		}
+
 		//Check patient's E to providers
 		//Check provider's availability
 		//Check that observer has "W" providers in B or E or C
 		//Check that -1 are recorded for gone providers
 	}
 	
-	@Test
-	public void correctAppointments() {
-		//Check that i get the provider I want if there is capacity
-		//Check i don't get the provider because it ran out of appointments
-		//Check i don't gent the provider because it is gone
-		//Patient gets notified that provider no longer exists
-		
-		//Start the system
-		long currentSeed = System.currentTimeMillis();
-		care = new Care(currentSeed); 
-		care.N=20; care.W=7;care.varsigma=100;
-		care.OBS_PERIOD = 1;
-		care.totalCapacity = 130; //unconstrained capacity
-		care.start();
-		care.startObserver();
-		care.pat_init.setdelta(care.patients, 10.0);
-		
-		//Check that total capacity was assigned correctly
-		int currentCapacity = 0;
-		for (int p =0; p<care.providers.numObjs; p++) {
-			currentCapacity+=((Provider)care.providers.get(p)).A_w;
-		}
-		assertEquals(130, currentCapacity, "Capacity not assigned correctly");
-
-		//Run it for 10 steps
-		for (int i=0;i<10;i++) {
-			care.schedule.step(care);
-
-		}
-		
-		//Check that i get the provider I want if there is capacity
-		int pro;
-		for(int i=0;i<10;i++) {
-		pro = care.random.nextInt(7);
-		int ow = 0;
-		for(int w=0;w<care.providers.numObjs;w++) {
-			if(((Provider)care.providers.get(w)).w == pro) {
-				ow = w;
-				break;
-			}
-		}
-		assertEquals(pro, care.appointer.appoint(pro, 5, 6)[0], "Didn't get right provider. Providers A_w was enough: "+((Provider)care.providers.get(ow)).A_w);}
-	}
 	
 }
 

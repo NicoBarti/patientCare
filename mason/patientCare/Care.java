@@ -294,12 +294,12 @@ public class Care extends SimState {
 		if(newW<W) {
 			//eliminate providers at random
 			providers.shuffle(random);
-			System.out.print("(Care cange_w_midway) elminated providers:");
+			//System.out.print("(Care cange_w_midway) elminated providers:");
 			for (int i = 0; i < W - newW; i++) {
 				provider = (Provider)providers.pop();
-				System.out.print(" "+provider.w);
+			//	System.out.print(" "+provider.w);
 			}
-			System.out.println();
+			//System.out.println();
 
 		}
 		W = newW;
