@@ -7,6 +7,7 @@ public class PatientInitializer implements Steppable {
 	private static final long serialVersionUID = 1L;
 	Care care;
 	String strategy;
+	int ID = 0;
 	
 	//for Fixed strategies
 	public double fixed_delta;
@@ -98,7 +99,14 @@ public class PatientInitializer implements Steppable {
 
 	//random-basal strategy: fixed N, varsigma, meanDelta
 	
+	/**
+	 * Initialize control (params) and state variables (initial states) according to the strategy defined in the constructor.
+	 * Also, set each patient's ID.
+	 * @param patient
+	 */
 	public void initialize(Patient patient) {
+		//set the patient's id
+		ID(patient);
 		//initialize control variables first; pay attention to dependency
 		delta_p(patient);
 		capN_p(patient);
@@ -116,6 +124,15 @@ public class PatientInitializer implements Steppable {
 		e(patient); //in some strategies depends on capE // depends on W
 		c(patient); // depends on W, N
 		b(patient); // depends on W, N
+	}
+	
+	private void ID(Patient patient) {
+		patient.p = ID;
+		ID+=1;
+	}
+	
+	public int getMaxID() {
+		return ID;
 	}
 	
 	

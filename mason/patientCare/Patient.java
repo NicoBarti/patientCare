@@ -23,7 +23,7 @@ public class Patient implements Steppable {
 	double psi_p;
 	double iota_p;
 	float kappa_p;
-	boolean active = true;
+	//boolean active = true;
 	
 	//internals
 	protected Care care;
@@ -47,9 +47,9 @@ public class Patient implements Steppable {
 		//System.out.println("Patient "+p+" delta "+delta_p);
 		care = (Care) state;
 		
-		if(!active) {
-			setMinusOnes();}
-		else {
+		//if(!active) {
+		//	setMinusOnes();}
+		//else {
 		
 		interact = false;
 		
@@ -87,7 +87,7 @@ public class Patient implements Steppable {
 
 		stepForwardStateVariables();
 		}
-		} 
+		//} 
 
 	
 	protected void diseaseEvolution(Care care) {	
@@ -179,9 +179,9 @@ public class Patient implements Steppable {
 		return delta_p;
 	}
 
-	protected void inactivatePatient() {
-		active = false;
-	}
+	//protected void inactivatePatient() {
+	//	active = false;
+	//}
 	
 	private void setMinusOnes() {
 		h_p_i = -1;	 h_p_i_1 = -1;

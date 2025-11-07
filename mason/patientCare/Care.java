@@ -135,10 +135,9 @@ public class Care extends SimState {
 		// create and initialize providers
 		for(int i =0;i<W;i++) {
 			provider = new Provider();
-			provider.w = i;
 			prov_init.initialize(provider);
 			providers.add(provider);
-	schedule.scheduleRepeating(schedule.EPOCH,1,provider); //providers are stepped first thing at each step
+			schedule.scheduleRepeating(schedule.EPOCH,1,provider); //providers are stepped first thing at each step
 		}
 		// assure capacity is exact
 		prov_init.adjustCapacity(providers, totalCapacity);
@@ -146,7 +145,6 @@ public class Care extends SimState {
 		// create and initialize patients
 		for (int i = 0; i < N; i++) {
 			patient = new Patient();
-			patient.p = i;
 			pat_init.initialize(patient);
 			patients.add(patient);
 	schedule.scheduleOnce(schedule.EPOCH, prioritize.hat_o(patient), patient); //orders 2 to N+2
@@ -244,7 +242,7 @@ public class Care extends SimState {
 		patients.resize(N-newN);
 		for (int i=N;i<newN;i++) {
 			patient = new Patient();
-			patient.p = i;
+			//patient.p = i;
 			pat_init.initialize(patient);
 			patients.add(patient);
 			schedule.scheduleOnce(patient, prioritize.hat_o(patient)); //orders 2 to N+2
@@ -256,19 +254,21 @@ public class Care extends SimState {
 			((Provider)providers.get(p)).increaseNmidway(newN);
 		}
 		//finally, update N
-		N = newN;
 		}
 		//2:
 		//method to decrease
 		if(N>newN) {
 		//pick N-newN patients at random and inactivate them
 		patients.shuffle(random);
+		
 		for(int i =0;i<N-newN;i++) {
-			if(!((Patient)patients.get(i)).active) {System.out.println("(Care.java) Can't inactivate inactive patient"); System.exit(0);}
-			((Patient)patients.get(i)).active = false;
+			patient = (Patient)patients.pop();
+			observer.unobservePatient(patient.p);
+
+		}
 		}
 		N = newN;
-		}
+
 	}
 	
 	public void change_W_midwaytrhough(int newW) {
@@ -294,14 +294,14 @@ public class Care extends SimState {
 		if(newW<W) {
 			//eliminate providers at random
 			providers.shuffle(random);
-			System.out.print("(Care cange_w_midway) elminated providers:");
+			//System.out.print("(Care cange_w_midway) elminated providers:");
 			for (int i = 0; i < W - newW; i++) {
 				provider = (Provider)providers.pop();
-				System.out.print(" "+provider.w+ " - ");
+			//	System.out.print(" "+provider.w+ " - ");
 				observer.unobserveProvider(provider.w);
-				System.out.println("(Care) Observer contains: observer.B_p_w_i[5][goneProdiver][25]"+observer.B_p_w_i[5][provider.w][25]);
+			//	System.out.println("(Care) Observer contains: observer.B_p_w_i[5][goneProdiver][25]"+observer.B_p_w_i[5][provider.w][25]);
 			}
-			System.out.println();
+			//System.out.println();
 			prov_init.adjustCapacity(providers, totalCapacity);
 
 		}

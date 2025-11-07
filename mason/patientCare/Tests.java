@@ -234,7 +234,7 @@ public class Tests {
 	for(int policy = 0; policy < policies.length; policy++) {
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);
-		int N = 1; int W = 100;
+		int N = 1; int W = 1000;
 		care.setW(W);
 		care.setPi(policies[policy]);
 		care.setN(N);
@@ -243,7 +243,7 @@ public class Tests {
 		Patient onePatient = (Patient)(care.patients.objs[0]);
 		
 		for(int i=0;i<W;i++) {onePatient.e_p_i[i] = 2.0;}
-		int[] ws = new int[3];
+		int[] ws = new int[2];
 		int matchs = 0;
 		onePatient.behaviouralRule(care);
 		ws[0] = onePatient.wMaxExpectation;
@@ -251,7 +251,7 @@ public class Tests {
 			onePatient.behaviouralRule(care);
 			ws[i] = onePatient.wMaxExpectation;
 			if(ws[0]==ws[i]) {matchs+=1;} }
-		assertTrue((matchs <1), "Check break ties expectations. The probability of this match is <1/100 "+ "seed: "+currentSeed);
+		assertTrue((matchs <1), "Check break ties expectations. The probability of this match is <1/1000 "+ "seed: "+currentSeed);
 		onePatient.e_p_i[3] = 3.0;
 		onePatient.behaviouralRule(care);
 		assertEquals(3,((Patient)care.patients.objs[0]).wMaxExpectation);
@@ -774,8 +774,7 @@ public class Tests {
 		care.N=20; care.W=5;care.varsigma=100;
 		care.OBS_PERIOD = 1;
 		care.start();
-		care.startObserver(true, false, false, 
-				false, false, false, false, false, false);
+		care.startObserver();
 		care.pat_init.setdelta(care.patients, 10.0);
 		//Run it for 50 steps
 		for (int i=0;i<50;i++) {
@@ -785,10 +784,48 @@ public class Tests {
 		//Check the number of patients being observed
 		assertEquals(care.observer.H_p_i.length, 20);
 		double oneH = care.observer.H_p_i[15][40];
+		
+		//assign a value to check that will be preserved
+		int pat = care.random.nextInt(20);
+		int pro = care.random.nextInt(5);
+		int loc = care.random.nextInt(10);
+		care.observer.H_p_i[pat][loc] = 1772;
+		care.observer.N_p_i[pat][loc] = 7422;
+		care.observer.T_p_i[pat][loc] = 845;
+		care.observer.B_p_w_i[pat][pro][loc] = 6553200;
+		care.observer.C_p_w_i[pat][pro][loc] = 8200;
+		care.observer.E_p_w_i[pat][pro][loc] = 1298;
+		care.observer.simple_C_p_i[pat][loc] = 713;
+		care.observer.simple_E_p_i[pat][loc] = 573;
+		care.observer.simple_B_p_i[pat][loc] = 631;
+		
 		// INCRESED N:
 		care.change_N_midwaytrhough(30);
 		assertEquals(care.patients.numObjs, 30);
 		assertEquals(care.observer.H_p_i.length,30);
+			
+			//Check observer 
+				assertEquals(30, care.observer.H_p_i.length);
+				assertEquals(30, care.observer.N_p_i.length);
+				assertEquals(30, care.observer.C_p_w_i.length);
+				assertEquals(30, care.observer.T_p_i.length);
+				assertEquals(30, care.observer.E_p_w_i.length);
+				assertEquals(30, care.observer.B_p_w_i.length);
+				assertEquals(30, care.observer.simple_C_p_i.length);
+				assertEquals(30, care.observer.simple_E_p_i.length);
+				assertEquals(30, care.observer.simple_B_p_i.length);
+
+			//Info preserved
+				assertEquals(1772, care.observer.H_p_i[pat][loc]);
+				assertEquals(7422, care.observer.N_p_i[pat][loc]);
+				assertEquals(845, care.observer.T_p_i[pat][loc]);
+				assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
+				assertEquals(8200, care.observer.C_p_w_i[pat][pro][loc]);
+				assertEquals(1298, care.observer.E_p_w_i[pat][pro][loc]);
+				assertEquals(713, care.observer.simple_C_p_i[pat][loc]);
+				assertEquals(573, care.observer.simple_E_p_i[pat][loc]);
+				assertEquals(631, care.observer.simple_B_p_i[pat][loc]);
+
 		int[] patientsIds = new int[30];
 		for(int i=0;i<30;i++) {
 			patientsIds[((Patient)care.patients.get(i)).p] = ((Patient)care.patients.get(i)).p;
@@ -805,30 +842,88 @@ public class Tests {
 		}
 		// DECREASED N
 		care.change_N_midwaytrhough(20);
-		// Check that 20 patients are active
-		int counter = 0;
-		for(int p=0;p<care.patients.numObjs;p++){
-			if(((Patient)(care.patients.get(p))).active) {
-				counter+=1;
-			}
-		}
-		assertEquals(20,counter);
+		
+		//check that only 20 patients are in the bag
+		assertEquals(20, care.patients.numObjs);
+		
+		//Check observer 
 		assertEquals(30, care.observer.H_p_i.length);
+		assertEquals(30, care.observer.N_p_i.length);
+		assertEquals(30, care.observer.C_p_w_i.length);
+		assertEquals(30, care.observer.T_p_i.length);
+		assertEquals(30, care.observer.E_p_w_i.length);
+		assertEquals(30, care.observer.B_p_w_i.length);
+		assertEquals(30, care.observer.simple_C_p_i.length);
+		assertEquals(30, care.observer.simple_E_p_i.length);
+		assertEquals(30, care.observer.simple_B_p_i.length);
+		
+		//Info preserved
+		assertEquals(1772, care.observer.H_p_i[pat][loc]);
+		assertEquals(7422, care.observer.N_p_i[pat][loc]);
+		assertEquals(845, care.observer.T_p_i[pat][loc]);
+		assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
+		assertEquals(8200, care.observer.C_p_w_i[pat][pro][loc]);
+		assertEquals(1298, care.observer.E_p_w_i[pat][pro][loc]);
+		assertEquals(713, care.observer.simple_C_p_i[pat][loc]);
+		assertEquals(573, care.observer.simple_E_p_i[pat][loc]);
+		assertEquals(631, care.observer.simple_B_p_i[pat][loc]);
+		
+		//still observers are 30
 		for (int i=80;i<90;i++) {
 			care.schedule.step(care);
 
 		}
 		int minusOnecounter = 0;
-		for(int i=0;i<care.patients.numObjs;i++) {
+		for(int i=0;i<30;i++) {
 			if(care.observer.H_p_i[i][85] == -1) {minusOnecounter+=1;
 			}
 		}
-		assertEquals(10,minusOnecounter);
+		assertEquals(10,minusOnecounter, "X_i arrays should record -1 when patient is gone");
+		
+		//increase N again
+		care.change_N_midwaytrhough(35);
+		assertEquals(35, care.patients.numObjs);
+
+		System.out.println("These are the IDs:");
+		for(int i = 0; i< care.patients.numObjs;i++) {		
+			System.out.print(" "+((Patient)care.patients.get(i)).p);
+			
+		}
+		
+		//Check observer 
+		assertEquals(35, care.observer.H_p_i.length);
+		assertEquals(35, care.observer.N_p_i.length);
+		assertEquals(35, care.observer.C_p_w_i.length);
+		assertEquals(35, care.observer.T_p_i.length);
+		assertEquals(35, care.observer.E_p_w_i.length);
+		assertEquals(35, care.observer.B_p_w_i.length);
+		assertEquals(35, care.observer.simple_C_p_i.length);
+		assertEquals(35, care.observer.simple_E_p_i.length);
+		assertEquals(35, care.observer.simple_B_p_i.length);
+		
+		//check ID is not reused
+
+		//Check past info is preserved
+		
+		//Info preserved
+		assertEquals(1772, care.observer.H_p_i[pat][loc]);
+		assertEquals(7422, care.observer.N_p_i[pat][loc]);
+		assertEquals(845, care.observer.T_p_i[pat][loc]);
+		assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
+		assertEquals(8200, care.observer.C_p_w_i[pat][pro][loc]);
+		assertEquals(1298, care.observer.E_p_w_i[pat][pro][loc]);
+		assertEquals(713, care.observer.simple_C_p_i[pat][loc]);
+		assertEquals(573, care.observer.simple_E_p_i[pat][loc]);
+		assertEquals(631, care.observer.simple_B_p_i[pat][loc]);
+		
+		
 		
 		for (int i=90;i<100;i++) {
 			care.schedule.step(care);
 
 		}
+		
+	
 		care.finish();
 		//check final statistics
 		for(int i=0;i<30;i++) {
@@ -838,6 +933,10 @@ public class Tests {
 			}
 		}
 		assertEquals(14, care.observer.getMeanFinalH());
+		assertEquals(0, care.observer.getVarianceFinalH());
+		
+
+		
 		
 	}
 	
@@ -895,7 +994,7 @@ public class Tests {
 		//care.observer.B_p_w_i[care.random.nextInt(pat)][pro][loc] = 6553200;
 
 		//2: INCREASE W
-		System.out.println("(TEST) increasing capacity");
+		//System.out.println("(TEST) increasing capacity");
 		care.change_W_midwaytrhough(10);		
 		for (int i=10;i<20;i++) {
 			care.schedule.step(care);
@@ -947,7 +1046,7 @@ public class Tests {
 		care.observer.E_p_w_i[pat][pro][loc] = 1298;
 		
 		//3: DECREASE W
-		System.out.println("(TEST) reducing capacity");
+		//System.out.println("(TEST) reducing capacity");
 		care.change_W_midwaytrhough(3);
 		
 		
@@ -979,21 +1078,6 @@ public class Tests {
 		assertEquals(10, care.observer.C_p_w_i[care.random.nextInt(20)].length);
 		assertEquals(10, care.observer.E_p_w_i[care.random.nextInt(20)].length);
 		
-		//Check that -1 are recorded for gone providers
-		//find a gone provider
-		int goneProdiver = 0;
-		boolean found;
-		for(int w=0;w<10;w++) {
-			goneProdiver = w; // candidate for gone
-			found = true;
-			for(int ow=0; ow<care.providers.numObjs; ow++) {
-				if(((Provider)care.providers.get(ow)).w == w) {
-					found = false;
-					break;}}
-			if(found) {
-			break;} //if you reached this point you found it}
-		}
-
 		
 	}
 	

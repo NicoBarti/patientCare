@@ -43,7 +43,7 @@ public class Appointer implements Steppable {
 				break;
 			}
 		}
-		//if your desired provider isnt gone
+		//if your desired provider isn't gone
 		if(wanted_provider != null) { 
 			if(wanted_provider.isAvailable()) { 
 				//and is available

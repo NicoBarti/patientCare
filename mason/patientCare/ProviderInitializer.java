@@ -10,6 +10,8 @@ public class ProviderInitializer implements Steppable{
 	int rand;
 	
 	int alpha_w;
+	private int ID = 0;
+
 	
 	
 	//for Fixed strategies
@@ -48,10 +50,20 @@ public class ProviderInitializer implements Steppable{
 	}
 
 	public void initialize(Provider provider) {
+		ID(provider);
 		SumC_w(provider);
 		A_w(provider);
 		lambda_w(provider);
 		tau_w(provider);
+	}
+	
+	private void ID(Provider provider) {
+		provider.w = ID;
+		ID+=1;
+	}
+	
+	public int getMaxID() {
+		return ID;
 	}
 	
 	public void SumC_w(Provider provider) {
