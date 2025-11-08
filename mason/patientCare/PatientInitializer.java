@@ -7,7 +7,9 @@ public class PatientInitializer implements Steppable {
 	private static final long serialVersionUID = 1L;
 	Care care;
 	String strategy;
-	int ID = 0;
+	private int ID = 0;	
+	private int arraysLength = 0;
+
 	
 	//for Fixed strategies
 	public double fixed_delta;
@@ -124,6 +126,16 @@ public class PatientInitializer implements Steppable {
 		e(patient); //in some strategies depends on capE // depends on W
 		c(patient); // depends on W, N
 		b(patient); // depends on W, N
+		
+		arraysLength+=1;
+	}
+	
+	/** Gives the lentght of the "p" component in arrays. Useful to create new providers in the middle of the simulation.
+	 * @return n° initialized patients 
+	 */
+	public int getArrayLenght() {
+		if(arraysLength>care.N) {return arraysLength;} 
+		else {return care.N;}
 	}
 	
 	private void ID(Patient patient) {
@@ -148,15 +160,20 @@ public class PatientInitializer implements Steppable {
 		}}
 	
 	public void e(Patient patient) {
-		patient.e_p_i_1 = new double[care.W];
-		patient.e_p_i = new double[care.W];
+		patient.e_p_i_1 = new double[care.prov_init.getArrayLenght()];
+		patient.e_p_i = new double[care.prov_init.getArrayLenght()];
+
 		switch(strategy) {
 		case "random-basal": case "classExample":
 			for(int i=0;i<patient.e_p_i_1.length;i++) {
 				patient.e_p_i_1[i] = care.random.nextDouble()*patient.capE_p;
 			}
 			break;
+			
 		default: 
+			//TODO carerul here: the more providers the higher the inital
+			// expectation. I think it should be better to have one random
+			// e for a random w, or divide e bewtwen a few ws.
 			for(int i=0;i<patient.e_p_i_1.length;i++) {
 				patient.e_p_i_1[i] = patient.capE_p/2;
 			}
@@ -164,9 +181,10 @@ public class PatientInitializer implements Steppable {
 		}}
 	
 	public void c(Patient patient) {
-		patient.c_p_i_1 = new int[care.W];
-		patient.c_p_i = new int[care.W];
-		patient.c_p_i_counter = new int[care.W];
+		patient.c_p_i_1 = new int[care.prov_init.getArrayLenght()];
+		patient.c_p_i = new int[care.prov_init.getArrayLenght()];
+		patient.c_p_i_counter = new int[care.prov_init.getArrayLenght()];
+
 		switch(strategy) {
 		case "random-basal": 
 			int remainderCapacity = care.totalCapacity;
@@ -183,8 +201,9 @@ public class PatientInitializer implements Steppable {
 		}}
 	
 	public void b(Patient patient) {
-		patient.b_p_i_1 = new int[care.W];
-		patient.b_p_i = new int[care.W];
+		patient.b_p_i_1 = new int[care.prov_init.getArrayLenght()];
+		patient.b_p_i = new int[care.prov_init.getArrayLenght()];
+
 		switch(strategy) {
 		case "random": 
 			patient.b_p_i_1[care.random.nextInt(care.W)] = 1;

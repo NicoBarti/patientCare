@@ -369,21 +369,21 @@ public class Tests {
 		lambda = 3; tau = 1; healthStatus = 2;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.SumC_w[0] = prevInteract;
+		oneProvider.SumC_p[0] = prevInteract;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(tau,result, "Prescription rule not working" + "seed: "+currentSeed);
 		
 		lambda = 1; tau = 1; healthStatus = 12;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.SumC_w[0] = prevInteract-1;
+		oneProvider.SumC_p[0] = prevInteract-1;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(0.5,result, "Prescription rule not working" + "seed: "+currentSeed);
 		
 		lambda = 1; tau = 1; healthStatus = 0.2;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.SumC_w[0] = prevInteract;
+		oneProvider.SumC_p[0] = prevInteract;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(healthStatus,result, "Prescription rule not working" + "seed: "+currentSeed);
 	}
@@ -407,7 +407,7 @@ public class Tests {
 		care.appointer.appoint(0, 0, .5);
 		care.appointer.appoint(0, 0, .5);
 
-		assertEquals(3, oneProvider.SumC_w[0], "provider interaction counter not working "+ "seed: "+currentSeed);
+		assertEquals(3, oneProvider.SumC_p[0], "provider interaction counter not working "+ "seed: "+currentSeed);
 
 	}
 	}
@@ -428,7 +428,7 @@ public class Tests {
 		oneProvider = (Provider)(care.providers.objs[0]);
 		int prevInteract = 0;
 
-		oneProvider.SumC_w[0] = prevInteract;
+		oneProvider.SumC_p[0] = prevInteract;
 		
 		lambda = 1;healthStatus=10;
 		oneProvider.lambda_w = lambda;
@@ -437,7 +437,7 @@ public class Tests {
 		assertEquals(lambda/healthStatus, result, "provider interaction counter not working "+ "seed: "+currentSeed);
 	
 		lambda = 2;healthStatus=5;
-		oneProvider.SumC_w[0] = prevInteract;
+		oneProvider.SumC_p[0] = prevInteract;
 		oneProvider.lambda_w = lambda;
 		oneProvider.testing = true;
 		result= oneProvider.interactWithPatient(0,healthStatus);
@@ -510,7 +510,7 @@ public class Tests {
 						globalCW += C_p_w_i[p][this_W][i];
 					}
 
-					assertTrue(oneProvider.SumC_w[p] == globalCW, "Provider and Patient representations are different "+ "seed: "+currentSeed);
+					assertTrue(oneProvider.SumC_p[p] == globalCW, "Provider and Patient representations are different "+ "seed: "+currentSeed);
 					globalCW = 0;
 				}	
 			}
@@ -814,6 +814,9 @@ public class Tests {
 				assertEquals(30, care.observer.simple_C_p_i.length);
 				assertEquals(30, care.observer.simple_E_p_i.length);
 				assertEquals(30, care.observer.simple_B_p_i.length);
+			
+			//Check providers array
+				assertEquals(30,((Provider)care.providers.get(care.random.nextInt(5))).SumC_p.length);
 
 			//Info preserved
 				assertEquals(1772, care.observer.H_p_i[pat][loc]);
@@ -834,7 +837,7 @@ public class Tests {
 		assertEquals(patientsIds[25], 25, "Failed patient id");
 		assertEquals(care.observer.H_p_i[15][40], oneH);
 		for(int p =0; p< care.providers.numObjs;p++) {
-			assertEquals(((Provider)care.providers.get(p)).SumC_w.length, 30);
+			assertEquals(((Provider)care.providers.get(p)).SumC_p.length, 30);
 		}
 		for (int i=50;i<80;i++) {
 			care.schedule.step(care);
@@ -856,6 +859,9 @@ public class Tests {
 		assertEquals(30, care.observer.simple_C_p_i.length);
 		assertEquals(30, care.observer.simple_E_p_i.length);
 		assertEquals(30, care.observer.simple_B_p_i.length);
+		
+		//Check providers array
+		assertEquals(30,((Provider)care.providers.get(care.random.nextInt(5))).SumC_p.length);
 		
 		//Info preserved
 		assertEquals(1772, care.observer.H_p_i[pat][loc]);
@@ -884,24 +890,36 @@ public class Tests {
 		care.change_N_midwaytrhough(35);
 		assertEquals(35, care.patients.numObjs);
 
-		System.out.println("These are the IDs:");
-		for(int i = 0; i< care.patients.numObjs;i++) {		
-			System.out.print(" "+((Patient)care.patients.get(i)).p);
-			
+		//Check observer 
+		assertEquals(45, care.observer.H_p_i.length);
+		assertEquals(45, care.observer.N_p_i.length);
+		assertEquals(45, care.observer.C_p_w_i.length);
+		assertEquals(45, care.observer.T_p_i.length);
+		assertEquals(45, care.observer.E_p_w_i.length);
+		assertEquals(45, care.observer.B_p_w_i.length);
+		assertEquals(45, care.observer.simple_C_p_i.length);
+		assertEquals(45, care.observer.simple_E_p_i.length);
+		assertEquals(45, care.observer.simple_B_p_i.length);
+		
+		//Check providers array
+		assertEquals(45,((Provider)care.providers.get(care.random.nextInt(5))).SumC_p.length);
+
+		
+		//check ID are unique
+		int[] IDS = new int[care.patients.numObjs];
+		for(int p =0; p<care.patients.numObjs;p++) {
+			IDS[p] = ((Patient)care.patients.get(p)).p;
+		}
+		for(int p =0; p<care.patients.numObjs;p++) {
+			int counter = 0;
+			for(int id=0;id<IDS.length;id++) {
+				if(IDS[id] ==  ((Patient)care.patients.get(p)).p) {
+					counter+=1;
+				}
+			}
+			assertEquals(1, counter, "Found repeated (>1) ID");
 		}
 		
-		//Check observer 
-		assertEquals(35, care.observer.H_p_i.length);
-		assertEquals(35, care.observer.N_p_i.length);
-		assertEquals(35, care.observer.C_p_w_i.length);
-		assertEquals(35, care.observer.T_p_i.length);
-		assertEquals(35, care.observer.E_p_w_i.length);
-		assertEquals(35, care.observer.B_p_w_i.length);
-		assertEquals(35, care.observer.simple_C_p_i.length);
-		assertEquals(35, care.observer.simple_E_p_i.length);
-		assertEquals(35, care.observer.simple_B_p_i.length);
-		
-		//check ID is not reused
 
 		//Check past info is preserved
 		
@@ -926,7 +944,7 @@ public class Tests {
 	
 		care.finish();
 		//check final statistics
-		for(int i=0;i<30;i++) {
+		for(int i=0;i<45;i++) {
 			//fix the results:
 			if(care.observer.H_p_i[i][care.observer.getarraysLengthreturn()-1] != -1) {
 				care.observer.H_p_i[i][care.observer.getarraysLengthreturn()-1] = 14;
@@ -934,9 +952,6 @@ public class Tests {
 		}
 		assertEquals(14, care.observer.getMeanFinalH());
 		assertEquals(0, care.observer.getVarianceFinalH());
-		
-
-		
 		
 	}
 	
@@ -994,16 +1009,14 @@ public class Tests {
 		//care.observer.B_p_w_i[care.random.nextInt(pat)][pro][loc] = 6553200;
 
 		//2: INCREASE W
-		//System.out.println("(TEST) increasing capacity");
 		care.change_W_midwaytrhough(10);		
 		for (int i=10;i<20;i++) {
 			care.schedule.step(care);
-
 		}
 		
 		//Check the number of providers
 		assertEquals(10, care.providers.numObjs);
-		//Check patient's E of providers
+		//Check patient's arrays of providers
 		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i.length);
 		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i_1.length);
 		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i.length);
@@ -1032,7 +1045,7 @@ public class Tests {
 		//Check that previous to creation of a W there is no information in observers
 		for(int i =0;i<10;i++) {
 			pat = care.random.nextInt(20);
-			pro = care.random.nextInt(5)+5;
+			pro = care.random.nextInt(5)+5; //piking a provider with ID in {5..9}
 			loc = care.random.nextInt(10);
 		assertEquals(-1, care.observer.B_p_w_i[pat][pro][loc], "Failed at patient "+pat+" provider "+pro+" loc "+loc);}
 		
@@ -1079,6 +1092,126 @@ public class Tests {
 		assertEquals(10, care.observer.E_p_w_i[care.random.nextInt(20)].length);
 		
 		
+		//increase N again
+		care.change_W_midwaytrhough(15);
+		assertEquals(15, care.providers.numObjs);
+
+		//Check observer 
+		assertEquals(22, care.observer.E_p_w_i[0].length);
+		assertEquals(22, care.observer.B_p_w_i[0].length);
+		assertEquals(22, care.observer.C_p_w_i[0].length);
+		
+		//Check patient's arrays of providers
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i_1.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i_1.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_1.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_counter.length);
+
+		
+		//check ID are unique
+		int[] IDS = new int[care.providers.numObjs];
+		for(int w =0; w<care.providers.numObjs;w++) {
+			IDS[w] = ((Provider)care.providers.get(w)).w;
+		}
+		for(int w =0; w<care.providers.numObjs;w++) {
+			int counter = 0;
+			for(int id=0;id<IDS.length;id++) {
+				if(IDS[id] ==  ((Provider)care.providers.get(w)).w) {
+					counter+=1;
+				}
+			}
+			assertEquals(1, counter, "Found repeated (>1) ID");
+		}
+		
+	}
+	
+	@Test
+	public void change_W_and_N_up_and_down_repeteadly() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=10; care.W=10;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.start();
+		care.startObserver();
+		care.totalCapacity = 15; 
+		int newN; int newW;
+		int cummulativeN=10;
+		int cummulativeW=10;
+		int previousN = 10;
+		int previousW = 10;
+		
+		for(int step = 0; step<5;step++) {
+			care.schedule.step(care);
+		}
+		
+		System.out.println("starting");
+		for(int rep = 0; rep < 10;rep++) {
+
+		newN = care.random.nextInt(20)+1; 
+		newW = care.random.nextInt(20)+1;
+		if(previousN<newN) {cummulativeN= cummulativeN+newN-previousN;} //keep track of arrays lengths
+		if(previousW<newW) {cummulativeW= cummulativeW+newW-previousW;}
+
+		care.change_N_midwaytrhough(newN);
+		//System.out.println("care.N: "+care.N+ " care.W: "+care.W);
+		care.change_W_midwaytrhough(newW);
+		
+//		System.out.println("newN: "+newN+" newW: "+newW+ " cumN: "+cummulativeN+" cumW: "+cummulativeW);
+//		Patient patient;
+//		System.out.println("Patient's bag size: "+care.patients.numObjs);
+//		for(int p=0;p<care.patients.numObjs;p++) {
+//			patient = (Patient)care.patients.get(p);
+//			System.out.print("Patient "+patient.p+" e_p_i.length = "+patient.e_p_i.length+" | ");
+//		}
+//		System.out.println(" ");
+		
+
+		//System.out.println("Will run with N="+care.N+" and W="+care.W);
+		for(int step = 0; step<5;step++) {
+			care.schedule.step(care);
+		}
+		
+
+		//Check bags
+		assertEquals(newN, care.patients.numObjs);
+		assertEquals(newW, care.providers.numObjs);
+
+		//Check observer 
+		//p:
+			assertEquals(cummulativeN, care.observer.H_p_i.length);
+			assertEquals(cummulativeN, care.observer.N_p_i.length);
+			assertEquals(cummulativeN, care.observer.C_p_w_i.length);
+			assertEquals(cummulativeN, care.observer.T_p_i.length);
+			assertEquals(cummulativeN, care.observer.E_p_w_i.length);
+			assertEquals(cummulativeN, care.observer.B_p_w_i.length);
+			assertEquals(cummulativeN, care.observer.simple_C_p_i.length);
+			assertEquals(cummulativeN, care.observer.simple_E_p_i.length);
+			assertEquals(cummulativeN, care.observer.simple_B_p_i.length);
+		//w:
+			assertEquals(cummulativeW, care.observer.C_p_w_i[0].length);
+			assertEquals(cummulativeW, care.observer.E_p_w_i[0].length);
+			assertEquals(cummulativeW, care.observer.B_p_w_i[0].length);
+		
+		//Check agent's arrays
+		//p:
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).e_p_i.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).e_p_i_1.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).b_p_i.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).b_p_i_1.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).c_p_i.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).c_p_i_1.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).c_p_i_counter.length);
+		//w:
+			assertEquals(cummulativeN,((Provider)care.providers.get(care.random.nextInt(newW))).SumC_p.length);
+		
+		previousN = newN;
+		previousW = newW;
+		}
+		
+
 	}
 	
 	

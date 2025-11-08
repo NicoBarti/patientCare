@@ -353,90 +353,79 @@ public class ObserveCare implements Steppable{
 	
 	
 	/** Reset the observer arrays to accomodate more patients.Find which arrays need modification (which is being observed).Copy the info from the old arrays.
-	 * @param newN The new (increased) number of patients
+	 * @param N_increase The number of patients to be added
 	 */
-	public void increaseNmidway(int newN) {
+	public void increaseNmidway(int N_increase) {
 		
 		if (obsH) {
-			if(H_p_i.length < newN) {
-			double[][] newH_p_i = increaseDual_newArr(H_p_i, newN);
-			H_p_i = newH_p_i.clone();}
+			double[][] newH_p_i = increaseDual_newArr(H_p_i, N_increase);
+			H_p_i = newH_p_i.clone();
 		}
 		if(obsN) {
-			if(N_p_i.length < newN) {
-			double[][] newN_p_i = increaseDual_newArr(N_p_i, newN);
-			N_p_i = newN_p_i.clone();}
+			double[][] newN_p_i = increaseDual_newArr(N_p_i, N_increase);
+			N_p_i = newN_p_i.clone();
 		}
 		if(obsC) {
-			if(C_p_w_i.length < newN) {
-			int[][][] newC_p_w_i = increaseTriple_newArr(C_p_w_i, newN);
-			C_p_w_i = 	newC_p_w_i.clone();}
+			//if(C_p_w_i.length < newN) {
+			int[][][] newC_p_w_i = increaseTriple_newArr(C_p_w_i, N_increase);
+			C_p_w_i = 	newC_p_w_i.clone();
 		}
 		if(obsT) {
-			if(T_p_i.length < newN) {
-			double[][] newT_p_i = increaseDual_newArr(T_p_i, newN);
-			T_p_i = newT_p_i.clone();}
+			//if(T_p_i.length < newN) {
+			double[][] newT_p_i = increaseDual_newArr(T_p_i, N_increase);
+			T_p_i = newT_p_i.clone();
 		}
 		if(obsE) {
-			if(E_p_w_i.length < newN) {
-			double[][][] newE_p_w_i = increaseTriple_newArr(E_p_w_i, newN);
-			E_p_w_i = newE_p_w_i.clone();}
+			//if(E_p_w_i.length < newN) {
+			double[][][] newE_p_w_i = increaseTriple_newArr(E_p_w_i, N_increase);
+			E_p_w_i = newE_p_w_i.clone();
 		}
 		if(obsB) {
-			if(B_p_w_i.length < newN) {
-			int[][][] newB_p_w_i = increaseTriple_newArr(B_p_w_i, newN);
-			B_p_w_i = newB_p_w_i.clone();}
+			//if(B_p_w_i.length < newN) {
+			int[][][] newB_p_w_i = increaseTriple_newArr(B_p_w_i, N_increase);
+			B_p_w_i = newB_p_w_i.clone();
 		}
 		if(obsSimpleC) {
-			if(simple_C_p_i.length < newN) {
-			int[][] newsimple_C_p_i = increaseDual_newArr(simple_C_p_i, newN);
-			simple_C_p_i = newsimple_C_p_i.clone();}
+			//if(simple_C_p_i.length < newN) {
+			int[][] newsimple_C_p_i = increaseDual_newArr(simple_C_p_i, N_increase);
+			simple_C_p_i = newsimple_C_p_i.clone();
 			
 		}
 		if(obsSimpleE) {
-			if(simple_E_p_i.length < newN) {
-			double[][] newsimple_E_p_i = increaseDual_newArr(simple_E_p_i, newN);
-			simple_E_p_i = newsimple_E_p_i.clone();}
+			//if(simple_E_p_i.length < newN) {
+			double[][] newsimple_E_p_i = increaseDual_newArr(simple_E_p_i, N_increase);
+			simple_E_p_i = newsimple_E_p_i.clone();
 		}
 		if(obsSimpleB) {
-			if(simple_B_p_i.length < newN) {
-			int[][] newsimple_B_p_i = increaseDual_newArr(simple_B_p_i, newN);
-			simple_B_p_i = newsimple_B_p_i.clone();}
+			//if(simple_B_p_i.length < newN) {
+			int[][] newsimple_B_p_i = increaseDual_newArr(simple_B_p_i, N_increase);
+			simple_B_p_i = newsimple_B_p_i.clone();
 		}
-//		if(obsDelta) {	
-//			if(delta_p_i.length < newN) {
-//			double[][] newdelta_p_i = increaseDual_newArr(delta_p_i , newN);
-//			delta_p_i  = newdelta_p_i.clone();}
-//		}
-
 	}
 	
 	/** Reset the observer arrays to accomodate more providers
 	 * @param newN The new (increased) number of patients
 	 */
-	public void increaseWmidway(int newW) {
+	public void increaseWmidway(int W_increase) {
 
 
 		if(obsC) {
-			if(C_p_w_i[0].length < newW) {
-			int[][][] newC_p_w_i = increaseTriple_newW(C_p_w_i, newW);
+			int[][][] newC_p_w_i = increaseTriple_newW(C_p_w_i, W_increase);
 			C_p_w_i = newC_p_w_i.clone();
-		}}
+		}
 		if(obsE) {
-			if(E_p_w_i[0].length < newW) {
-			double[][][] newE_p_w_i = increaseTriple_newW(E_p_w_i, newW);
+			double[][][] newE_p_w_i = increaseTriple_newW(E_p_w_i, W_increase);
 			E_p_w_i = newE_p_w_i.clone();
-		}}
+		}
 		if(obsB) {
-			if(B_p_w_i[0].length < newW) {
-			int[][][] newB_p_w_i = increaseTriple_newW(B_p_w_i, newW);
+			int[][][] newB_p_w_i = increaseTriple_newW(B_p_w_i, W_increase);
 			B_p_w_i = newB_p_w_i.clone();
-		}}
-
+		}
 	}
 
-	protected double[][] increaseDual_newArr(double[][] oldArr_p_i, int newN) {
-		double[][] newArr_p_i = new double[newN][arraysLength];
+	protected double[][] increaseDual_newArr(double[][] oldArr_p_i, int N_increase) {
+		double[][] newArr_p_i = new double[oldArr_p_i.length+N_increase][arraysLength];
+		//copy previous information
 		for(int p = 0; p< oldArr_p_i.length;p++) {
 			for(int i=0; i< oldArr_p_i[0].length; i++ ) {
 				newArr_p_i[p][i] = oldArr_p_i[p][i];
@@ -451,8 +440,8 @@ public class ObserveCare implements Steppable{
 		return newArr_p_i;
 	}
 	
-	protected int[][] increaseDual_newArr(int[][] oldArr_p_i, int newN) {
-		int[][] newArr_p_i = new int[newN][arraysLength];
+	protected int[][] increaseDual_newArr(int[][] oldArr_p_i, int N_increase) {
+		int[][] newArr_p_i = new int[oldArr_p_i.length+N_increase][arraysLength];
 		for(int p = 0; p< oldArr_p_i.length;p++) {
 			for(int i=0; i< oldArr_p_i[0].length; i++ ) {
 				newArr_p_i[p][i] = oldArr_p_i[p][i];
@@ -467,8 +456,8 @@ public class ObserveCare implements Steppable{
 		return newArr_p_i;
 	}
 	
-	protected double[][][] increaseTriple_newArr(double[][][] oldArr_p_i, int newN) {
-		double[][][] newArr_p_w_i = new double[newN][oldArr_p_i[0].length][arraysLength];
+	protected double[][][] increaseTriple_newArr(double[][][] oldArr_p_i, int N_increase) {
+		double[][][] newArr_p_w_i = new double[oldArr_p_i.length+N_increase][oldArr_p_i[0].length][arraysLength];
 		//copy old array into new
 		for(int p = 0; p< oldArr_p_i.length;p++) {
 			for(int w = 0; w<oldArr_p_i[0].length; w++) {
@@ -488,8 +477,8 @@ public class ObserveCare implements Steppable{
 		return newArr_p_w_i;
 	}
 	
-	protected int[][][] increaseTriple_newArr(int[][][] oldArr_p_i, int newN) {
-		int[][][] newArr_p_w_i = new int[newN][oldArr_p_i[0].length][arraysLength];
+	protected int[][][] increaseTriple_newArr(int[][][] oldArr_p_i, int N_increase) {
+		int[][][] newArr_p_w_i = new int[oldArr_p_i.length+N_increase][oldArr_p_i[0].length][arraysLength];
 		//copy old array into new
 		for(int p = 0; p< oldArr_p_i.length;p++) {
 			for(int w = 0; w<oldArr_p_i[0].length; w++) {
@@ -509,8 +498,8 @@ public class ObserveCare implements Steppable{
 		return newArr_p_w_i;
 	}
 	
-	protected double[][][] increaseTriple_newW(double[][][] oldArr_p_w_i, int newW){
-		double[][][] newArr_p_w_i = new double[oldArr_p_w_i.length][newW][arraysLength];
+	protected double[][][] increaseTriple_newW(double[][][] oldArr_p_w_i, int W_increase){
+		double[][][] newArr_p_w_i = new double[oldArr_p_w_i.length][oldArr_p_w_i[0].length+W_increase][arraysLength];
 		//copy information from old array into new
 		for(int p = 0; p< oldArr_p_w_i.length;p++) {
 			for(int w = 0; w<oldArr_p_w_i[0].length; w++) {
@@ -521,7 +510,7 @@ public class ObserveCare implements Steppable{
 		}
 		//populate the new W´s backwards with -1s
 		for(int p = 0; p< oldArr_p_w_i.length;p++) {
-			for(int w = oldArr_p_w_i[0].length; w<newW; w++) {
+			for(int w = oldArr_p_w_i[0].length; w<oldArr_p_w_i[0].length+W_increase; w++) {
 				for(int i=0; i< windowNumber; i++ ) {
 					newArr_p_w_i[p][w][i] = -1;
 				}
@@ -530,8 +519,8 @@ public class ObserveCare implements Steppable{
 		return newArr_p_w_i;
 	}
 	
-	protected int[][][] increaseTriple_newW(int[][][] oldArr_p_w_i, int newW){
-		int[][][] newArr_p_w_i = new int[oldArr_p_w_i.length][newW][arraysLength];
+	protected int[][][] increaseTriple_newW(int[][][] oldArr_p_w_i, int W_increase){
+		int[][][] newArr_p_w_i = new int[oldArr_p_w_i.length][oldArr_p_w_i[0].length+W_increase][arraysLength];
 		//copy information from old array into new
 		for(int p = 0; p< oldArr_p_w_i.length;p++) {
 			for(int w = 0; w<oldArr_p_w_i[0].length; w++) {
@@ -542,7 +531,7 @@ public class ObserveCare implements Steppable{
 		}
 		//populate the new W´s backwards with -1s
 		for(int p = 0; p< oldArr_p_w_i.length;p++) {
-			for(int w = oldArr_p_w_i[0].length; w<newW; w++) {
+			for(int w = oldArr_p_w_i[0].length; w<oldArr_p_w_i[0].length+W_increase; w++) {
 				for(int i=0; i< windowNumber; i++ ) {
 					newArr_p_w_i[p][w][i] = -1;
 				}

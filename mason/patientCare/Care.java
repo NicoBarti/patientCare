@@ -239,26 +239,24 @@ public class Care extends SimState {
 		//method to increase
 		if(newN>N) {
 		//add n patients, and initialize them with PATIENT_INIT
-		patients.resize(N-newN);
+		//patients.resize(N-newN);
 		for (int i=N;i<newN;i++) {
 			patient = new Patient();
-			//patient.p = i;
 			pat_init.initialize(patient);
 			patients.add(patient);
 			schedule.scheduleOnce(patient, prioritize.hat_o(patient)); //orders 2 to N+2
 		}
 		//modify the observer
-		observer.increaseNmidway(newN);
+		observer.increaseNmidway(newN-N);
 		//modify the provider's memory of interaction
 		for(int p = 0;p<providers.numObjs;p++) {
-			((Provider)providers.get(p)).increaseNmidway(newN);
+			((Provider)providers.get(p)).increaseNmidway(newN-N);
 		}
-		//finally, update N
 		}
 		//2:
 		//method to decrease
 		if(N>newN) {
-		//pick N-newN patients at random and inactivate them
+		//eliminate patients at random
 		patients.shuffle(random);
 		
 		for(int i =0;i<N-newN;i++) {
@@ -267,30 +265,30 @@ public class Care extends SimState {
 
 		}
 		}
+		//finally, update N
 		N = newN;
-
 	}
 	
 	public void change_W_midwaytrhough(int newW) {
 		if (newW == W) {return;}
-		//method to increase
+		//1. Method to increase
 		if(newW>W) {
 		//add n providers, and initialize them with PROVIDER_INIT
-		providers.resize(W-newW);
+		//providers.resize(W-newW);
 		for(int i =W;i<newW;i++) {
 		provider = new Provider();
-		provider.w = i;
 		prov_init.initialize(provider);
 		providers.add(provider);
 		schedule.scheduleRepeating(provider,1); //providers are stepped first thing at each step
 		}
 		prov_init.adjustCapacity(providers, totalCapacity);
-		observer.increaseWmidway(newW);
+		observer.increaseWmidway(newW-W);
 		for(int p=0; p<patients.numObjs;p++) {
-			((Patient)patients.get(p)).increaseWmidway(newW);
+			((Patient)patients.get(p)).increaseWmidway(newW-W);
 		}
 		
 		}
+		//2. Method to decrease
 		if(newW<W) {
 			//eliminate providers at random
 			providers.shuffle(random);

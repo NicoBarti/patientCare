@@ -11,14 +11,14 @@ public class ProviderInitializer implements Steppable{
 	
 	int alpha_w;
 	private int ID = 0;
-
-	
+	private int arraysLength = 0;
 	
 	//for Fixed strategies
 	public double fixed_lambda;
 	public double fixed_tau;
 	
 	public void step(SimState state) {};
+	
 	public ProviderInitializer(Care _care, String _strategy) {
 		care = _care;
 		strategy = _strategy;
@@ -51,10 +51,11 @@ public class ProviderInitializer implements Steppable{
 
 	public void initialize(Provider provider) {
 		ID(provider);
-		SumC_w(provider);
+		SumC_p(provider);
 		A_w(provider);
 		lambda_w(provider);
 		tau_w(provider);
+		arraysLength+=1;
 	}
 	
 	private void ID(Provider provider) {
@@ -66,13 +67,22 @@ public class ProviderInitializer implements Steppable{
 		return ID;
 	}
 	
-	public void SumC_w(Provider provider) {
-		provider.SumC_w = new int[care.N];
+	/** Giver the lenght of the "p" component in arrays
+	 * @return n° initialized providers 
+	 */
+	public int getArrayLenght() {
+		if(arraysLength>care.W) {return arraysLength;} 
+		else {return care.W;}
+	}
+	
+	public void SumC_p(Provider provider) {
+		//provider.SumC_p = new int[care.N];
+		provider.SumC_p = new int[care.pat_init.getArrayLenght()];
 		switch(strategy) {
 		case "random-basal": //pending
 			break;
 		default: 
-			for(int i = 0; i<care.N;i++) {provider.SumC_w[i] = 0;}
+			for(int i = 0; i<care.N;i++) {provider.SumC_p[i] = 0;}
 			break;
 		}
 	}

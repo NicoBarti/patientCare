@@ -66,7 +66,7 @@ public class Patient implements Steppable {
 
 		//eventually interact:
 		int w = -1;
-		for(int b_w = 0; b_w < care.W; b_w++) { //see if there is any b_w == 0
+		for(int b_w = 0; b_w < b_p_i.length; b_w++) { //see if there is any b_w == 0
 			if(b_p_i[b_w] == 1) {
 				w = b_w; //find intended provider
 				interact = true;
@@ -110,7 +110,7 @@ public class Patient implements Steppable {
 		//forms expectations for each provider based on previous experience
 		e_fluctuation = 0;
 		if(care.random.nextBoolean((float)kappa_p)) {e_fluctuation = care.random.nextGaussian();}
-		for(int w = 0; w < care.W; w++) {
+		for(int w = 0; w < e_p_i_1.length; w++) {
 			// CASE 1 got the visit with provider w
 			if(c_p_i_1[w] == 1) {
 				e_p_i[w] = e_p_i_1[w]+ rho_p + e_fluctuation;
@@ -133,9 +133,9 @@ public class Patient implements Steppable {
 	protected void behaviouralRule(Care care) {
 	// sets the value of B[current_week] to determine next week seek behaviour
 		// Find the provider with highest expectation
-		int[] randomAccess = ut.accessArray(care.W, care.random.nextInt(care.W));
+		int[] randomAccess = ut.accessArray(e_p_i.length, care.random.nextInt(e_p_i.length));
 		wMaxExpectation = randomAccess[0];
-		for(int i = 1; i < care.W;i++) {
+		for(int i = 1; i < e_p_i.length;i++) {
 			if(e_p_i[randomAccess[i]] > e_p_i[wMaxExpectation]) {
 				wMaxExpectation = randomAccess[i];
 			}}
@@ -199,65 +199,48 @@ public class Patient implements Steppable {
 	 * Change the arrays that store w-repated information: e,c, and b
 	 * @param newW
 	 */
-	public void increaseWmidway(int newW) {
+	public void increaseWmidway(int W_increase) {
 		//double[] e_p_i;	double[] e_p_i_1;
 		//check if current array is small in w
-		if(e_p_i.length < newW) {
 			//this is a 0s array btween steps, so just re initialize it with new size
-			e_p_i = new double[newW];
-		}
-		if(e_p_i_1.length < newW) {
-			//create a new transitory array to copy info
-			double[] new_e_p_i = increaseSingle_newW(e_p_i_1, newW);
-			// assign (clone) to array
-			e_p_i_1 = new_e_p_i.clone();
-		}
-		//int[] c_p_i;	int[] c_p_i_1;
-		if(c_p_i.length < newW) {
-			//this is a 0s array btween steps, so just re initialize it with new size
-			c_p_i = new int[newW];
-		}
-		if(c_p_i_1.length < newW) {
-			//create a new transitory array to copy info
-			int[] new_c_p_i_1 = increaseSingle_newW(c_p_i_1, newW);
-			// assign (clone) to array
-			c_p_i_1 = new_c_p_i_1.clone();
-		}
-		//int[] b_p_i;	int[] b_p_i_1;
-		if(b_p_i.length < newW) {
-			//this is a 0s array btween steps, so just re initialize it with new size
-			b_p_i = new int[newW];
-		}
-		if(b_p_i_1.length < newW) {
-			//create a new transitory array to copy info
-			int[] new_b_p_i_1 = increaseSingle_newW(b_p_i_1, newW);
-			// assign (clone) to array
-			b_p_i_1 = new_b_p_i_1.clone();
-		}
-		
-		//int[] c_p_i_counter;
-		if(c_p_i_counter.length < newW) {
-			//create a new transitory array to copy info
-			int[] new_c_p_i_counter = increaseSingle_newW(c_p_i_counter, newW);
-			// assign (clone) to array
-			c_p_i_counter = new_c_p_i_counter.clone();
-		}
+			e_p_i = new double[e_p_i.length+W_increase];
 
+			//create a new transitory array to copy info
+			double[] new_e_p_i_1 = increaseSingle_newW(e_p_i_1, W_increase);
+			e_p_i_1 = new_e_p_i_1.clone();			// assign (clone) to array
 		
+			//this is a 0s array btween steps, so just re initialize it with new size
+			c_p_i = new int[c_p_i.length+W_increase];
+		
+			//create a new transitory array to copy info
+			int[] new_c_p_i_1 = increaseSingle_newW(c_p_i_1, W_increase);
+			c_p_i_1 = new_c_p_i_1.clone();// assign (clone) to array
+		
+			//this is a 0s array btween steps, so just re initialize it with new size
+			b_p_i = new int[b_p_i.length+W_increase];
+		
+			//create a new transitory array to copy info
+			int[] new_b_p_i_1 = increaseSingle_newW(b_p_i_1, W_increase);
+			b_p_i_1 = new_b_p_i_1.clone();// assign (clone) to array
+		
+			//create a new transitory array to copy info
+			int[] new_c_p_i_counter = increaseSingle_newW(c_p_i_counter, W_increase);
+			c_p_i_counter = new_c_p_i_counter.clone();// assign (clone) to array
+				
 	}
 	
-	private double[] increaseSingle_newW(double[] old_e_p_i, int newW) {
-		double[] newArr_i = new double[newW];
-		for(int i=0; i<old_e_p_i.length;i++) {
-			newArr_i[i] = old_e_p_i[i];
+	private double[] increaseSingle_newW(double[] old_arr, int W_increase) {
+		double[] newArr_i = new double[old_arr.length + W_increase];
+		for(int i=0; i<old_arr.length;i++) {
+			newArr_i[i] = old_arr[i];
 		}
 		return newArr_i;
 	}
 	
-	private int[] increaseSingle_newW(int[] old_e_p_i, int newW) {
-		int[] newArr_i = new int[newW];
-		for(int i=0; i<old_e_p_i.length;i++) {
-			newArr_i[i] = old_e_p_i[i];
+	private int[] increaseSingle_newW(int[] old_arr, int W_increase) {
+		int[] newArr_i = new int[old_arr.length+W_increase];
+		for(int i=0; i<old_arr.length;i++) {
+			newArr_i[i] = old_arr[i];
 		}
 		return newArr_i;
 	}
