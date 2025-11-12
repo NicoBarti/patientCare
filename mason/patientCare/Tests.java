@@ -1061,8 +1061,7 @@ public class Tests {
 		//3: DECREASE W
 		//System.out.println("(TEST) reducing capacity");
 		care.change_W_midwaytrhough(3);
-		
-		
+				
 		for (int i=20;i<30;i++) {
 			care.schedule.step(care);
 		}
@@ -1212,6 +1211,55 @@ public class Tests {
 		}
 		
 
+	}
+	
+	@Test
+	public void expectations_from_gone_provider_pass_to_other() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=20; care.W=5;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.totalCapacity = 51; //unconstrained capacity
+		care.start();
+		care.startObserver();
+		
+		Patient patient = (Patient)care.patients.get(0);
+		
+		for(int step = 0; step<25;step++) {
+			care.schedule.step(care);
+		}
+		//assign expectations:
+		for(int w= 0; w<care.providers.numObjs;w++) {
+			patient.e_p_i_1[w] = w+1;
+		}
+	
+		//eliminate one provider
+		care.change_W_midwaytrhough(4);
+		//find out who was gone
+		int[] ws= {0,0,0,0,0};
+		for(int w= 0; w<care.providers.numObjs;w++) {
+			ws[((Provider)care.providers.get(w)).w] = 1;
+		}
+		int eliminatedW =0;
+		double expectedTotalExpectations = 0;
+		for(int i =0; i< ws.length;i++){
+			if (ws[i] == 0) {eliminatedW = i;}else{
+				expectedTotalExpectations+=i+1;
+			}
+		}
+		expectedTotalExpectations+=patient.e_p_i_1[eliminatedW]/2;
+		//make patient try to interact with gone provider:
+		care.appointer.appoint(eliminatedW, patient.p, 5.0);
+		assertEquals(0, patient.e_p_i_1[eliminatedW]);
+		double currentTotalExpectations = 0;
+		for (int i =0;i<patient.e_p_i_1.length;i++) {
+			currentTotalExpectations+=patient.e_p_i_1[i];
+		}
+		assertEquals(expectedTotalExpectations,currentTotalExpectations);
+		
+		for(int step = 0; step<5;step++) {
+			care.schedule.step(care);
+		}
 	}
 	
 	

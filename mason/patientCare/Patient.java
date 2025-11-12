@@ -251,8 +251,16 @@ public class Patient implements Steppable {
 	 * @param w the provider id
 	 */
 	public void removeExpectations(int w) {
+		double erasedExpectation = e_p_i_1[w];
+		//erase the expectation from the gone provider
 		e_p_i[w] = 0;
 		e_p_i_1[w] = 0;
+		//pick an existing provider at random and assign them half the lost expectations
+		care.providers.shuffle(care.random);
+		int otherProviderID = ((Provider)care.providers.get(0)).w;
+		e_p_i[otherProviderID] += erasedExpectation/2;
+		e_p_i_1[otherProviderID] += erasedExpectation/2;
+
 	}
 	
 }
