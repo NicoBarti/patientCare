@@ -266,7 +266,7 @@ public class ObserveCare implements Steppable{
 			}}
 	}
 	
-	/** Populates simple_E_p_i: the mean expectation across providers for each patient. Only for patients that exist. 
+	/** Populates simple_E_p_i: the sum of expectations across providers for each patient. Only for patients that exist. 
 	 * It includes expectations = 0, which may correspond to non-existent providers. 
 	 * 
 	 * @param loc the windowNumber
@@ -275,10 +275,10 @@ public class ObserveCare implements Steppable{
 		for(int p = 0; p<care.patients.numObjs;p++) {
 			patient = ((Patient)care.patients.objs[p]);
 				sum_exp=0;
-				for(int w = 1; w<patient.e_p_i_1.length;w++) {
+				for(int w = 0; w<patient.e_p_i_1.length;w++) {
 					sum_exp+=patient.e_p_i_1[w];
 				}
-			simple_E_p_i[patient.p][loc] = sum_exp/patient.e_p_i_1.length;
+			simple_E_p_i[patient.p][loc] = sum_exp;
 			} 		
 			
 	}

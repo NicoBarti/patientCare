@@ -174,9 +174,13 @@ public class PatientInitializer implements Steppable {
 			//TODO carerul here: the more providers the higher the inital
 			// expectation. I think it should be better to have one random
 			// e for a random w, or divide e bewtwen a few ws.
-			for(int i=0;i<patient.e_p_i_1.length;i++) {
-				patient.e_p_i_1[i] = patient.capE_p/2;
-			}
+			//for(int i=0;i<patient.e_p_i_1.length;i++) {
+			//	patient.e_p_i_1[i] = patient.capE_p/2;
+			//}
+			//Just add capE/2 to a random provider
+			int w  = care.random.nextInt(patient.e_p_i_1.length);
+			//System.out.println("initializind defoult e for patient "+patient.p+ ". Giving exp to doctor "+w);
+			patient.e_p_i_1[w] = patient.capE_p/2;
 			break;
 		}}
 	

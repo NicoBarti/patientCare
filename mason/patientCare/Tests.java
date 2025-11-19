@@ -230,6 +230,55 @@ public class Tests {
 	}
 	
 	@Test
+	void expectations_initialization() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);
+		care.N = 1000; care.W = 2; //care.random.nextInt(100); 
+		care.totalCapacity = 1000;
+		care.PATIENT_INIT = "basal";
+		care.start();
+		care.OBS_PERIOD=1;
+		care.startObserver();
+		double totalExp;
+		
+		//right initial values on patients
+		for(int p =0;p<care.patients.numObjs;p++) {
+			totalExp=0;
+			for(int i=0;i<((Patient)(care.patients.get(p))).e_p_i_1.length;i++) {
+				totalExp += ((Patient)(care.patients.get(p))).e_p_i_1[i];	
+			}
+			assertEquals(2.5, totalExp);
+		}
+		
+				
+		care.schedule.step(care);
+		
+		//in average, expectations remain above 0: there is lots of capacity
+		totalExp=0;
+		for(int p =0;p<care.patients.numObjs;p++) {
+			for(int i=0;i<((Patient)(care.patients.get(p))).e_p_i_1.length;i++) {
+				totalExp += ((Patient)(care.patients.get(p))).e_p_i_1[i];	
+			}
+		}
+		assertTrue(0< totalExp/care.patients.numObjs);
+		
+		//right initial values on observer
+				totalExp=0;
+				for(int p =0;p<care.patients.numObjs;p++) {
+						for(int ii=0;ii< care.observer.E_p_w_i[0].length;ii++) {
+							totalExp+=care.observer.E_p_w_i[((Patient)(care.patients.get(p))).p][ii][0];
+						}
+				}
+				assertEquals(2.5, totalExp/care.patients.numObjs);
+		//right initial values on SimpleE
+				double[][] simpleE = care.observer.getSimpleE();
+				for (int p = 0; p<simpleE.length; p++) {
+					assertEquals(2.5, care.observer.simple_E_p_i[p][0]);
+				}
+				
+	}
+	
+	@Test
 	void b1_break_ties_at_random_expectations() {
 	for(int policy = 0; policy < policies.length; policy++) {
 		long currentSeed = System.currentTimeMillis();
