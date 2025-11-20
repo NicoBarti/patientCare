@@ -198,7 +198,8 @@ public class ObserveCare implements Steppable{
 	}
 	
 	/**
-	 * Populates simple_C_p_i by observing the internal representation of p (if p exists)
+	 * Populates simple_C_p_i by observing the internal representation of p (if p exists). A cummulative 
+	 * sum of patient's interaction across providers
 	 * @param loc the windowNumber
 	 */
 	public void observeSimpleC(int loc) {
@@ -283,7 +284,7 @@ public class ObserveCare implements Steppable{
 			
 	}
 
-	/** Populates simple_B_p_i: the sum of behavioural results across providers for each patient. Only for patients that exist. 
+	/** Populates simple_B_p_i: a cummulative sum of care-seek attemps per patient across providers. Only for patients that exist. 
 	 * It includes expectations = 0, which may correspond to non-existent providers. 
 	 * 
 	 * @param loc the windowNumber
@@ -293,7 +294,7 @@ public class ObserveCare implements Steppable{
 			patient = ((Patient)care.patients.objs[p]);
 			simple_sum_i=0;
 			for(int w = 0; w<patient.b_p_i_1.length;w++) {
-				simple_sum_i += patient.b_p_i_1[w];
+				simple_sum_i += patient.b_p_i_counter[w];
 			}
 			simple_B_p_i[patient.p][loc] = simple_sum_i;
 			}

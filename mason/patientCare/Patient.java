@@ -11,6 +11,7 @@ public class Patient implements Steppable {
 	double[] e_p_i;	double[] e_p_i_1;
 	int[] c_p_i;	int[] c_p_i_1;
 	int[] c_p_i_counter;
+	int[] b_p_i_counter;
 	int[] b_p_i;	int[] b_p_i_1;
 	double n_p_i;
 	
@@ -141,10 +142,11 @@ public class Patient implements Steppable {
 			}}
 
 	if(e_p_i[wMaxExpectation] != 0 & n_p_i != 0) {
-		b_p_i[wMaxExpectation] = 0;
+		b_p_i[wMaxExpectation] = 0; //it was 0 already, just making sure
 		currentMot = (psi_p*e_p_i[wMaxExpectation] + (1-psi_p)*n_p_i)*iota_p;
 		if(care.random.nextDouble() < currentMot) {
-			b_p_i[wMaxExpectation] = 1;} 
+			b_p_i[wMaxExpectation] = 1;
+			b_p_i_counter[wMaxExpectation]+=1;} 
 	}}
 	
 	
@@ -190,6 +192,7 @@ public class Patient implements Steppable {
 			e_p_i[i] = -1; e_p_i_1[i] = -1;
 			c_p_i[i] = -1; c_p_i_1[i] = -1;
 			c_p_i_counter[i] = -1;
+			b_p_i_counter[i] = -1;
 			b_p_i[i] = -1;	 b_p_i_1[i]= -1;
 	    }
 		n_p_i = -1;
@@ -226,7 +229,10 @@ public class Patient implements Steppable {
 			//create a new transitory array to copy info
 			int[] new_c_p_i_counter = increaseSingle_newW(c_p_i_counter, W_increase);
 			c_p_i_counter = new_c_p_i_counter.clone();// assign (clone) to array
-				
+			
+			//create a new transitory array to copy info
+			int[] new_b_p_i_counter = increaseSingle_newW(b_p_i_counter, W_increase);
+			b_p_i_counter = new_b_p_i_counter.clone();// assign (clone) to array
 	}
 	
 	private double[] increaseSingle_newW(double[] old_arr, int W_increase) {
