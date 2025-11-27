@@ -323,6 +323,14 @@ public class ObserveCare implements Steppable{
 	public int getarraysLengthreturn() {return arraysLength;}
 	public int[] getWindows() {return windows;};
 	
+	public double[] getFinalH() {
+		double result[] = new double[H_p_i.length];
+		for(int p = 0;p< H_p_i.length;p++) {
+			result[p] = H_p_i[p][arraysLength-1];
+		}
+		return result;
+	}
+	
 	public double getMeanFinalH() {
 		double sumH = 0;
 		for (int p = 0; p< care.patients.numObjs; p++) {
