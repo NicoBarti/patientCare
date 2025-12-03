@@ -32,11 +32,11 @@ public class Patient implements Steppable {
 	protected double[] interaction;
 	protected Boolean interact;
 	protected myUtil ut = new myUtil();
-	protected double e_fluctuation;
 	protected double progressProbability;
 	protected double currentMot;
 	protected int wMaxExpectation;
-	protected int Bernoulli;
+	protected int Bernoulli=0;
+	protected double Gaussian=0;
 
 	
 	//debug test
@@ -109,20 +109,20 @@ public class Patient implements Steppable {
 	
 	protected void expectationFormation(Care care) {
 		//forms expectations for each provider based on previous experience
-		e_fluctuation = 0;
-		if(care.random.nextBoolean((float)kappa_p)) {e_fluctuation = care.random.nextGaussian();}
+		Gaussian = 0;
+		if(care.random.nextBoolean((float)kappa_p)) {Gaussian = care.random.nextGaussian();}
 		for(int w = 0; w < e_p_i_1.length; w++) {
 			// CASE 1 got the visit with provider w
 			if(c_p_i_1[w] == 1) {
-				e_p_i[w] = e_p_i_1[w]+ rho_p + e_fluctuation;
+				e_p_i[w] = e_p_i_1[w]+ rho_p + Gaussian;
 			} else
 			// CASE 2 didn't get the visit with provider but wanted provider w
 			if(b_p_i_1[w] == 1 & c_p_i_1[w] == 0) {
-				e_p_i[w] = e_p_i_1[w] - eta_p + e_fluctuation;
+				e_p_i[w] = e_p_i_1[w] - eta_p + Gaussian;
 			} else
 			// CASE 3. didn't ask for a visit with provider w
 			if(b_p_i_1[w] == 0) {
-				e_p_i[w] = e_p_i_1[w] + e_fluctuation;
+				e_p_i[w] = e_p_i_1[w] + Gaussian;
 			}
 			
 			//limit expecations

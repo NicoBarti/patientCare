@@ -20,6 +20,9 @@ import sim.engine.Steppable;
 /**
  * 
  */
+/**
+ * 
+ */
 public class ObserveCare implements Steppable{
 	private static final long serialVersionUID = 1L;
 	/**
@@ -58,10 +61,17 @@ public class ObserveCare implements Steppable{
 	 * Average expectation across providers for patient p at window i
 	 */
 	double[][] simple_E_p_i;
-	/**
-	 * Delta for patient p 
+
+	/** The disease Bernoulli process
+	 * 
 	 */
-	//double[][] delta_p_i;
+	double[][] disease_p_i;
+	
+	/** The expectation noise Gaussian process
+	 * 
+	 */
+	double[][] expNoise_p_i;
+	
 	
 	//internals
 	int arraysLength;
@@ -87,6 +97,8 @@ public class ObserveCare implements Steppable{
 	boolean obsSimpleE = false;
 	boolean obsSimpleB = false;
 	boolean obsDelta = false;
+	boolean obsDisease = false;
+	boolean obsExpNoise = false;
 	
 	Care care;
 	Patient patient;
@@ -97,12 +109,15 @@ public class ObserveCare implements Steppable{
 	double sum_exp;
 	
 	
-	//this constructor for observing everything
-	public ObserveCare(Care sim, int value) {
+	/** Constructor for observing everything
+	 * @param sim
+	 * @param obsPeriod
+	 */
+	public ObserveCare(Care sim, int obsPeriod) {
 		obsH = true;obsN = true;obsC = true;obsT = true;obsE = true;obsB = true;
 		obsSimpleC = true;obsSimpleE = true;obsSimpleB = true;
 		care = sim;
-		set_arrays_length(value);
+		set_arrays_length(obsPeriod);
 		H_p_i = new double[care.N][arraysLength];obsH=true;obsH = true;
 		simple_C_p_i = new int[care.N][arraysLength];obsSimpleC=true;
 		simple_B_p_i = new int[care.N][arraysLength];obsSimpleB=true;
@@ -112,6 +127,9 @@ public class ObserveCare implements Steppable{
 		E_p_w_i = new double[care.N][care.W][arraysLength];
 		B_p_w_i = new int[care.N][care.W][arraysLength];
 		C_p_w_i = new int[care.N][care.W][arraysLength];
+		disease_p_i = new double[care.N][arraysLength]; obsDisease = true;
+		expNoise_p_i = new double[care.N][arraysLength]; obsExpNoise = true;
+		
 		//delta_p_i = new double[care.N][arraysLength];
 	}
 	
@@ -134,8 +152,7 @@ public class ObserveCare implements Steppable{
 	}
 	
 	
-	private void set_arrays_length(int value) {
-		period = value;
+	private void set_arrays_length(int period) {
 		int nWindows = (int)(care.varsigma/period);
 		int remainder = 0;
 		if(nWindows*period<care.varsigma) {
@@ -175,6 +192,8 @@ public class ObserveCare implements Steppable{
 		if(obsSimpleC) {observeSimpleC(loc);}
 		if(obsSimpleE) {observeSimpleE(loc);}
 		if(obsSimpleB) {observeSimpleB(loc);}
+		if(obsDisease) {observeDisease(loc);}
+		if(obsExpNoise) {observeExpNoise(loc);}
 		
 	}
 	
@@ -198,8 +217,8 @@ public class ObserveCare implements Steppable{
 	}
 	
 	/**
-	 * Populates simple_C_p_i by observing the internal representation of p (if p exists). A cummulative 
-	 * sum of patient's interaction across providers
+	 * Populates simple_C_p_i: the sum of contacts across providers for each patient. Only for patients that exist. 
+	 * 
 	 * @param loc the windowNumber
 	 */
 	public void observeSimpleC(int loc) {
@@ -268,7 +287,6 @@ public class ObserveCare implements Steppable{
 	}
 	
 	/** Populates simple_E_p_i: the sum of expectations across providers for each patient. Only for patients that exist. 
-	 * It includes expectations = 0, which may correspond to non-existent providers. 
 	 * 
 	 * @param loc the windowNumber
 	 */
@@ -284,8 +302,7 @@ public class ObserveCare implements Steppable{
 			
 	}
 
-	/** Populates simple_B_p_i: a cummulative sum of care-seek attemps per patient across providers. Only for patients that exist. 
-	 * It includes expectations = 0, which may correspond to non-existent providers. 
+	/** Populates simple_B_p_i:  the sum of seeking-behaviour across providers for each patient. Only for patients that exist. 
 	 * 
 	 * @param loc the windowNumber
 	 */
@@ -298,6 +315,24 @@ public class ObserveCare implements Steppable{
 			}
 			simple_B_p_i[patient.p][loc] = simple_sum_i;
 			}
+	}
+	
+	/** Observe disease Bernoulli process for existing patients.
+	 * @param loc the observation window
+	 */
+	public void observeDisease(int loc) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
+			patient = ((Patient)care.patients.objs[p]);
+			disease_p_i[patient.p][loc] = patient.Bernoulli;}
+	}
+	
+	/** Observe expectation noise Gaussian process for existing patients
+	 * @param loc
+	 */
+	public void observeExpNoise(int loc) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
+			patient = ((Patient)care.patients.objs[p]);
+			disease_p_i[patient.p][loc] = patient.Gaussian;}
 	}
 	
 //	public void obsDelta(int loc) {
@@ -317,6 +352,8 @@ public class ObserveCare implements Steppable{
 	public double[][] getSimpleE(){return simple_E_p_i;}
 	public int[][] getSimpleC(){return simple_C_p_i;}
 	public int[][] getSimpleB(){return simple_B_p_i;}
+	public double[][] getDisease(){return disease_p_i;}
+	public double [][] getExpNoise(){return expNoise_p_i;} 
 	//public double[][] getDelta(){return delta_p_i;} 
 
 	
@@ -409,6 +446,14 @@ public class ObserveCare implements Steppable{
 			//if(simple_B_p_i.length < newN) {
 			int[][] newsimple_B_p_i = increaseDual_newArr(simple_B_p_i, N_increase);
 			simple_B_p_i = newsimple_B_p_i.clone();
+		}
+		if (obsDisease) {
+			double[][] newDisease_p_i = increaseDual_newArr(disease_p_i, N_increase);
+			disease_p_i = newDisease_p_i.clone();
+		}
+		if (obsExpNoise) {
+			double[][] newExpNoise = increaseDual_newArr(expNoise_p_i, N_increase);
+			expNoise_p_i = newExpNoise.clone();
 		}
 	}
 	
@@ -562,6 +607,8 @@ public class ObserveCare implements Steppable{
 				if(obsSimpleB) {simple_B_p_i[id][i] = -1;}
 				if(obsSimpleC) {simple_C_p_i[id][i] = -1;}
 				if(obsSimpleE) {simple_E_p_i[id][i] = -1;}
+				if(obsDisease) {disease_p_i[id][i] = -1;}
+				if(obsExpNoise) {expNoise_p_i[id][i] = -1;}
 
 		}
 		// Triple arrays

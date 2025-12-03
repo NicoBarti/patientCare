@@ -22,6 +22,9 @@ public class PatientInitializer implements Steppable {
 	public double fixed_capE;
 	public double fixed_psi;		
 	
+	//for Rule init
+	
+	
 	public void step(SimState state) {}
 	
 	public PatientInitializer(Care _care, String _strategy) {
