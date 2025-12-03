@@ -1051,7 +1051,6 @@ public class Tests {
 		int pat = care.random.nextInt(20);
 		int pro = care.random.nextInt(5);
 		int loc = care.random.nextInt(10);
-		pat = 1; pro = 1; loc = 1;
 		care.observer.B_p_w_i[pat][pro][loc] = 6553200;
 		care.observer.C_p_w_i[pat][pro][loc] = 8200;
 		care.observer.E_p_w_i[pat][pro][loc] = 1298;
@@ -1059,7 +1058,6 @@ public class Tests {
 		//care.observer.B_p_w_i[care.random.nextInt(pat)][pro][loc] = 6553200;
 
 		//2: INCREASE W
-		System.out.println("TESTING");
 		care.change_W_midwaytrhough(10);	
 		assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
 

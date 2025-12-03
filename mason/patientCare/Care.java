@@ -275,7 +275,6 @@ public class Care extends SimState {
 		if(newW>W) {
 		//add n providers, and initialize them with PROVIDER_INIT
 		//providers.resize(W-newW);
-			System.out.println("CARE (change_W_midwaytrhough) method to increase");
 		for(int i =W;i<newW;i++) {
 		provider = new Provider();
 		prov_init.initialize(provider);
@@ -283,7 +282,6 @@ public class Care extends SimState {
 		schedule.scheduleRepeating(provider,1); //providers are stepped first thing at each step
 		}
 		prov_init.adjustCapacity(providers, totalCapacity);
-		System.out.println("CARE (change_W_midwaytrhough) to observer.increase: "+(newW-W));
 
 		observer.increaseWmidway(newW-W);
 		for(int p=0; p<patients.numObjs;p++) {

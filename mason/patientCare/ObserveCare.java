@@ -152,7 +152,8 @@ public class ObserveCare implements Steppable{
 	}
 	
 	
-	private void set_arrays_length(int period) {
+	private void set_arrays_length(int value) {
+		period = value;
 		int nWindows = (int)(care.varsigma/period);
 		int remainder = 0;
 		if(nWindows*period<care.varsigma) {
