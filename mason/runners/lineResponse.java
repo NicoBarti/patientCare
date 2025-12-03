@@ -65,7 +65,7 @@ public class lineResponse {
 	
 	private void runBasal() {		
 		basalSim.start();
-		basalSim.startObserver(true, false, false, false, false, false, false, false, false);
+		basalSim.startObserver(true, false, false, false, false, false, false, false, false, false, false);
 		for(int i=0;i<varsigma;i++) {
 			if(
 				basalSim.schedule.step(basalSim) 

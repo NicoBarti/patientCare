@@ -27,17 +27,19 @@ public class RunWithParams {
 	String PATIENT_INIT = "default";
 	String PROVIDER_INIT = "default";
 	String pi = "basal";
-	Boolean obsH= false;
-	Boolean obsN= false;
-	Boolean obsC= false;
-	Boolean obsT= false;
-	Boolean obsE= false;
-	Boolean obsB= false;
-	Boolean simpleC = false;
-	Boolean simpleE = false;
-	Boolean simpleB = false;
-	Boolean configure_pathfinder = false; // configure simulation via pathfinder
-	Boolean reproduce_line = false; // configure reproduce line
+	boolean obsH= false;
+	boolean obsN= false;
+	boolean obsC= false;
+	boolean obsT= false;
+	boolean obsE= false;
+	boolean obsB= false;
+	boolean simpleC = false;
+	boolean simpleE = false;
+	boolean simpleB = false;
+	boolean configure_pathfinder = false; // configure simulation via pathfinder
+	boolean reproduce_line = false; // configure reproduce line
+	boolean obsDisease = false;
+	boolean obsExpNoise = false;
 	
 	//Patient initializers
 	double fixed_delta;
@@ -82,7 +84,7 @@ public class RunWithParams {
 //					simpleC, simpleE, simpleB, delta);
 //		} else {
 		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB, 
-				simpleC, simpleE, simpleB);
+				simpleC, simpleE, simpleB, obsDisease, obsExpNoise);
 		//}
 	}
 	
@@ -233,6 +235,12 @@ public class RunWithParams {
 			case "Pi":
 				pi = a.getString(0);
 				break;
+			case "obsDisease":
+				obsDisease = true;
+				break;
+			case "obsExpNoise":
+				obsExpNoise = true;
+				break;
 		}}	
 	}
 	
@@ -253,6 +261,8 @@ public class RunWithParams {
 		params.put("obsSimpleC", Boolean.toString(simpleC));
 		params.put("obsSimpleE", Boolean.toString(simpleE));
 		params.put("obsSimpleB", Boolean.toString(simpleB));
+		params.put("obsDisease", Boolean.toString(obsDisease));
+		params.put("obsExpNoise", Boolean.toString(obsExpNoise));
 		
 
 		JSONObject response = new JSONObject(params);

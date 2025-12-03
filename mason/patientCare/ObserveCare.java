@@ -134,9 +134,10 @@ public class ObserveCare implements Steppable{
 	}
 	
 	//this constructor for observing only the specified state variables
-	public ObserveCare(Care sim, int value, Boolean H, Boolean N, Boolean C, 
-			Boolean T, Boolean E, Boolean B, Boolean simple_C, Boolean simple_E,
-			Boolean simple_B) {
+	public ObserveCare(Care sim, int value, boolean H, boolean N, boolean C, 
+			boolean T, boolean E, boolean B, boolean simple_C, boolean simple_E,
+			boolean simple_B, boolean disease, boolean expNoise) {
+		
 		care = sim;
 		set_arrays_length(value);
 		if(H) {obsH = true; H_p_i = new double[care.N][arraysLength];}
@@ -149,6 +150,9 @@ public class ObserveCare implements Steppable{
 		if(simple_C) {obsSimpleC = true; simple_C_p_i = new int[care.N][arraysLength];}
 		if(simple_E) {obsSimpleE = true; simple_E_p_i = new double[care.N][arraysLength];}
 		if(simple_B) {obsSimpleB = true; simple_B_p_i = new int[care.N][arraysLength];}
+		
+		if(disease) {disease_p_i = new double[care.N][arraysLength]; obsDisease = true;}
+		if(expNoise) {expNoise_p_i = new double[care.N][arraysLength]; obsExpNoise = true;}
 	}
 	
 	
