@@ -33,8 +33,8 @@ public class JSONResponse {
 
 			buildResults_json("windows", simulation.observer.getWindows());
 			
-			buildResults_json("disease", simulation.observer.getDisease());
-			buildResults_json("expNoise", simulation.observer.getExpNoise());
+			buildResults_json("Disease", simulation.observer.getDisease());
+			buildResults_json("ExpNoise", simulation.observer.getExpNoise());
 			
 			//buildResults_json("delta", simulation.observer.getDelta());
 	}

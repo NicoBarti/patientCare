@@ -231,7 +231,7 @@ public class ObserveCare implements Steppable{
 			patient = ((Patient)care.patients.objs[p]);
 			simple_sum_i = 0;
 			for(int w = 0; w<patient.c_p_i_counter.length;w++) {
-				simple_sum_i += patient.c_p_i_counter[w];
+				simple_sum_i += patient.c_p_i_1[w];
 			}
 			simple_C_p_i[p][loc] = simple_sum_i;
 			}
@@ -337,7 +337,7 @@ public class ObserveCare implements Steppable{
 	public void observeExpNoise(int loc) {
 		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
-			disease_p_i[patient.p][loc] = patient.Gaussian;}
+			expNoise_p_i[patient.p][loc] = patient.Gaussian;}
 	}
 	
 //	public void obsDelta(int loc) {
