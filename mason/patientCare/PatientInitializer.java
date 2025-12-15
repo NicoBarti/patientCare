@@ -21,6 +21,8 @@ public class PatientInitializer implements Steppable {
 	public float fixed_kappa;
 	public double fixed_capE;
 	public double fixed_psi;		
+	public boolean initial_h = false;
+	public double h0_value = 0;
 	
 	//for Rule init
 	
@@ -155,7 +157,9 @@ public class PatientInitializer implements Steppable {
 		switch(strategy) {
 		case "random-basal": patient.h_p_i_1 = care.random.nextDouble()*patient.capN_p;break;
 		default: patient.h_p_i_1 = 0;break;
-		}}
+		}
+		if(initial_h) { patient.h_p_i_1 = h0_value;}
+	}
 	
 	public void t(Patient patient) {
 		switch(strategy) {

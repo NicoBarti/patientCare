@@ -40,6 +40,7 @@ public class RunWithParams {
 	boolean reproduce_line = false; // configure reproduce line
 	boolean obsDisease = false;
 	boolean obsExpNoise = false;
+	boolean obsInstExp = false;
 	
 	//Patient initializers
 	double fixed_delta;
@@ -49,6 +50,8 @@ public class RunWithParams {
 	float fixed_kappa;
 	double fixed_capE;
 	double fixed_psi;
+	public boolean initial_h = false;
+	public double h0_value = 0;
 	
 	//Provider initializers
 	double fixed_lambda;
@@ -84,7 +87,7 @@ public class RunWithParams {
 //					simpleC, simpleE, simpleB, delta);
 //		} else {
 		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB, 
-				simpleC, simpleE, simpleB, obsDisease, obsExpNoise);
+				simpleC, simpleE, simpleB, obsDisease, obsExpNoise, obsInstExp);
 		//}
 	}
 	
@@ -124,6 +127,9 @@ public class RunWithParams {
 				simulation.pat_init.fixed_kappa = fixed_kappa;
 				simulation.pat_init.fixed_capE = fixed_capE;
 				simulation.pat_init.fixed_psi = fixed_psi;
+				if(initial_h) { 
+					simulation.pat_init.initial_h = true;
+					simulation.pat_init.h0_value= h0_value;}
 				
 		simulation.prov_init = new ProviderInitializer(simulation, "applyFixed");
 				simulation.setPROVIDER_INIT("applyFixed");
@@ -241,6 +247,16 @@ public class RunWithParams {
 			case "obsExpNoise":
 				obsExpNoise = true;
 				break;
+			case "obsInstExp":
+				obsInstExp = true;
+				break;
+			case "initial_h":
+				System.out.println("RunWithParams");
+
+				System.out.println(a.getDouble(0));
+				initial_h = true;
+				h0_value = a.getDouble(0);
+				break;
 		}}	
 	}
 	
@@ -263,6 +279,7 @@ public class RunWithParams {
 		params.put("obsSimpleB", Boolean.toString(simpleB));
 		params.put("obsDisease", Boolean.toString(obsDisease));
 		params.put("obsExpNoise", Boolean.toString(obsExpNoise));
+		params.put("obsInstExp", Boolean.toString(obsInstExp));
 		
 
 		JSONObject response = new JSONObject(params);

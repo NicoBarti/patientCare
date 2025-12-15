@@ -35,6 +35,8 @@ public class JSONResponse {
 			
 			buildResults_json("Disease", simulation.observer.getDisease());
 			buildResults_json("ExpNoise", simulation.observer.getExpNoise());
+			buildResults_json("InstExp", simulation.observer.getInstExp());
+
 			
 			//buildResults_json("delta", simulation.observer.getDelta());
 	}

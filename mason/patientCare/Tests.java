@@ -516,7 +516,7 @@ public class Tests {
 
 		care.pat_init.settesting(care.patients, true);
 		care.prov_init.settesting(care.providers, true);
-		care.startObserver(false, false, true, false, false, true, false, false, false, false, false);
+		care.startObserver(false, false, true, false, false, true, false, false, false, false, false, false);
 
 
 		for(int step=0;step<varsigma;step++) {
@@ -790,7 +790,7 @@ public class Tests {
 	void check_observer_visitsCounter() {
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);int N = 200; int W = 30; int varsigma = 500; 
-		care.startObserver(false, false, false, false, false, false, true, false, false, false, false);
+		care.startObserver(false, false, false, false, false, false, true, false, false, false, false, false);
 		care.start();
 		int sum;
 		int[] internalC = new int[W];

@@ -37,6 +37,7 @@ public class Patient implements Steppable {
 	protected int wMaxExpectation;
 	protected int Bernoulli=0;
 	protected double Gaussian=0;
+	protected double instExp=0;
 
 	
 	//debug test
@@ -114,20 +115,29 @@ public class Patient implements Steppable {
 		for(int w = 0; w < e_p_i_1.length; w++) {
 			// CASE 1 got the visit with provider w
 			if(c_p_i_1[w] == 1) {
-				e_p_i[w] = e_p_i_1[w]+ rho_p + Gaussian;
+				instExp =  rho_p ;
+				//e_p_i[w] = e_p_i_1[w] +instExp;
 			} else
 			// CASE 2 didn't get the visit with provider but wanted provider w
 			if(b_p_i_1[w] == 1 & c_p_i_1[w] == 0) {
-				e_p_i[w] = e_p_i_1[w] - eta_p + Gaussian;
+				instExp =  - eta_p ;
+				//e_p_i[w] = e_p_i_1[w] - instExp;
 			} else
 			// CASE 3. didn't ask for a visit with provider w
 			if(b_p_i_1[w] == 0) {
-				e_p_i[w] = e_p_i_1[w] + Gaussian;
+				instExp =  0;
+				//e_p_i[w] = e_p_i_1[w] + Gaussian;
 			}
 			
+			e_p_i[w] = e_p_i_1[w] + Gaussian + instExp;
+			
 			//limit expecations
-			if(e_p_i[w] >capE_p) {e_p_i[w] = capE_p;}
-			if(e_p_i[w] <= 0) {e_p_i[w] = 0;}
+			if(e_p_i[w] >capE_p) {
+				instExp = instExp+Gaussian + capE_p-e_p_i[w]; //keep track of effective change only
+				e_p_i[w] = capE_p;}
+			if(e_p_i[w] <= 0) {
+				instExp = instExp+Gaussian - e_p_i[w]; //keep track of effective change only
+				e_p_i[w] = 0;}
 		}
 	}
 	

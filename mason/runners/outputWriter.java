@@ -150,6 +150,38 @@ public class outputWriter {
 		}
 	}
 	
+	//To write two average H and two variances. Made for the VariancesDesignExplorer
+	public void write(double[] H75,double[] H100, double[] V75, double[] V100, 
+			HashMap[] params, int number, String[] names) {
+		try (CSVWriter writer = new CSVWriter(new FileWriter(path+"/"+dir+"/"+number+".csv"))) {
+			
+			String[] header = new String[params[0].size()+4];
+			header[0] = names[0]; header[1] = names[1]; header[2] = names[2]; header[3] = names[3];
+			for(int i =4;i<params[0].size()+4;i++) {
+				header[i] = (String)params[0].keySet().toArray()[i-4];
+			}
+			writer.writeNext(header,true);			
+			for(int repetition = start_REP; repetition<end_REP;repetition++) {
+				//int storedIndex = 0;
+				String[] line = new String[params[0].size()+4];
+				line[0] = Double.toString(H75[repetition]);
+				line[1] = Double.toString(H100[repetition]);
+				line[2] = Double.toString(V75[repetition]);
+				line[3] = Double.toString(V100[repetition]);
+
+				for(int par =4;par<params[0].size()+4;par++) {
+					line[par] = (String)params[repetition].get(header[par]);
+				}
+							
+				writer.writeNext(line,true);
+			}
+
+		} catch (IOException e) {
+			System.out.println("Problem in CS Writer " + e);
+			System.exit(0);
+		}
+	}
+	
 	//To write results from mid-term interventions on lines
 	public void writeEvaluationHash(HashMap<String, HashMap<String, String>> results) {
 		try (CSVWriter writer = new CSVWriter(new FileWriter(path))) {
