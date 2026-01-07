@@ -148,8 +148,17 @@ public class Care extends SimState {
 			patient = new Patient();
 			pat_init.initialize(patient);
 			patients.add(patient);
-	schedule.scheduleOnce(schedule.EPOCH, prioritize.hat_o(patient), patient); //orders 2 to N+2
+	//schedule.scheduleOnce(schedule.EPOCH, prioritize.hat_o(patient), patient); //orders 2 to N+2
 		}
+		//store the maximum severity and capN, used for priority allocation
+		pat_init.computeMaxs(patients);
+		// scheddule patients for the first run: (they allocate themselfes afterwards)
+		for (int i = 0; i< patients.numObjs; i++) {
+			patient = (Patient)patients.get(i);
+			schedule.scheduleOnce(schedule.EPOCH, prioritize.hat_o(patient), patient); //orders 2 to N+2
+
+		}
+		//System.out.println("(Care) Just finished schedduling all patients");
 		
 		//create anonymus agent that scheddules patients wit priority hat_o 
 		//this agent acts at the end of each state ( max_priority+3)
@@ -186,7 +195,19 @@ public class Care extends SimState {
 	public int getvarsigma() {return varsigma;}
 	public void setW(int val) {W = val;}
 	public int getW() {return W;}
-	public void setPi(String val) {Pi = val;}
+	
+	/** Sets the assignation policy. Must be a policy contained in Prioritizator
+	 * @param val basal, H_segmented, patient_centred, risk, need, risk_need
+	 */
+	public void setPi(String val) {
+		if(val == "basal" || val == "H_segmented" || val == "patient_centred" || val == "risk" || val == "need" || val == "risk_need"){
+			Pi = val;
+		} else {
+			System.out.println("(Java CARE) Error! Unexistant policy: "+val);
+			System.exit(0);
+		}
+		}
+	
 	public String getPi() {return Pi;}
 	public void setPROVIDER_INIT(String val) {PROVIDER_INIT = val;}
 	public String getPROVIDER_INIT() {return PROVIDER_INIT;}
@@ -315,15 +336,18 @@ public class Care extends SimState {
 	int patientOrder = 0;
 	double[] H_at_Order;
 	double[] NE_at_Order;
+	double[] N_at_Order;
 	
 	/**
 	 * Special method only used for testing. A bit convoluted.
 	 * Only way I came up with to see the order that the scheduler assigned to agents with same priority.
+	 * You need to restart patientOrder to 0 before each step (from testing class)
 	 */
 	public void test_registerOrder(int p, double H, double N, double E) {
 		order[p] = patientOrder;
 		H_at_Order[p] = H;
 		NE_at_Order[p] = N-E;
+		N_at_Order[p] = N;
 		patientOrder+=1;
 	}
 }

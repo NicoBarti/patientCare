@@ -10,7 +10,6 @@ public class PatientInitializer implements Steppable {
 	private int ID = 0;	
 	private int arraysLength = 0;
 
-	
 	//for Fixed strategies
 	public double fixed_delta;
 	public double fixed_capN;
@@ -24,8 +23,17 @@ public class PatientInitializer implements Steppable {
 	public boolean initial_h = false;
 	public double h0_value = 0;
 	
-	//for Rule init
+	/** Starts patients with random deltas
+	 * Then, specify min, max. Deltas will be assigned by a continuous uniform [min,max]
+	 */
+	public boolean random_delta = false;
+	public double random_delta_min;
+	public double random_delta_max;
 	
+	
+	//Used by Prioritizator for assignation of priorities:
+	public double max_delta;
+	public double max_capN;
 	
 	public void step(SimState state) {}
 	
@@ -148,6 +156,9 @@ public class PatientInitializer implements Steppable {
 		ID+=1;
 	}
 	
+	/** Gives the maximum ID created so far. Useluf to add new patients middle way through the simulation.
+	 * @return the last ID created (an integer)
+	 */
 	public int getMaxID() {
 		return ID;
 	}
@@ -155,8 +166,10 @@ public class PatientInitializer implements Steppable {
 	
 	public void h(Patient patient) {
 		switch(strategy) {
-		case "random-basal": patient.h_p_i_1 = care.random.nextDouble()*patient.capN_p;break;
-		default: patient.h_p_i_1 = 0;break;
+		case "random-basal": patient.h_p_i_1 = care.random.nextDouble()*patient.capN_p;
+		break;
+		default: patient.h_p_i_1 = 0;
+		break;
 		}
 		if(initial_h) { patient.h_p_i_1 = h0_value;}
 	}
@@ -178,15 +191,8 @@ public class PatientInitializer implements Steppable {
 			break;
 			
 		default: 
-			//TODO carerul here: the more providers the higher the inital
-			// expectation. I think it should be better to have one random
-			// e for a random w, or divide e bewtwen a few ws.
-			//for(int i=0;i<patient.e_p_i_1.length;i++) {
-			//	patient.e_p_i_1[i] = patient.capE_p/2;
-			//}
 			//Just add capE/2 to a random provider
 			int w  = care.random.nextInt(patient.e_p_i_1.length);
-			//System.out.println("initializind defoult e for patient "+patient.p+ ". Giving exp to doctor "+w);
 			patient.e_p_i_1[w] = patient.capE_p/2;
 			break;
 		}}
@@ -242,6 +248,9 @@ public class PatientInitializer implements Steppable {
 		default: 
 			patient.delta_p = 1;
 			break;}
+		if (random_delta == true) {
+			patient.delta_p = (care.random.nextDouble(true,true) * (random_delta_max-random_delta_min)) + random_delta_min;
+		}
 	}
 	
 	public void progressProbability(Patient patient) {
@@ -391,6 +400,23 @@ public class PatientInitializer implements Steppable {
 	public void settesting(Bag patients, Boolean value) {
 		for(int p=0;p<patients.numObjs;p++) {
 			((Patient)patients.objs[p]).testing = value;
+		}
+	}
+	
+	public void computeMaxs(Bag patients) {
+		max_delta = 0;
+		max_capN = 0;
+		for(int p= 0;p<patients.numObjs;p++) {
+			if(((Patient)patients.objs[p]).delta_p > max_delta) {
+				max_delta = ((Patient)patients.objs[p]).delta_p;
+			}
+			if(((Patient)patients.objs[p]).capN_p > max_capN) {
+				max_capN = ((Patient)patients.objs[p]).capN_p;
+			}
+		}
+		// returns max theoretical delta if was initialized as random_delta
+		if(random_delta) {
+			max_delta = random_delta_max;
 		}
 	}
 	

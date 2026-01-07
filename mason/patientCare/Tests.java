@@ -36,6 +36,7 @@ public class Tests {
 		care.order = new long[N];
 		care.H_at_Order = new double[N];
 		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
 
 		care.pat_init.setdelta(care.patients, delta); 
 		care.pat_init.setpsi(care.patients, 0);
@@ -513,6 +514,7 @@ public class Tests {
 		care.order = new long[N];
 		care.H_at_Order = new double[N];
 		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
 
 		care.pat_init.settesting(care.patients, true);
 		care.prov_init.settesting(care.providers, true);
@@ -564,97 +566,6 @@ public class Tests {
 				}	
 			}
 	}
-	}
-	
-	@Test
-	void check_basalPolicy() {
-		long currentSeed = System.currentTimeMillis();
-		double lambda; double tau; double healthStatus;
-		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
-		care.setPi("basal");
-		care.setW(W);
-		care.setN(N);
-		care.setvarsigma(varsigma);
-		care.start();
-		care.order = new long[N];
-		care.H_at_Order = new double[N];
-		care.NE_at_Order= new double[N];
-
-		care.pat_init.settesting(care.patients, true);
-
-		
-		int patient1 = care.random.nextInt(N);
-		int patient2 = 0 ;
-		while (patient2 == 0) {
-			patient2 = care.random.nextInt(patient1);
-		}
-		int[] order1_more_order2 = new int[varsigma];
-		
-		for(int i=0; i< varsigma; i++) {
-			care.schedule.step(care);
-			//System.out.println("patient1 "+ care.order[patient1] + " / patient2 "+ care.order[patient2]);
-			if(care.order[patient1] > care.order[patient2]) {
-				order1_more_order2[i] = 1;
-			} else {order1_more_order2[i] = 0;} 
-		}
-		
-		
-		double prop = 0;
-		for (int o = 0; o < order1_more_order2.length;o++) {
-			prop+=order1_more_order2[o];
-		}
-		
-		assertTrue(prop/order1_more_order2.length<0.55 & prop/order1_more_order2.length>0.45, 
-				"Patient order is unlikely to be random. Patient 1 came after Patient 2 " +
-		prop/order1_more_order2.length + " of the time with seed "+currentSeed);
-		
-	}
-	
-	@Test
-	void check_health_segmentation() {
-		long currentSeed = System.currentTimeMillis();
-		double lambda; double tau; double healthStatus;
-		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
-		//care.setPi("basal");
-		care.setW(W);
-		care.setN(N);
-		care.setPi("H_segmented");
-		care.setvarsigma(varsigma);
-		care.PATIENT_INIT = "basal";
-		care.start();
-		care.order = new long[N];
-		care.H_at_Order = new double[N];
-		care.NE_at_Order= new double[N];
-
-		care.pat_init.settesting(care.patients, true);
-		
-		for(int i=0; i< varsigma; i++) {
-			care.schedule.step(care);
-			
-			for (int p = 0 ; p< care.patients.numObjs-1; p++) {
-				//if(patient_p.testing_get_previousH() == patient_p1.testing_get_previousH()) 
-				if(care.H_at_Order[p] == care.H_at_Order[p+1])
-				{
-					continue;
-				}
-				if(care.order[p] > care.order[p+1]) { // p was schedduled with less priority that p+1
-					//System.out.println("(before) patient "+p +" has order "+care.order[p] + " and healh " + care.H_at_Order[p]);
-					//System.out.println("(before) patient " +p +"+1 has order "+care.order[p+1]+" and health "+ care.H_at_Order[p+1]);
-					assertTrue( care.H_at_Order[p] < care.H_at_Order[p+1], "Patient "+p+" had health "+care.H_at_Order[p]+
-							" but came before the consecutive patient that had health " +care.H_at_Order[p+1]);
-
-				}
-				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
-					//System.out.println("(after) patient " + p + " has order "+care.order[p] + " and healh " + care.H_at_Order[p]);
-					//System.out.println("(after) patient " + p + " +1 has order "+care.order[p+1]+" and health "+ care.H_at_Order[p+1]);
-					assertTrue( care.H_at_Order[p] > care.H_at_Order[p+1], "Patient "+p+" has health "+care.H_at_Order[p]+
-							" but came after patient the consecutive patient that has health " +care.H_at_Order[p+1]);
-				}
-				
-			}
-
-		}
-
 	}
 	
 	@Test
@@ -741,10 +652,102 @@ public class Tests {
 			assertTrue(patient.e_p_i_1[goneProdiver] ==0, "Provider no longer exists, so its expectations should be 0");
 
 	}
-
-
+	
 	@Test
-	void check_patient_centred() {
+	void check_POLICY_basal() {
+		long currentSeed = System.currentTimeMillis();
+		double lambda; double tau; double healthStatus;
+		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
+		care.setPi("basal");
+		care.setW(W);
+		care.setN(N);
+		care.setvarsigma(varsigma);
+		care.start();
+		care.order = new long[N];
+		care.H_at_Order = new double[N];
+		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
+
+		care.pat_init.settesting(care.patients, true);
+
+		
+		int patient1 = care.random.nextInt(N);
+		int patient2 = 0 ;
+		while (patient2 == 0) {
+			patient2 = care.random.nextInt(patient1+1);
+		}
+		int[] order1_more_order2 = new int[varsigma];
+		
+		for(int i=0; i< varsigma; i++) {
+			care.schedule.step(care);
+			//System.out.println("patient1 "+ care.order[patient1] + " / patient2 "+ care.order[patient2]);
+			if(care.order[patient1] > care.order[patient2]) {
+				order1_more_order2[i] = 1;
+			} else {order1_more_order2[i] = 0;} 
+		}
+		
+		
+		double prop = 0;
+		for (int o = 0; o < order1_more_order2.length;o++) {
+			prop+=order1_more_order2[o];
+		}
+		
+		assertTrue(prop/order1_more_order2.length<0.55 & prop/order1_more_order2.length>0.45, 
+				"NOT NECESARLY AN ERROR: Patient order is unlikely to be random. Patient 1 came after Patient 2 " +
+		prop/order1_more_order2.length + " of the time with seed "+currentSeed);
+		
+	}
+	
+	@Test
+	void check_POLICY_health_segmentation() {
+		long currentSeed = System.currentTimeMillis();
+		double lambda; double tau; double healthStatus;
+		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
+		//care.setPi("basal");
+		care.setW(W);
+		care.setN(N);
+		care.setPi("H_segmented");
+		care.setvarsigma(varsigma);
+		care.PATIENT_INIT = "basal";
+		care.start();
+		care.order = new long[N];
+		care.H_at_Order = new double[N];
+		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
+		//care.prioritize.temporaryTest = true;
+		care.pat_init.settesting(care.patients, true);
+		
+		for(int i=0; i< varsigma; i++) {
+			care.schedule.step(care);
+			
+			for (int p = 0 ; p< care.patients.numObjs-1; p++) {
+				//if(patient_p.testing_get_previousH() == patient_p1.testing_get_previousH()) 
+				if(care.H_at_Order[p] == care.H_at_Order[p+1])
+				{
+					continue;
+				}
+				if(care.order[p] > care.order[p+1]) { // p was schedduled with less priority that p+1
+					//System.out.println("(before) patient "+p +" has order "+care.order[p] + " and healh " + care.H_at_Order[p]);
+					//System.out.println("(before) patient " +p +"+1 has order "+care.order[p+1]+" and health "+ care.H_at_Order[p+1]);
+					assertTrue( care.H_at_Order[p] < care.H_at_Order[p+1], "Patient "+p+" had health "+care.H_at_Order[p]+
+							" but came after the consecutive patient that had health " +care.H_at_Order[p+1] + " at iteration "+i);
+
+				}
+				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
+					//System.out.println("(after) patient " + p + " has order "+care.order[p] + " and healh " + care.H_at_Order[p]);
+					//System.out.println("(after) patient " + p + " +1 has order "+care.order[p+1]+" and health "+ care.H_at_Order[p+1]);
+					assertTrue( care.H_at_Order[p] > care.H_at_Order[p+1], "Patient "+p+" has health "+care.H_at_Order[p]+ " and was scheduled with order "+care.order[p]+
+							" It came before patient " +p+1+ " that has health " +care.H_at_Order[p+1]+  " and was scheduled with order "+ care.order[p+1]+" at iteration "+i);
+				}
+				
+			}
+
+		}
+
+	}
+	
+	@Test
+	void check_POLICY_patient_centred() {
 
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
@@ -758,6 +761,7 @@ public class Tests {
 		care.order = new long[N];
 		care.H_at_Order = new double[N];
 		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
 		care.pat_init.settesting(care.patients, true);
 		
 		for(int i=0; i< varsigma; i++) {
@@ -785,7 +789,212 @@ public class Tests {
 			}
 		}
 	}
+	
+	@Test
+	void check_POLICY_risk() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 1000; int W = 4; int varsigma = 100; 
+		//care.setPi("basal");
+		care.setW(W);
+		care.setN(N);
+		care.setPi("risk");
+		care.setvarsigma(varsigma);
+		
+		// initialize a Patient Initializer with fied initial values
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		//set random delta
+		care.pat_init.random_delta = true;
+		care.pat_init.random_delta_max = 30;
+		care.pat_init.random_delta_min = 0;
+	
+		care.start();
+		care.order = new long[N];
+		care.H_at_Order = new double[N];
+		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
+		care.pat_init.settesting(care.patients, true);
+		
+		for(int i=0; i< varsigma; i++) {
+			care.patientOrder=0;
+			care.schedule.step(care);
+			
+			for (int p = 0 ; p< care.patients.numObjs-1; p++) {
+				
+				//find patients ID = p and ID  = p+1
+				Patient patient_p = (Patient)care.patients.get(0); // I need to initialize them
+				Patient patient_p1 = (Patient)care.patients.get(0);// I need to initialize them
+				for(int ii=0; ii<care.patients.numObjs;ii++) {
+					if(((Patient)care.patients.get(ii)).p == p) {patient_p = (Patient)care.patients.get(ii);}
+					if(((Patient)care.patients.get(ii)).p == p+1) {patient_p1 = (Patient)care.patients.get(ii);}
+				}
+				
+				// CASE 1: both patients belong to the same category; in this case, don't compare ordering
+				if((patient_p.delta_p < 10 & patient_p1.delta_p <10) | //both in low risk
+				   (patient_p.delta_p > 10 & patient_p.delta_p < 20) & (patient_p1.delta_p > 10 & patient_p1.delta_p < 20) | //both in medium risk
+				   (patient_p.delta_p > 20 & patient_p1.delta_p >20)) //both in high risk
+				{continue;}
+				//CASE 2: otherwise, order should be cheked:
+				//p +1 higher priority:
+				if(care.order[p] > care.order[p+1]) { // p was schedduled with less priority that p+1
+					//There are three valid orderigs for this p less priority:
+					//1. a and be 
+					assertTrue( patient_p1.delta_p >= patient_p.delta_p, "Patient "+patient_p.p+" has delta "+patient_p.delta_p+
+							" but came after patient " + patient_p1.p + " that has delta " +patient_p1.delta_p+" seed "+currentSeed);
+				}
+				// p higher priority
+				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
+					assertTrue( patient_p1.delta_p <= patient_p.delta_p, "Patient "+patient_p.p+" has delta "+patient_p.delta_p+
+							" but came after patient " + patient_p1.p + " that has delta " +patient_p1.delta_p+" seed "+currentSeed);
+				}
+			}
+		}
+	}
+	
+	@Test
+	void check_POLICY_need() {
+		//System.out.println("(Test) Starting check_POLCY_need");
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 100; 
+		//care.setPi("basal");
+		care.setW(W);
+		care.setN(N);
+		care.setPi("need");
+		care.setvarsigma(varsigma);
+		
+		// initialize a Patient Initializer with fied initial values
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		//set random delta
+		care.pat_init.random_delta = true;
+		care.pat_init.random_delta_max = 30;
+		care.pat_init.random_delta_min = 0;
+	
+		care.start();
+		care.order = new long[N];
+		care.H_at_Order = new double[N];
+		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
+		care.pat_init.settesting(care.patients, true);
+		
 
+		for(int i=0; i< varsigma; i++) {
+			care.patientOrder=0;
+			care.schedule.step(care);
+			
+			for (int p = 0 ; p< care.patients.numObjs-1; p++) {
+				
+				if(care.N_at_Order[p] == care.N_at_Order[p+1])
+				{
+					continue;
+				}
+				
+				//find patients ID = p and ID  = p+1
+//				Patient patient_p = (Patient)care.patients.get(0); // I need to initialize them
+//				Patient patient_p1 = (Patient)care.patients.get(0);// I need to initialize them
+//				for(int ii=0; ii<care.patients.numObjs;ii++) {
+//					if(((Patient)care.patients.get(ii)).p == p) {patient_p = (Patient)care.patients.get(ii);}
+//					if(((Patient)care.patients.get(ii)).p == p+1) {patient_p1 = (Patient)care.patients.get(ii);}
+//				}
+				
+				//p +1 higher priority:
+				if(care.order[p] > care.order[p+1]) { // p was schedduled with less priority that p+1
+	 
+					assertTrue( care.N_at_Order[p+1] >= care.N_at_Order[p], "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+ " and order " + care.order[p] +
+							" but patient " + p+1 + " that has N_at_Order " + care.N_at_Order[p+1]+ " has order " +care.order[p+1] +" seed "+currentSeed + " at iteration "+i);
+				}
+				// p higher priority
+				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
+					assertTrue( care.N_at_Order[p+1] <= care.N_at_Order[p], "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+" and order " + care.order[p] +
+							" but patient " + p+1 + " that has N_at_Order " +care.N_at_Order[p+1]+" has order " +care.order[p+1] +" seed "+currentSeed+" at iteration "+i);
+				}
+			}
+		}
+	}
+
+	void check_POLICY_risk_need() {
+		//System.out.println("(Test) Starting check_POLCY_need");
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 100; 
+		//care.setPi("basal");
+		care.setW(W);
+		care.setN(N);
+		care.setPi("need");
+		care.setvarsigma(varsigma);
+		
+		// initialize a Patient Initializer with fied initial values
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		//set random delta
+		care.pat_init.random_delta = true;
+		care.pat_init.random_delta_max = 30;
+		care.pat_init.random_delta_min = 0;
+	
+		care.start();
+		care.order = new long[N];
+		care.H_at_Order = new double[N];
+		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
+		care.pat_init.settesting(care.patients, true);
+		
+
+		for(int i=0; i< varsigma; i++) {
+			care.patientOrder=0;
+			care.schedule.step(care);
+			
+			for (int p = 0 ; p< care.patients.numObjs-1; p++) {
+				
+				//find patients ID = p and ID  = p+1
+				Patient patient_p = (Patient)care.patients.get(0); // I need to initialize them
+				Patient patient_p1 = (Patient)care.patients.get(0);// I need to initialize them
+				for(int ii=0; ii<care.patients.numObjs;ii++) {
+					if(((Patient)care.patients.get(ii)).p == p) {patient_p = (Patient)care.patients.get(ii);}
+					if(((Patient)care.patients.get(ii)).p == p+1) {patient_p1 = (Patient)care.patients.get(ii);}
+				}
+				
+				if(care.N_at_Order[p] + patient_p.delta_p == care.N_at_Order[p+1] + patient_p1.delta_p)
+				{
+					continue;
+				}
+
+				
+				//p +1 higher priority:
+				if(care.order[p] > care.order[p+1]) { // p was schedduled with less priority that p+1
+	 
+					assertTrue( care.N_at_Order[p+1] + patient_p1.delta_p >= care.N_at_Order[p] + patient_p.delta_p, "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+ " and order " + care.order[p] +
+							" but patient " + p+1 + " that has N_at_Order " + care.N_at_Order[p+1]+ " has order " +care.order[p+1] +" seed "+currentSeed + " at iteration "+i);
+				}
+				// p higher priority
+				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
+					assertTrue( care.N_at_Order[p+1] + patient_p1.delta_p <= care.N_at_Order[p] +patient_p.delta_p, "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+" and order " + care.order[p] +
+							" but patient " + p+1 + " that has N_at_Order " +care.N_at_Order[p+1]+" has order " +care.order[p+1] +" seed "+currentSeed+" at iteration "+i);
+				}
+			}
+		}
+	}
+
+	
 	@Test
 	void check_observer_visitsCounter() {
 		long currentSeed = System.currentTimeMillis();
@@ -1311,6 +1520,44 @@ public class Tests {
 		for(int step = 0; step<5;step++) {
 			care.schedule.step(care);
 		}
+	}
+	
+	@Test
+	public void patient_initialization_strategies() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=2000; care.W=5;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.totalCapacity = 51; //unconstrained capacity
+		care.setPi("basal");
+		// initialize a Patient Initializer with fied initial values
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		//set random delta
+		care.pat_init.random_delta = true;
+		care.pat_init.random_delta_max = 10;
+		care.pat_init.random_delta_min = 1;
+
+		care.start();
+		care.startObserver();
+		
+		//Check that:
+		//1. deltas are within 1 and 10 for all patients
+		//2. Mean delta is arounf 5.5
+		double mean_delta =0;
+		for(int i =0; i < care.patients.numObjs; i++) {
+			assertTrue(((Patient)care.patients.get(i)).delta_p < 10, "A delta_p exeded maximum delta");
+			assertTrue(((Patient)care.patients.get(i)).delta_p > 1, "A delta_p was lower than minimum delta");
+			mean_delta += ((Patient)care.patients.get(i)).delta_p;
+		}
+		assertTrue(mean_delta/2000 > 5 & mean_delta/2000<6, "mean_delta should be around 5.5 but was "+mean_delta/2000);
 	}
 	
 	

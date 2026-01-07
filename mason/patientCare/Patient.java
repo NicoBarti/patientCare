@@ -13,11 +13,11 @@ public class Patient implements Steppable {
 	int[] c_p_i_counter;
 	int[] b_p_i_counter;
 	int[] b_p_i;	int[] b_p_i_1;
-	double n_p_i;
+	double n_p_i;	
 	
 	//Control variables for the patient agent (parameters)
 	double delta_p;
-	double capN_p;
+	double capN_p; //this parameter should be chanched to a single capN for all agents
 	double rho_p;
 	double eta_p;
 	double capE_p;
@@ -182,7 +182,9 @@ public class Patient implements Steppable {
 		return meanE/e_p_i_1.length;
 	}
 
-	//captures the variables that lead to this ordering
+	/** Method for testing Prioritizatio (allocation policy)
+	 * captures the variables that lead to this ordering and sends them to care.test_registerOrder
+	 */
 	public void testing_order() {
 		care.test_registerOrder(p, h_p_i_1, n_p_i, get_MeanE() );
 	}
