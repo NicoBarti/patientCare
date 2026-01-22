@@ -6,17 +6,10 @@ import java.util.HashMap;
 import sim.engine.*;
 import sim.util.*;
 
-/**
- * Main class that holds all the agents and context.
- */
-/**
- * 
- */
-/**
- * 
- */
-/**
- * 
+
+
+/** Main class that holds all the agents and context
+ * STEPS: Step 0 is for the observer. Step 1 for the providers. From step 2 onwards all patients. An anonymus agents is scheduled last that shcedules all patients.
  */
 public class Care extends SimState {
 	private static final long serialVersionUID = 1L;
@@ -199,8 +192,10 @@ public class Care extends SimState {
 	/** Sets the assignation policy. Must be a policy contained in Prioritizator
 	 * @param val basal, H_segmented, patient_centred, risk, need, risk_need
 	 */
-	public void setPi(String val) {
-		if(val == "basal" || val == "H_segmented" || val == "patient_centred" || val == "risk" || val == "need" || val == "risk_need"){
+	public void setPi(String val) { 
+		// TODO: implement string comparison
+		//Pi = val;
+	  if(val.equals("basal") || val.equals("H_segmented") || val.equals("patient_centred") || val.equals("risk") || val.equals("need") || val.equals("risk_need")){
 			Pi = val;
 		} else {
 			System.out.println("(Java CARE) Error! Unexistant policy: "+val);

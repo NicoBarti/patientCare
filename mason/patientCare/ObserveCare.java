@@ -115,7 +115,7 @@ public class ObserveCare implements Steppable{
 	double sum_exp;
 	
 	
-	/** Constructor for observing everything
+	/** Create the observer with this constructor to observe  everything
 	 * @param sim
 	 * @param obsPeriod
 	 */
@@ -140,7 +140,22 @@ public class ObserveCare implements Steppable{
 		//delta_p_i = new double[care.N][arraysLength];
 	}
 	
-	//this constructor for observing only the specified state variables
+	/** Create the observer with this constructor to observe only the specified variables
+	 * @param sim
+	 * @param value
+	 * @param H
+	 * @param N
+	 * @param C
+	 * @param T
+	 * @param E
+	 * @param B
+	 * @param simple_C
+	 * @param simple_E
+	 * @param simple_B
+	 * @param disease
+	 * @param expNoise
+	 * @param instExp
+	 */
 	public ObserveCare(Care sim, int value, boolean H, boolean N, boolean C, 
 			boolean T, boolean E, boolean B, boolean simple_C, boolean simple_E,
 			boolean simple_B, boolean disease, boolean expNoise, boolean instExp) {

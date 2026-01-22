@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * 
+ */
 public class RunWithParams {
 	Care simulation;
 	JSONObject params;
@@ -50,7 +53,27 @@ public class RunWithParams {
 	float fixed_kappa;
 	double fixed_capE;
 	double fixed_psi;
-	public boolean initial_h = false;
+	
+	private boolean random_delta = false;
+	/** Only specify if want random delta among patients
+	 * The minimum delta
+	 */
+	double random_delta_min;
+	
+	/** Only specify if want random delta among patients
+	 * The maximum delta
+	 */
+	double random_delta_max;
+	
+	/** For fixing h at the bgining to all patients
+	 * True for fixing the initial value
+	 */
+	
+	private boolean initial_h = false;
+	
+	/** The inivial value of h
+	 * 
+	 */
 	public double h0_value = 0;
 	
 	//Provider initializers
@@ -130,6 +153,10 @@ public class RunWithParams {
 				if(initial_h) { 
 					simulation.pat_init.initial_h = true;
 					simulation.pat_init.h0_value= h0_value;}
+				if(random_delta) {
+					simulation.pat_init.random_delta = true;
+					simulation.pat_init.random_delta_min = random_delta_min;
+					simulation.pat_init.random_delta_max = random_delta_max;}
 				
 		simulation.prov_init = new ProviderInitializer(simulation, "applyFixed");
 				simulation.setPROVIDER_INIT("applyFixed");
@@ -251,12 +278,18 @@ public class RunWithParams {
 				obsInstExp = true;
 				break;
 			case "initial_h":
-				System.out.println("RunWithParams");
-
-				System.out.println(a.getDouble(0));
 				initial_h = true;
 				h0_value = a.getDouble(0);
 				break;
+			case "random_delta_min":
+				random_delta = true;
+				random_delta_min = a.getDouble(0);
+				break;
+			case "random_delta_max":
+				random_delta = true;
+				random_delta_max = a.getDouble(0);
+				break;
+			
 		}}	
 	}
 	
@@ -280,6 +313,10 @@ public class RunWithParams {
 		params.put("obsDisease", Boolean.toString(obsDisease));
 		params.put("obsExpNoise", Boolean.toString(obsExpNoise));
 		params.put("obsInstExp", Boolean.toString(obsInstExp));
+		if(random_delta) {
+			params.put("random_delta_min", Double.toString(random_delta_min));
+			params.put("random_delta_max", Double.toString(random_delta_max));
+		}
 		
 
 		JSONObject response = new JSONObject(params);
