@@ -42,6 +42,7 @@ public class RunWithParams {
 	boolean configure_pathfinder = false; // configure simulation via pathfinder
 	boolean reproduce_line = false; // configure reproduce line
 	boolean obsDisease = false;
+	boolean obsDelta = false;
 	boolean obsExpNoise = false;
 	boolean obsInstExp = false;
 	
@@ -110,7 +111,7 @@ public class RunWithParams {
 //					simpleC, simpleE, simpleB, delta);
 //		} else {
 		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB, 
-				simpleC, simpleE, simpleB, obsDisease, obsExpNoise, obsInstExp);
+				simpleC, simpleE, simpleB, obsDisease, obsExpNoise, obsInstExp, obsDelta);
 		//}
 	}
 	
@@ -271,6 +272,9 @@ public class RunWithParams {
 			case "obsDisease":
 				obsDisease = true;
 				break;
+			case "obsDelta":
+				obsDelta = true;
+				break;
 			case "obsExpNoise":
 				obsExpNoise = true;
 				break;
@@ -311,6 +315,8 @@ public class RunWithParams {
 		params.put("obsSimpleE", Boolean.toString(simpleE));
 		params.put("obsSimpleB", Boolean.toString(simpleB));
 		params.put("obsDisease", Boolean.toString(obsDisease));
+		params.put("obsDelta", Boolean.toString(obsDelta));
+
 		params.put("obsExpNoise", Boolean.toString(obsExpNoise));
 		params.put("obsInstExp", Boolean.toString(obsInstExp));
 		if(random_delta) {

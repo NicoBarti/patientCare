@@ -41,6 +41,7 @@ public class Provider implements Steppable {
 		SumC_p[p] += 1;
 		alpha_w = alpha_w-1;
 		if(h == 0) { //this should never happen, patient's don't ask for visit when h ==0. Only here to be consistent with docs.
+			System.out.println("(Provider) PATIENT ASKED FOR HELP WITH 0 NEEDS!. Patient ID: "+p);
 			return(0);
 		}
 			return(Math.min(Math.min(lambda_w * SumC_p[p]/h,tau_w), h));
