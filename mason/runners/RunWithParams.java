@@ -45,6 +45,7 @@ public class RunWithParams {
 	boolean obsDelta = false;
 	boolean obsExpNoise = false;
 	boolean obsInstExp = false;
+	boolean obsPerformance = false;
 	
 	//Patient initializers
 	double fixed_delta;
@@ -111,7 +112,7 @@ public class RunWithParams {
 //					simpleC, simpleE, simpleB, delta);
 //		} else {
 		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB, 
-				simpleC, simpleE, simpleB, obsDisease, obsExpNoise, obsInstExp, obsDelta);
+				simpleC, simpleE, simpleB, obsDisease, obsExpNoise, obsInstExp, obsDelta, obsPerformance);
 		//}
 	}
 	
@@ -293,6 +294,9 @@ public class RunWithParams {
 				random_delta = true;
 				random_delta_max = a.getDouble(0);
 				break;
+			case "obsPerformance":
+				obsPerformance = true;
+				break;
 			
 		}}	
 	}
@@ -316,6 +320,7 @@ public class RunWithParams {
 		params.put("obsSimpleB", Boolean.toString(simpleB));
 		params.put("obsDisease", Boolean.toString(obsDisease));
 		params.put("obsDelta", Boolean.toString(obsDelta));
+		params.put("obsPerformance", Boolean.toString(obsPerformance));
 
 		params.put("obsExpNoise", Boolean.toString(obsExpNoise));
 		params.put("obsInstExp", Boolean.toString(obsInstExp));

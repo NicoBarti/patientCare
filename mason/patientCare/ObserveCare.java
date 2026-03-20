@@ -82,6 +82,13 @@ public class ObserveCare implements Steppable{
 	 */
 	double[][] delta_p_i;
 	
+	/**
+	 * The performance at every timestep: average treatments delivered by appointment.
+	 */
+	double[] performance_i;
+	
+	
+	
 	
 	//internals
 	int arraysLength;
@@ -110,6 +117,7 @@ public class ObserveCare implements Steppable{
 	boolean obsDisease = false;
 	boolean obsExpNoise = false;
 	boolean obsInstExp = false;
+	boolean obsPerformance = false;
 	
 	Care care;
 	Patient patient;
@@ -142,6 +150,7 @@ public class ObserveCare implements Steppable{
 		expNoise_p_i = new double[care.N][arraysLength]; obsExpNoise = true;
 		instExp_p_i = new double[care.N][arraysLength]; obsInstExp=true;
 		delta_p_i = new double[care.N][arraysLength]; obsDelta=true;
+		performance_i = new double[arraysLength]; obsPerformance = true;
 	}
 	
 	/** Create the observer with this constructor to observe only the specified variables
@@ -164,7 +173,7 @@ public class ObserveCare implements Steppable{
 	public ObserveCare(Care sim, int value, boolean H, boolean N, boolean C, 
 			boolean T, boolean E, boolean B, boolean simple_C, boolean simple_E,
 			boolean simple_B, boolean disease, boolean expNoise, boolean instExp,
-			boolean Delta) {
+			boolean Delta, boolean Performance) {
 		
 		care = sim;
 		set_arrays_length(value);
@@ -183,6 +192,7 @@ public class ObserveCare implements Steppable{
 		if(expNoise) {expNoise_p_i = new double[care.N][arraysLength]; obsExpNoise = true;}
 		if(instExp) {instExp_p_i = new double[care.N][arraysLength]; obsInstExp=true;}
 		if(Delta) {delta_p_i = new double[care.N][arraysLength]; obsDelta=true;}
+		if(Performance) {performance_i = new double[arraysLength]; obsPerformance=true;}
 	}
 	
 	
@@ -213,7 +223,12 @@ public class ObserveCare implements Steppable{
 			counter=0;
 		}
 		counter+=1;
+	//TODO: add a observe in all windows here for calculation of performance
+		// maybe not, just run a ObsPerfoemance with period 1
+	
 	}
+	
+	
 	
 	public void observe(int loc, Care state) {
 		windows[loc] =(int)care.schedule.getSteps();
@@ -231,6 +246,7 @@ public class ObserveCare implements Steppable{
 		if(obsExpNoise) {observeExpNoise(loc);}
 		if(obsInstExp) {observeInstExp(loc);}
 		if(obsDelta) {observeDelta(loc);}
+		if(obsPerformance) {observePerformance(loc);}
 		
 	}
 	
@@ -395,6 +411,23 @@ public class ObserveCare implements Steppable{
 			expNoise_p_i[patient.p][loc] = patient.Gaussian;}
 	}
 	
+	public void observePerformance(int loc) {
+		double all_non_zero_T = 0;
+		int treated_patients = 0;
+		for(int p = 0; p < care.patients.numObjs; p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			if(patient.t_p_i_1 !=0) {
+				all_non_zero_T +=patient.t_p_i_1;
+				treated_patients +=1;
+			} 
+		}
+		if (treated_patients > 0) {
+			performance_i[loc] =  all_non_zero_T/treated_patients;
+		} else {
+			performance_i[loc] = 0;
+		}
+	}
+	
 	
 	public int[][][] getC(){return C_p_w_i;}
 	public double[][] getH(){return H_p_i;}
@@ -409,6 +442,7 @@ public class ObserveCare implements Steppable{
 	public double [][] getExpNoise(){return expNoise_p_i;} 
 	public double[][] getInstExp(){return instExp_p_i;}
 	public double[][] getDelta(){return delta_p_i;} 
+	public double[] getPerformance() {return performance_i;}
 
 	
 	public int getarraysLengthreturn() {return arraysLength;}
