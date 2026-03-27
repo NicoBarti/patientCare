@@ -354,17 +354,18 @@ public class ObserveCare implements Steppable{
 			} 		
 	}
 	
-	/** Currently only works for W = 1. Observes the instantaneous change in expectations (expectation formation)
+	/** Observes the instantaneous change in expectations (expectation formation) at the patient level.
+	 * It can be computed from observeE, but that observer is heavy in memory.
 	 * @param loc
 	 */
 	public void observeInstExp(int loc) {
 		for(int p = 0; p<care.patients.numObjs;p++) {
 			patient = ((Patient)care.patients.objs[p]);
-				sum_exp=0;
-				for(int w = 0; w<patient.e_p_i_1.length;w++) {
-					sum_exp+=patient.instExp;
-				}
-				instExp_p_i[patient.p][loc] = sum_exp;
+				//sum_exp=0;
+				//for(int w = 0; w<patient.e_p_i_1.length;w++) {
+				//	sum_exp+=patient.instExp;
+				//}
+				instExp_p_i[patient.p][loc] = patient.instExp;
 			} 	
 		
 	}
