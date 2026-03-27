@@ -39,6 +39,7 @@ public class JSONResponse {
 			
 			buildResults_json("Delta", simulation.observer.getDelta());
 			buildResults_json("Performance", simulation.observer.getPerformance());
+			buildResults_json("MaxExp", simulation.observer.getMaxExp());
 
 			
 	}

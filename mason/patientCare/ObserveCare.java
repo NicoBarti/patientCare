@@ -87,6 +87,11 @@ public class ObserveCare implements Steppable{
 	 */
 	double[] performance_i;
 	
+	/** The maximum expectation per patient
+	 * 
+	 */
+	double[][] maxExp_p_i;
+	
 	
 	
 	
@@ -118,6 +123,7 @@ public class ObserveCare implements Steppable{
 	boolean obsExpNoise = false;
 	boolean obsInstExp = false;
 	boolean obsPerformance = false;
+	boolean obsMaxExp = false;
 	
 	Care care;
 	Patient patient;
@@ -151,6 +157,7 @@ public class ObserveCare implements Steppable{
 		instExp_p_i = new double[care.N][arraysLength]; obsInstExp=true;
 		delta_p_i = new double[care.N][arraysLength]; obsDelta=true;
 		performance_i = new double[arraysLength]; obsPerformance = true;
+		maxExp_p_i = new double[care.N][arraysLength]; obsMaxExp = true;
 	}
 	
 	/** Create the observer with this constructor to observe only the specified variables
@@ -173,7 +180,7 @@ public class ObserveCare implements Steppable{
 	public ObserveCare(Care sim, int value, boolean H, boolean N, boolean C, 
 			boolean T, boolean E, boolean B, boolean simple_C, boolean simple_E,
 			boolean simple_B, boolean disease, boolean expNoise, boolean instExp,
-			boolean Delta, boolean Performance) {
+			boolean Delta, boolean Performance, boolean maxExp) {
 		
 		care = sim;
 		set_arrays_length(value);
@@ -193,6 +200,7 @@ public class ObserveCare implements Steppable{
 		if(instExp) {instExp_p_i = new double[care.N][arraysLength]; obsInstExp=true;}
 		if(Delta) {delta_p_i = new double[care.N][arraysLength]; obsDelta=true;}
 		if(Performance) {performance_i = new double[arraysLength]; obsPerformance=true;}
+		if(maxExp) {maxExp_p_i = new double[care.N][arraysLength]; obsMaxExp = true;}
 	}
 	
 	
@@ -247,6 +255,7 @@ public class ObserveCare implements Steppable{
 		if(obsInstExp) {observeInstExp(loc);}
 		if(obsDelta) {observeDelta(loc);}
 		if(obsPerformance) {observePerformance(loc);}
+		if(obsMaxExp) {observeMaxExpect(loc);}
 		
 	}
 	
@@ -412,6 +421,17 @@ public class ObserveCare implements Steppable{
 			expNoise_p_i[patient.p][loc] = patient.Gaussian;}
 	}
 	
+	/** Observes the Max expectation, the one used by the patient to motivate its behaviour.
+	 * Populates maxExp
+	 * @param loc
+	 */
+	public void observeMaxExpect(int loc) {
+		for(int p=0; p<care.patients.numObjs;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			maxExp_p_i[patient.p][loc] = patient.e_p_i_1[patient.wMaxExpectation];
+		}
+	}
+	
 	public void observePerformance(int loc) {
 		double all_non_zero_T = 0;
 		int treated_patients = 0;
@@ -444,6 +464,7 @@ public class ObserveCare implements Steppable{
 	public double[][] getInstExp(){return instExp_p_i;}
 	public double[][] getDelta(){return delta_p_i;} 
 	public double[] getPerformance() {return performance_i;}
+	public double[][] getMaxExp(){return maxExp_p_i;}
 
 	
 	public int getarraysLengthreturn() {return arraysLength;}
@@ -551,6 +572,10 @@ public class ObserveCare implements Steppable{
 		if (obsInstExp) {
 			double[][] newInstExp = increaseDual_newArr(instExp_p_i, N_increase);
 			instExp_p_i = newInstExp.clone();
+		}
+		if (obsMaxExp) {
+			double[][] newMaxExp = increaseDual_newArr(maxExp_p_i, N_increase);
+			maxExp_p_i = newMaxExp.clone();
 		}
 	}
 	
@@ -708,6 +733,7 @@ public class ObserveCare implements Steppable{
 				if(obsExpNoise) {expNoise_p_i[id][i] = -1;}
 				if(obsInstExp) {instExp_p_i[id][i] = -1;}
 				if(obsDelta) {delta_p_i[id][i] = -1;}
+				if(obsMaxExp) {maxExp_p_i[id][i]=-1;}
 
 		}
 		// Triple arrays

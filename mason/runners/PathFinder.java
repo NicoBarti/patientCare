@@ -162,10 +162,10 @@ public class PathFinder {
 		//configureCare(care1);}
 		care1.start();
 		if(observed.equals("H")) {
-			care1.startObserver(true, false, false, false, false, false, false, false, false, false,false, false, false, false);}
+			care1.startObserver(true, false, false, false, false, false, false, false, false, false,false, false, false, false, false);}
 		
 		if(observed.equals("SimpleE")) {
-			care1.startObserver(false, false, false, false, false, false, false, true, false,false,false, false, false,false);
+			care1.startObserver(false, false, false, false, false, false, false, true, false,false,false, false, false,false, false);
 		}
 
 		
