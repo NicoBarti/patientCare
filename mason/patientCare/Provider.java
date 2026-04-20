@@ -7,7 +7,13 @@ public class Provider implements Steppable {
 	private static final long serialVersionUID = 1L;
 	
 	// state variable
-	public int[] SumC_w;
+	/**
+	 * Array with the number of past visits for each patient with this provider
+	 */
+	public int[] SumC_p;
+	/**
+	 * Appointments left during the this time-step
+	 */
 	public int alpha_w;
 	
 	//borra:
@@ -29,20 +35,29 @@ public class Provider implements Steppable {
 	public void step(SimState state) {
 		care = (Care)state;
 		alpha_w = A_w; //open agenda
-
 	}
 
 	public double interactWithPatient(int p, double h) {
-		SumC_w[p] += 1;
+		SumC_p[p] += 1;
 		alpha_w = alpha_w-1;
 		if(h == 0) { //this should never happen, patient's don't ask for visit when h ==0. Only here to be consistent with docs.
+			System.out.println("(Provider) PATIENT ASKED FOR HELP WITH 0 NEEDS!. Patient ID: "+p);
 			return(0);
 		}
-			return(Math.min(Math.min(lambda_w * SumC_w[p]/h,tau_w), h));
+			return(Math.min(Math.min(lambda_w * SumC_p[p]/h,tau_w), h));
 	}
 	
 	public boolean isAvailable() {		
 		if(alpha_w > 0) {return(true);
 		} else {return(false);}
 	}
+	
+	public void increaseNmidway(int N_increase) {
+		int[] newSumC_p = new int[SumC_p.length+N_increase];
+		for (int i = 0; i< SumC_p.length; i++) {
+			newSumC_p[i] = SumC_p[i];
+		}
+		SumC_p = newSumC_p.clone();
+	}
 }
+

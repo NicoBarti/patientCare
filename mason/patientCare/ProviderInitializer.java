@@ -10,12 +10,15 @@ public class ProviderInitializer implements Steppable{
 	int rand;
 	
 	int alpha_w;
-	
+	private int ID = 0;
+	private int arraysLength = 0;
 	
 	//for Fixed strategies
 	public double fixed_lambda;
 	public double fixed_tau;
+	
 	public void step(SimState state) {};
+	
 	public ProviderInitializer(Care _care, String _strategy) {
 		care = _care;
 		strategy = _strategy;
@@ -47,21 +50,40 @@ public class ProviderInitializer implements Steppable{
 	}
 
 	public void initialize(Provider provider) {
-		SumC_w(provider);
+		ID(provider);
+		SumC_p(provider);
 		A_w(provider);
 		lambda_w(provider);
 		tau_w(provider);
+		arraysLength+=1;
 	}
 	
-	public void SumC_w(Provider provider) {
-		provider.SumC_w = new int[care.N];
+	private void ID(Provider provider) {
+		provider.w = ID;
+		ID+=1;
+	}
+	
+	public int getMaxID() {
+		return ID;
+	}
+	
+	/** Giver the lenght of the "p" component in arrays
+	 * @return n° initialized providers 
+	 */
+	public int getArrayLenght() {
+		if(arraysLength>care.W) {return arraysLength;} 
+		else {return care.W;}
+	}
+	
+	public void SumC_p(Provider provider) {
+		//provider.SumC_p = new int[care.N];
+		provider.SumC_p = new int[care.pat_init.getArrayLenght()];
 		switch(strategy) {
 		case "random-basal": //pending
 			break;
 		default: 
-			for(int i = 0; i<care.N;i++) {provider.SumC_w[i] = 0;}
+			for(int i = 0; i<care.N;i++) {provider.SumC_p[i] = 0;}
 			break;
-
 		}
 	}
 	
@@ -126,6 +148,24 @@ public class ProviderInitializer implements Steppable{
 			((Provider)providers.objs[w]).testing = value;
 		}
 	}
+	
+	public void adjustCapacity(Bag providers, int totalCapacity) {
+
+		//a. reassign truncated average capacity
+		int truncated_A_w = (int)(totalCapacity/providers.numObjs);
+		for(int p=0;p<providers.numObjs;p++) {
+			((Provider)providers.get(p)).A_w = truncated_A_w;
+		}
+		//b. reassess
+		if(truncated_A_w*providers.numObjs<totalCapacity) {
+			//c. add by ones randomly if needed
+			providers.shuffle(care.random);
+			for(int i = 0; i< totalCapacity - truncated_A_w*providers.numObjs;i++) {
+				((Provider)providers.get(i)).A_w+=1;
+			}
+
+		}
+	};
 	
 	
 }

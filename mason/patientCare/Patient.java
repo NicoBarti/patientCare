@@ -11,18 +11,20 @@ public class Patient implements Steppable {
 	double[] e_p_i;	double[] e_p_i_1;
 	int[] c_p_i;	int[] c_p_i_1;
 	int[] c_p_i_counter;
+	int[] b_p_i_counter;
 	int[] b_p_i;	int[] b_p_i_1;
-	double n_p_i;
+	double n_p_i;	
 	
 	//Control variables for the patient agent (parameters)
 	double delta_p;
-	double capN_p;
+	double capN_p; //this parameter should be chanched to a single capN for all agents
 	double rho_p;
 	double eta_p;
 	double capE_p;
 	double psi_p;
 	double iota_p;
 	float kappa_p;
+	//boolean active = true;
 	
 	//internals
 	protected Care care;
@@ -30,11 +32,12 @@ public class Patient implements Steppable {
 	protected double[] interaction;
 	protected Boolean interact;
 	protected myUtil ut = new myUtil();
-	protected double e_fluctuation;
 	protected double progressProbability;
 	protected double currentMot;
 	protected int wMaxExpectation;
-	protected int Bernoulli;
+	protected int Bernoulli=0;
+	protected double Gaussian=0;
+	protected double instExp=0;
 
 	
 	//debug test
@@ -45,6 +48,11 @@ public class Patient implements Steppable {
 	public void step(SimState state) {
 		//System.out.println("Patient "+p+" delta "+delta_p);
 		care = (Care) state;
+		
+		//if(!active) {
+		//	setMinusOnes();}
+		//else {
+		
 		interact = false;
 		
 		//for policy prioritization tesging
@@ -60,15 +68,15 @@ public class Patient implements Steppable {
 
 		//eventually interact:
 		int w = -1;
-		for(int b_w = 0; b_w < care.W; b_w++) { //see if there is any b_w == 0
+		for(int b_w = 0; b_w < b_p_i.length; b_w++) { //see if there is any b_w == 0
 			if(b_p_i[b_w] == 1) {
-				w = b_w;
+				w = b_w; //find intended provider
 				interact = true;
 				break;}}
 
 		if(interact) {
-			interaction = care.appointer.appoint(w, p, h_p_i);
-			if((int)interaction[0] == -1) {
+			interaction = care.appointer.appoint(w, p, h_p_i); //try to interact with prefered provider
+			if((int)interaction[0] == -1) { //no provider was available
 				c_p_i[w] = 0;
 				t_p_i = 0;
 			} else {
@@ -80,8 +88,8 @@ public class Patient implements Steppable {
 		
 
 		stepForwardStateVariables();
-		
-		} 
+		}
+		//} 
 
 	
 	protected void diseaseEvolution(Care care) {	
@@ -102,43 +110,53 @@ public class Patient implements Steppable {
 	
 	protected void expectationFormation(Care care) {
 		//forms expectations for each provider based on previous experience
-		e_fluctuation = 0;
-		if(care.random.nextBoolean((float)kappa_p)) {e_fluctuation = care.random.nextGaussian();}
-		for(int w = 0; w < care.W; w++) {
+		Gaussian = 0;
+		if(care.random.nextBoolean((float)kappa_p)) {Gaussian = care.random.nextGaussian();}
+		for(int w = 0; w < e_p_i_1.length; w++) {
 			// CASE 1 got the visit with provider w
 			if(c_p_i_1[w] == 1) {
-				e_p_i[w] = e_p_i_1[w]+ rho_p + e_fluctuation;
+				instExp =  rho_p ;
+				//e_p_i[w] = e_p_i_1[w] +instExp;
 			} else
 			// CASE 2 didn't get the visit with provider but wanted provider w
 			if(b_p_i_1[w] == 1 & c_p_i_1[w] == 0) {
-				e_p_i[w] = e_p_i_1[w] - eta_p + e_fluctuation;
+				instExp =  - eta_p ;
+				//e_p_i[w] = e_p_i_1[w] - instExp;
 			} else
 			// CASE 3. didn't ask for a visit with provider w
 			if(b_p_i_1[w] == 0) {
-				e_p_i[w] = e_p_i_1[w] + e_fluctuation;
+				instExp =  0;
+				//e_p_i[w] = e_p_i_1[w] + Gaussian;
 			}
 			
+			e_p_i[w] = e_p_i_1[w] + Gaussian + instExp;
+			
 			//limit expecations
-			if(e_p_i[w] >capE_p) {e_p_i[w] = capE_p;}
-			if(e_p_i[w] <= 0) {e_p_i[w] = 0;}
+			if(e_p_i[w] >capE_p) {
+				instExp = instExp+Gaussian + capE_p-e_p_i[w]; //keep track of effective change only
+				e_p_i[w] = capE_p;}
+			if(e_p_i[w] <= 0) {
+				instExp = instExp+Gaussian - e_p_i[w]; //keep track of effective change only
+				e_p_i[w] = 0;}
 		}
 	}
 	
 	protected void behaviouralRule(Care care) {
 	// sets the value of B[current_week] to determine next week seek behaviour
 		// Find the provider with highest expectation
-		int[] randomAccess = ut.accessArray(care.W, care.random.nextInt(care.W));
+		int[] randomAccess = ut.accessArray(e_p_i.length, care.random.nextInt(e_p_i.length));
 		wMaxExpectation = randomAccess[0];
-		for(int i = 1; i < care.W;i++) {
+		for(int i = 1; i < e_p_i.length;i++) {
 			if(e_p_i[randomAccess[i]] > e_p_i[wMaxExpectation]) {
 				wMaxExpectation = randomAccess[i];
 			}}
 
 	if(e_p_i[wMaxExpectation] != 0 & n_p_i != 0) {
-		b_p_i[wMaxExpectation] = 0;
+		b_p_i[wMaxExpectation] = 0; //it was 0 already, just making sure
 		currentMot = (psi_p*e_p_i[wMaxExpectation] + (1-psi_p)*n_p_i)*iota_p;
 		if(care.random.nextDouble() < currentMot) {
-			b_p_i[wMaxExpectation] = 1;} 
+			b_p_i[wMaxExpectation] = 1;
+			b_p_i_counter[wMaxExpectation]+=1;} 
 	}}
 	
 	
@@ -164,7 +182,9 @@ public class Patient implements Steppable {
 		return meanE/e_p_i_1.length;
 	}
 
-	//captures the variables that lead to this ordering
+	/** Method for testing Prioritizatio (allocation policy)
+	 * captures the variables that lead to this ordering and sends them to care.test_registerOrder
+	 */
 	public void testing_order() {
 		care.test_registerOrder(p, h_p_i_1, n_p_i, get_MeanE() );
 	}
@@ -173,6 +193,92 @@ public class Patient implements Steppable {
 		return delta_p;
 	}
 
+	//protected void inactivatePatient() {
+	//	active = false;
+	//}
+	
+	private void setMinusOnes() {
+		h_p_i = -1;	 h_p_i_1 = -1;
+	    t_p_i = -1;	 t_p_i_1=-1;
+	    for(int i=0; i< e_p_i.length; i++) {
+			e_p_i[i] = -1; e_p_i_1[i] = -1;
+			c_p_i[i] = -1; c_p_i_1[i] = -1;
+			c_p_i_counter[i] = -1;
+			b_p_i_counter[i] = -1;
+			b_p_i[i] = -1;	 b_p_i_1[i]= -1;
+	    }
+		n_p_i = -1;
+	}
+	
+	/**
+	 * Change the arrays that store w-repated information: e,c, and b
+	 * @param newW
+	 */
+	public void increaseWmidway(int W_increase) {
+		//double[] e_p_i;	double[] e_p_i_1;
+		//check if current array is small in w
+			//this is a 0s array btween steps, so just re initialize it with new size
+			e_p_i = new double[e_p_i.length+W_increase];
 
+			//create a new transitory array to copy info
+			double[] new_e_p_i_1 = increaseSingle_newW(e_p_i_1, W_increase);
+			e_p_i_1 = new_e_p_i_1.clone();			// assign (clone) to array
+		
+			//this is a 0s array btween steps, so just re initialize it with new size
+			c_p_i = new int[c_p_i.length+W_increase];
+		
+			//create a new transitory array to copy info
+			int[] new_c_p_i_1 = increaseSingle_newW(c_p_i_1, W_increase);
+			c_p_i_1 = new_c_p_i_1.clone();// assign (clone) to array
+		
+			//this is a 0s array btween steps, so just re initialize it with new size
+			b_p_i = new int[b_p_i.length+W_increase];
+		
+			//create a new transitory array to copy info
+			int[] new_b_p_i_1 = increaseSingle_newW(b_p_i_1, W_increase);
+			b_p_i_1 = new_b_p_i_1.clone();// assign (clone) to array
+		
+			//create a new transitory array to copy info
+			int[] new_c_p_i_counter = increaseSingle_newW(c_p_i_counter, W_increase);
+			c_p_i_counter = new_c_p_i_counter.clone();// assign (clone) to array
+			
+			//create a new transitory array to copy info
+			int[] new_b_p_i_counter = increaseSingle_newW(b_p_i_counter, W_increase);
+			b_p_i_counter = new_b_p_i_counter.clone();// assign (clone) to array
+	}
+	
+	private double[] increaseSingle_newW(double[] old_arr, int W_increase) {
+		double[] newArr_i = new double[old_arr.length + W_increase];
+		for(int i=0; i<old_arr.length;i++) {
+			newArr_i[i] = old_arr[i];
+		}
+		return newArr_i;
+	}
+	
+	private int[] increaseSingle_newW(int[] old_arr, int W_increase) {
+		int[] newArr_i = new int[old_arr.length+W_increase];
+		for(int i=0; i<old_arr.length;i++) {
+			newArr_i[i] = old_arr[i];
+		}
+		return newArr_i;
+	}
+	
+	/**
+	 * This method makes a patient "forget" a provider. Its expactation to this provider is set to 0
+	 * I think this makes expectations very relational.
+	 * @param w the provider id
+	 */
+	public void removeExpectations(int w) {
+		double erasedExpectation = e_p_i_1[w];
+		//erase the expectation from the gone provider
+		e_p_i[w] = 0;
+		e_p_i_1[w] = 0;
+		//pick an existing provider at random and assign them half the lost expectations
+		care.providers.shuffle(care.random);
+		int otherProviderID = ((Provider)care.providers.get(0)).w;
+		e_p_i[otherProviderID] += erasedExpectation/2;
+		e_p_i_1[otherProviderID] += erasedExpectation/2;
+
+	}
 	
 }

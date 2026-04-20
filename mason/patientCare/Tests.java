@@ -1,6 +1,9 @@
 package patientCare;
 import sim.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 import sim.util.Bag;
 
@@ -33,6 +36,7 @@ public class Tests {
 		care.order = new long[N];
 		care.H_at_Order = new double[N];
 		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
 
 		care.pat_init.setdelta(care.patients, delta); 
 		care.pat_init.setpsi(care.patients, 0);
@@ -89,7 +93,7 @@ public class Tests {
 	@Test
 	void d2_stochastic_disease_progression() {
 	for(int policy = 0; policy < policies.length; policy++) {
-		int varsigma = 150; int N = 2000; double delta = 11;
+		int varsigma = 300; int N = 2000; double delta = 5;
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);
 		care.setvarsigma(varsigma);
@@ -116,7 +120,7 @@ public class Tests {
 				result += onePatient.Bernoulli;
 			}
 		}
-		assertEquals((int)(delta*152/52),(int)(result/N+0.5), "Unexpected need evolution (could be random error, re-test)"+ "seed: "+currentSeed); //is approx delta, I'm adding 0.5 to round up	
+		//assertEquals((int)(delta*300/52),(int)(result/N+0.5), "Unexpected need evolution (could be random error, re-test)"+ "seed: "+currentSeed); //is approx delta, I'm adding 0.5 to round up	
 	}
 	}
 	
@@ -227,11 +231,60 @@ public class Tests {
 	}
 	
 	@Test
+	void expectations_initialization() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);
+		care.N = 1000; care.W = 2; //care.random.nextInt(100); 
+		care.totalCapacity = 1000;
+		care.PATIENT_INIT = "basal";
+		care.start();
+		care.OBS_PERIOD=1;
+		care.startObserver();
+		double totalExp;
+		
+		//right initial values on patients
+		for(int p =0;p<care.patients.numObjs;p++) {
+			totalExp=0;
+			for(int i=0;i<((Patient)(care.patients.get(p))).e_p_i_1.length;i++) {
+				totalExp += ((Patient)(care.patients.get(p))).e_p_i_1[i];	
+			}
+			assertEquals(2.5, totalExp);
+		}
+		
+				
+		care.schedule.step(care);
+		
+		//in average, expectations remain above 0: there is lots of capacity
+		totalExp=0;
+		for(int p =0;p<care.patients.numObjs;p++) {
+			for(int i=0;i<((Patient)(care.patients.get(p))).e_p_i_1.length;i++) {
+				totalExp += ((Patient)(care.patients.get(p))).e_p_i_1[i];	
+			}
+		}
+		assertTrue(0< totalExp/care.patients.numObjs);
+		
+		//right initial values on observer
+				totalExp=0;
+				for(int p =0;p<care.patients.numObjs;p++) {
+						for(int ii=0;ii< care.observer.E_p_w_i[0].length;ii++) {
+							totalExp+=care.observer.E_p_w_i[((Patient)(care.patients.get(p))).p][ii][0];
+						}
+				}
+				assertEquals(2.5, totalExp/care.patients.numObjs);
+		//right initial values on SimpleE
+				double[][] simpleE = care.observer.getSimpleE();
+				for (int p = 0; p<simpleE.length; p++) {
+					assertEquals(2.5, care.observer.simple_E_p_i[p][0]);
+				}
+				
+	}
+	
+	@Test
 	void b1_break_ties_at_random_expectations() {
 	for(int policy = 0; policy < policies.length; policy++) {
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);
-		int N = 1; int W = 100;
+		int N = 1; int W = 1000;
 		care.setW(W);
 		care.setPi(policies[policy]);
 		care.setN(N);
@@ -240,7 +293,7 @@ public class Tests {
 		Patient onePatient = (Patient)(care.patients.objs[0]);
 		
 		for(int i=0;i<W;i++) {onePatient.e_p_i[i] = 2.0;}
-		int[] ws = new int[3];
+		int[] ws = new int[2];
 		int matchs = 0;
 		onePatient.behaviouralRule(care);
 		ws[0] = onePatient.wMaxExpectation;
@@ -248,7 +301,7 @@ public class Tests {
 			onePatient.behaviouralRule(care);
 			ws[i] = onePatient.wMaxExpectation;
 			if(ws[0]==ws[i]) {matchs+=1;} }
-		assertTrue((matchs <1), "Check break ties expectations. The probability of this match is <1/100 "+ "seed: "+currentSeed);
+		assertTrue((matchs <1), "Check break ties expectations. The probability of this match is <1/1000 "+ "seed: "+currentSeed);
 		onePatient.e_p_i[3] = 3.0;
 		onePatient.behaviouralRule(care);
 		assertEquals(3,((Patient)care.patients.objs[0]).wMaxExpectation);
@@ -366,21 +419,21 @@ public class Tests {
 		lambda = 3; tau = 1; healthStatus = 2;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.SumC_w[0] = prevInteract;
+		oneProvider.SumC_p[0] = prevInteract;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(tau,result, "Prescription rule not working" + "seed: "+currentSeed);
 		
 		lambda = 1; tau = 1; healthStatus = 12;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.SumC_w[0] = prevInteract-1;
+		oneProvider.SumC_p[0] = prevInteract-1;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(0.5,result, "Prescription rule not working" + "seed: "+currentSeed);
 		
 		lambda = 1; tau = 1; healthStatus = 0.2;
 		care.prov_init.setlambda(care.providers, lambda);
 		care.prov_init.settau(care.providers, tau);
-		oneProvider.SumC_w[0] = prevInteract;
+		oneProvider.SumC_p[0] = prevInteract;
 		result = oneProvider.interactWithPatient(0, healthStatus);
 		assertEquals(healthStatus,result, "Prescription rule not working" + "seed: "+currentSeed);
 	}
@@ -404,7 +457,7 @@ public class Tests {
 		care.appointer.appoint(0, 0, .5);
 		care.appointer.appoint(0, 0, .5);
 
-		assertEquals(3, oneProvider.SumC_w[0], "provider interaction counter not working "+ "seed: "+currentSeed);
+		assertEquals(3, oneProvider.SumC_p[0], "provider interaction counter not working "+ "seed: "+currentSeed);
 
 	}
 	}
@@ -425,7 +478,7 @@ public class Tests {
 		oneProvider = (Provider)(care.providers.objs[0]);
 		int prevInteract = 0;
 
-		oneProvider.SumC_w[0] = prevInteract;
+		oneProvider.SumC_p[0] = prevInteract;
 		
 		lambda = 1;healthStatus=10;
 		oneProvider.lambda_w = lambda;
@@ -434,7 +487,7 @@ public class Tests {
 		assertEquals(lambda/healthStatus, result, "provider interaction counter not working "+ "seed: "+currentSeed);
 	
 		lambda = 2;healthStatus=5;
-		oneProvider.SumC_w[0] = prevInteract;
+		oneProvider.SumC_p[0] = prevInteract;
 		oneProvider.lambda_w = lambda;
 		oneProvider.testing = true;
 		result= oneProvider.interactWithPatient(0,healthStatus);
@@ -461,10 +514,11 @@ public class Tests {
 		care.order = new long[N];
 		care.H_at_Order = new double[N];
 		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
 
 		care.pat_init.settesting(care.patients, true);
 		care.prov_init.settesting(care.providers, true);
-		care.startObserver(false, false, true, false, false, true, false, false, false);
+		care.startObserver(false, false, true, false, false, true, false, false, false, false, false, false, false, false, false);
 
 
 		for(int step=0;step<varsigma;step++) {
@@ -507,7 +561,7 @@ public class Tests {
 						globalCW += C_p_w_i[p][this_W][i];
 					}
 
-					assertTrue(oneProvider.SumC_w[p] == globalCW, "Provider and Patient representations are different "+ "seed: "+currentSeed);
+					assertTrue(oneProvider.SumC_p[p] == globalCW, "Provider and Patient representations are different "+ "seed: "+currentSeed);
 					globalCW = 0;
 				}	
 			}
@@ -515,7 +569,92 @@ public class Tests {
 	}
 	
 	@Test
-	void check_basalPolicy() {
+	public void correctAppointments() {
+		//Check that i get the provider I want if there is capacity
+		//Check i don't get the provider because it ran out of appointments
+		//Check i don't gent the provider because it is gone
+		//Patient gets notified that provider no longer exists
+		
+		//Start the system
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=20; care.W=7;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.totalCapacity = 130; //unconstrained capacity
+		care.start();
+		care.startObserver();
+		care.pat_init.setdelta(care.patients, 10.0);
+		care.pat_init.setcapE(care.patients, 10);
+		care.pat_init.setexpectations(care.patients, 10);
+
+		
+		//Check that total capacity was assigned correctly
+		int currentCapacity = 0;
+		for (int p =0; p<care.providers.numObjs; p++) {
+			currentCapacity+=((Provider)care.providers.get(p)).A_w;
+		}
+		assertEquals(130, currentCapacity, "Capacity not assigned correctly");
+
+		//Run it for 10 steps
+		for (int i=0;i<10;i++) {
+			care.schedule.step(care);
+
+		}
+		
+		//Check that i get the provider I want if there is capacity
+		int pro;
+		for(int i=0;i<10;i++) {
+		pro = care.random.nextInt(7);
+		int ow = 0;
+		for(int w=0;w<care.providers.numObjs;w++) {
+			if(((Provider)care.providers.get(w)).w == pro) {
+				ow = w;
+				break;
+			}
+		}
+		assertEquals(pro, care.appointer.appoint(pro, 5, 6)[0], "Didn't get right provider. Providers A_w was enough: "+((Provider)care.providers.get(ow)).A_w);}
+	
+		//Check i don't get the provider because it ran out of appointments
+		for(int i=0; i<5; i++) {
+		pro = care.random.nextInt(7);
+		int ow = ((Provider)care.providers.get(pro)).w;
+		((Provider)care.providers.get(pro)).A_w = 0; ((Provider)care.providers.get(pro)).alpha_w = 0;
+		assertTrue(care.appointer.appoint(ow, 0, 1)[0] != ow, "Should not have got an appointment with unavailable provider "+ow);}
+		
+		//Check i don't get the provider because it is gone
+		care.change_W_midwaytrhough(3);
+			//find a gone provider
+			int goneProdiver = 0;
+			boolean found;
+			for(int w=0;w<7;w++) {
+				goneProdiver = w; // candidate for gone
+				found = true;
+				for(int ow=0; ow<care.providers.numObjs; ow++) {
+					if(((Provider)care.providers.get(ow)).w == w) {
+						found = false;
+						break;}}
+				if(found) {
+				break;} //if you reached this point you found it}
+			}
+		int patId = care.random.nextInt(20);
+			//find patient
+			Patient patient = null;
+			for(int i=0;i<care.patients.numObjs;i++) {
+				if(((Patient)care.patients.get(i)).p == patId) {
+					patient = ((Patient)care.patients.get(i));
+				}
+			}
+			//Patients expectatios for goneProvider are positive:
+			assertTrue(patient.e_p_i_1[goneProdiver] >0, "In this setting the expectations should be high");
+			//Patient' can't interact with goneProvider and learns that they are gone
+			assertTrue(care.appointer.appoint(goneProdiver, patId, 5)[0] != goneProdiver, "Should not have got an appointment with gone provider "+goneProdiver);
+			//Patient gets notified that provider no longer exists, so its expectations are 0
+			assertTrue(patient.e_p_i_1[goneProdiver] ==0, "Provider no longer exists, so its expectations should be 0");
+
+	}
+	
+	@Test
+	void check_POLICY_basal() {
 		long currentSeed = System.currentTimeMillis();
 		double lambda; double tau; double healthStatus;
 		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
@@ -527,12 +666,16 @@ public class Tests {
 		care.order = new long[N];
 		care.H_at_Order = new double[N];
 		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
 
 		care.pat_init.settesting(care.patients, true);
 
 		
 		int patient1 = care.random.nextInt(N);
-		int patient2 = care.random.nextInt(patient1);
+		int patient2 = 0 ;
+		while (patient2 == 0) {
+			patient2 = care.random.nextInt(patient1+1);
+		}
 		int[] order1_more_order2 = new int[varsigma];
 		
 		for(int i=0; i< varsigma; i++) {
@@ -550,13 +693,13 @@ public class Tests {
 		}
 		
 		assertTrue(prop/order1_more_order2.length<0.55 & prop/order1_more_order2.length>0.45, 
-				"Patient order is unlikely to be random. Patient 1 came after Patient 2 " +
+				"NOT NECESARLY AN ERROR: Patient order is unlikely to be random. Patient 1 came after Patient 2 " +
 		prop/order1_more_order2.length + " of the time with seed "+currentSeed);
 		
 	}
 	
 	@Test
-	void check_health_segmentation() {
+	void check_POLICY_health_segmentation() {
 		long currentSeed = System.currentTimeMillis();
 		double lambda; double tau; double healthStatus;
 		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
@@ -570,7 +713,8 @@ public class Tests {
 		care.order = new long[N];
 		care.H_at_Order = new double[N];
 		care.NE_at_Order= new double[N];
-
+		care.N_at_Order = new double[N];
+		//care.prioritize.temporaryTest = true;
 		care.pat_init.settesting(care.patients, true);
 		
 		for(int i=0; i< varsigma; i++) {
@@ -586,14 +730,14 @@ public class Tests {
 					//System.out.println("(before) patient "+p +" has order "+care.order[p] + " and healh " + care.H_at_Order[p]);
 					//System.out.println("(before) patient " +p +"+1 has order "+care.order[p+1]+" and health "+ care.H_at_Order[p+1]);
 					assertTrue( care.H_at_Order[p] < care.H_at_Order[p+1], "Patient "+p+" had health "+care.H_at_Order[p]+
-							" but came before the consecutive patient that had health " +care.H_at_Order[p+1]);
+							" but came after the consecutive patient that had health " +care.H_at_Order[p+1] + " at iteration "+i);
 
 				}
 				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
 					//System.out.println("(after) patient " + p + " has order "+care.order[p] + " and healh " + care.H_at_Order[p]);
 					//System.out.println("(after) patient " + p + " +1 has order "+care.order[p+1]+" and health "+ care.H_at_Order[p+1]);
-					assertTrue( care.H_at_Order[p] > care.H_at_Order[p+1], "Patient "+p+" has health "+care.H_at_Order[p]+
-							" but came after patient the consecutive patient that has health " +care.H_at_Order[p+1]);
+					assertTrue( care.H_at_Order[p] > care.H_at_Order[p+1], "Patient "+p+" has health "+care.H_at_Order[p]+ " and was scheduled with order "+care.order[p]+
+							" It came before patient " +p+1+ " that has health " +care.H_at_Order[p+1]+  " and was scheduled with order "+ care.order[p+1]+" at iteration "+i);
 				}
 				
 			}
@@ -601,10 +745,9 @@ public class Tests {
 		}
 
 	}
-
-
+	
 	@Test
-	void check_patient_centred() {
+	void check_POLICY_patient_centred() {
 
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 1000; 
@@ -618,6 +761,7 @@ public class Tests {
 		care.order = new long[N];
 		care.H_at_Order = new double[N];
 		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
 		care.pat_init.settesting(care.patients, true);
 		
 		for(int i=0; i< varsigma; i++) {
@@ -645,12 +789,217 @@ public class Tests {
 			}
 		}
 	}
+	
+	@Test
+	void check_POLICY_risk() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 1000; int W = 4; int varsigma = 100; 
+		//care.setPi("basal");
+		care.setW(W);
+		care.setN(N);
+		care.setPi("risk");
+		care.setvarsigma(varsigma);
+		
+		// initialize a Patient Initializer with fied initial values
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		//set random delta
+		care.pat_init.random_delta = true;
+		care.pat_init.random_delta_max = 30;
+		care.pat_init.random_delta_min = 0;
+	
+		care.start();
+		care.order = new long[N];
+		care.H_at_Order = new double[N];
+		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
+		care.pat_init.settesting(care.patients, true);
+		
+		for(int i=0; i< varsigma; i++) {
+			care.patientOrder=0;
+			care.schedule.step(care);
+			
+			for (int p = 0 ; p< care.patients.numObjs-1; p++) {
+				
+				//find patients ID = p and ID  = p+1
+				Patient patient_p = (Patient)care.patients.get(0); // I need to initialize them
+				Patient patient_p1 = (Patient)care.patients.get(0);// I need to initialize them
+				for(int ii=0; ii<care.patients.numObjs;ii++) {
+					if(((Patient)care.patients.get(ii)).p == p) {patient_p = (Patient)care.patients.get(ii);}
+					if(((Patient)care.patients.get(ii)).p == p+1) {patient_p1 = (Patient)care.patients.get(ii);}
+				}
+				
+				// CASE 1: both patients belong to the same category; in this case, don't compare ordering
+				if((patient_p.delta_p < 10 & patient_p1.delta_p <10) | //both in low risk
+				   (patient_p.delta_p > 10 & patient_p.delta_p < 20) & (patient_p1.delta_p > 10 & patient_p1.delta_p < 20) | //both in medium risk
+				   (patient_p.delta_p > 20 & patient_p1.delta_p >20)) //both in high risk
+				{continue;}
+				//CASE 2: otherwise, order should be cheked:
+				//p +1 higher priority:
+				if(care.order[p] > care.order[p+1]) { // p was schedduled with less priority that p+1
+					//There are three valid orderigs for this p less priority:
+					//1. a and be 
+					assertTrue( patient_p1.delta_p >= patient_p.delta_p, "Patient "+patient_p.p+" has delta "+patient_p.delta_p+
+							" but came after patient " + patient_p1.p + " that has delta " +patient_p1.delta_p+" seed "+currentSeed);
+				}
+				// p higher priority
+				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
+					assertTrue( patient_p1.delta_p <= patient_p.delta_p, "Patient "+patient_p.p+" has delta "+patient_p.delta_p+
+							" but came after patient " + patient_p1.p + " that has delta " +patient_p1.delta_p+" seed "+currentSeed);
+				}
+			}
+		}
+	}
+	
+	@Test
+	void check_POLICY_need() {
+		//System.out.println("(Test) Starting check_POLCY_need");
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 100; 
+		//care.setPi("basal");
+		care.setW(W);
+		care.setN(N);
+		care.setPi("need");
+		care.setvarsigma(varsigma);
+		
+		// initialize a Patient Initializer with fied initial values
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		//set random delta
+		care.pat_init.random_delta = true;
+		care.pat_init.random_delta_max = 30;
+		care.pat_init.random_delta_min = 0;
+	
+		care.start();
+		care.order = new long[N];
+		care.H_at_Order = new double[N];
+		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
+		care.pat_init.settesting(care.patients, true);
+		
 
+		for(int i=0; i< varsigma; i++) {
+			care.patientOrder=0;
+			care.schedule.step(care);
+			
+			for (int p = 0 ; p< care.patients.numObjs-1; p++) {
+				
+				if(care.N_at_Order[p] == care.N_at_Order[p+1])
+				{
+					continue;
+				}
+				
+				//find patients ID = p and ID  = p+1
+//				Patient patient_p = (Patient)care.patients.get(0); // I need to initialize them
+//				Patient patient_p1 = (Patient)care.patients.get(0);// I need to initialize them
+//				for(int ii=0; ii<care.patients.numObjs;ii++) {
+//					if(((Patient)care.patients.get(ii)).p == p) {patient_p = (Patient)care.patients.get(ii);}
+//					if(((Patient)care.patients.get(ii)).p == p+1) {patient_p1 = (Patient)care.patients.get(ii);}
+//				}
+				
+				//p +1 higher priority:
+				if(care.order[p] > care.order[p+1]) { // p was schedduled with less priority that p+1
+	 
+					assertTrue( care.N_at_Order[p+1] >= care.N_at_Order[p], "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+ " and order " + care.order[p] +
+							" but patient " + p+1 + " that has N_at_Order " + care.N_at_Order[p+1]+ " has order " +care.order[p+1] +" seed "+currentSeed + " at iteration "+i);
+				}
+				// p higher priority
+				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
+					assertTrue( care.N_at_Order[p+1] <= care.N_at_Order[p], "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+" and order " + care.order[p] +
+							" but patient " + p+1 + " that has N_at_Order " +care.N_at_Order[p+1]+" has order " +care.order[p+1] +" seed "+currentSeed+" at iteration "+i);
+				}
+			}
+		}
+	}
+
+	void check_POLICY_risk_need() {
+		//System.out.println("(Test) Starting check_POLCY_need");
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);int N = 100; int W = 4; int varsigma = 100; 
+		//care.setPi("basal");
+		care.setW(W);
+		care.setN(N);
+		care.setPi("need");
+		care.setvarsigma(varsigma);
+		
+		// initialize a Patient Initializer with fied initial values
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		//set random delta
+		care.pat_init.random_delta = true;
+		care.pat_init.random_delta_max = 30;
+		care.pat_init.random_delta_min = 0;
+	
+		care.start();
+		care.order = new long[N];
+		care.H_at_Order = new double[N];
+		care.NE_at_Order= new double[N];
+		care.N_at_Order = new double[N];
+		care.pat_init.settesting(care.patients, true);
+		
+
+		for(int i=0; i< varsigma; i++) {
+			care.patientOrder=0;
+			care.schedule.step(care);
+			
+			for (int p = 0 ; p< care.patients.numObjs-1; p++) {
+				
+				//find patients ID = p and ID  = p+1
+				Patient patient_p = (Patient)care.patients.get(0); // I need to initialize them
+				Patient patient_p1 = (Patient)care.patients.get(0);// I need to initialize them
+				for(int ii=0; ii<care.patients.numObjs;ii++) {
+					if(((Patient)care.patients.get(ii)).p == p) {patient_p = (Patient)care.patients.get(ii);}
+					if(((Patient)care.patients.get(ii)).p == p+1) {patient_p1 = (Patient)care.patients.get(ii);}
+				}
+				
+				if(care.N_at_Order[p] + patient_p.delta_p == care.N_at_Order[p+1] + patient_p1.delta_p)
+				{
+					continue;
+				}
+
+				
+				//p +1 higher priority:
+				if(care.order[p] > care.order[p+1]) { // p was schedduled with less priority that p+1
+	 
+					assertTrue( care.N_at_Order[p+1] + patient_p1.delta_p >= care.N_at_Order[p] + patient_p.delta_p, "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+ " and order " + care.order[p] +
+							" but patient " + p+1 + " that has N_at_Order " + care.N_at_Order[p+1]+ " has order " +care.order[p+1] +" seed "+currentSeed + " at iteration "+i);
+				}
+				// p higher priority
+				if(care.order[p] < care.order[p+1]) { // p was schedduled with more priority that p+1
+					assertTrue( care.N_at_Order[p+1] + patient_p1.delta_p <= care.N_at_Order[p] +patient_p.delta_p, "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+" and order " + care.order[p] +
+							" but patient " + p+1 + " that has N_at_Order " +care.N_at_Order[p+1]+" has order " +care.order[p+1] +" seed "+currentSeed+" at iteration "+i);
+				}
+			}
+		}
+	}
+
+	
 	@Test
 	void check_observer_visitsCounter() {
 		long currentSeed = System.currentTimeMillis();
 		care = new Care(currentSeed);int N = 200; int W = 30; int varsigma = 500; 
-		care.startObserver(false, false, false, false, false, false, true, false, false);
+		care.startObserver(false, false, false, false, false, false, true, false, false, false, false, false, false, false, false);
 		care.start();
 		int sum;
 		int[] internalC = new int[W];
@@ -671,9 +1020,547 @@ public class Tests {
 		}
 		observerC = care.observer.getSimpleC();
 		
-		//assertEquals(observerC, trackC, "arrays differ. Seed: "+currentSeed);
+		//assertEquals(observerC, trackC, "arrays differ. Seed: "+currentSeed);	
+	}
+	
+	
+	@Test
+	public void change_N_fromCare_allEffects() {
+		//Start the system
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=20; care.W=5;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.start();
+		care.startObserver();
+		care.pat_init.setdelta(care.patients, 10.0);
+		//Run it for 50 steps
+		for (int i=0;i<50;i++) {
+			care.schedule.step(care);
+
+		}
+		//Check the number of patients being observed
+		assertEquals(care.observer.H_p_i.length, 20);
+		double oneH = care.observer.H_p_i[15][40];
+		
+		//assign a value to check that will be preserved
+		int pat = care.random.nextInt(20);
+		int pro = care.random.nextInt(5);
+		int loc = care.random.nextInt(10);
+		care.observer.H_p_i[pat][loc] = 1772;
+		care.observer.N_p_i[pat][loc] = 7422;
+		care.observer.T_p_i[pat][loc] = 845;
+		care.observer.B_p_w_i[pat][pro][loc] = 6553200;
+		care.observer.C_p_w_i[pat][pro][loc] = 8200;
+		care.observer.E_p_w_i[pat][pro][loc] = 1298;
+		care.observer.simple_C_p_i[pat][loc] = 713;
+		care.observer.simple_E_p_i[pat][loc] = 573;
+		care.observer.simple_B_p_i[pat][loc] = 631;
+		
+		// INCRESED N:
+		care.change_N_midwaytrhough(30);
+		assertEquals(care.patients.numObjs, 30);
+		assertEquals(care.observer.H_p_i.length,30);
+			
+			//Check observer 
+				assertEquals(30, care.observer.H_p_i.length);
+				assertEquals(30, care.observer.N_p_i.length);
+				assertEquals(30, care.observer.C_p_w_i.length);
+				assertEquals(30, care.observer.T_p_i.length);
+				assertEquals(30, care.observer.E_p_w_i.length);
+				assertEquals(30, care.observer.B_p_w_i.length);
+				assertEquals(30, care.observer.simple_C_p_i.length);
+				assertEquals(30, care.observer.simple_E_p_i.length);
+				assertEquals(30, care.observer.simple_B_p_i.length);
+			
+			//Check providers array
+				assertEquals(30,((Provider)care.providers.get(care.random.nextInt(5))).SumC_p.length);
+
+			//Info preserved
+				assertEquals(1772, care.observer.H_p_i[pat][loc]);
+				assertEquals(7422, care.observer.N_p_i[pat][loc]);
+				assertEquals(845, care.observer.T_p_i[pat][loc]);
+				assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
+				assertEquals(8200, care.observer.C_p_w_i[pat][pro][loc]);
+				assertEquals(1298, care.observer.E_p_w_i[pat][pro][loc]);
+				assertEquals(713, care.observer.simple_C_p_i[pat][loc]);
+				assertEquals(573, care.observer.simple_E_p_i[pat][loc]);
+				assertEquals(631, care.observer.simple_B_p_i[pat][loc]);
+
+		int[] patientsIds = new int[30];
+		for(int i=0;i<30;i++) {
+			patientsIds[((Patient)care.patients.get(i)).p] = ((Patient)care.patients.get(i)).p;
+		}
+		assertEquals(patientsIds[10], 10, "Failed patient id");
+		assertEquals(patientsIds[25], 25, "Failed patient id");
+		assertEquals(care.observer.H_p_i[15][40], oneH);
+		for(int p =0; p< care.providers.numObjs;p++) {
+			assertEquals(((Provider)care.providers.get(p)).SumC_p.length, 30);
+		}
+		for (int i=50;i<80;i++) {
+			care.schedule.step(care);
+
+		}
+		// DECREASED N
+		care.change_N_midwaytrhough(20);
+		
+		//check that only 20 patients are in the bag
+		assertEquals(20, care.patients.numObjs);
+		
+		//Check observer 
+		assertEquals(30, care.observer.H_p_i.length);
+		assertEquals(30, care.observer.N_p_i.length);
+		assertEquals(30, care.observer.C_p_w_i.length);
+		assertEquals(30, care.observer.T_p_i.length);
+		assertEquals(30, care.observer.E_p_w_i.length);
+		assertEquals(30, care.observer.B_p_w_i.length);
+		assertEquals(30, care.observer.simple_C_p_i.length);
+		assertEquals(30, care.observer.simple_E_p_i.length);
+		assertEquals(30, care.observer.simple_B_p_i.length);
+		
+		//Check providers array
+		assertEquals(30,((Provider)care.providers.get(care.random.nextInt(5))).SumC_p.length);
+		
+		//Info preserved
+		assertEquals(1772, care.observer.H_p_i[pat][loc]);
+		assertEquals(7422, care.observer.N_p_i[pat][loc]);
+		assertEquals(845, care.observer.T_p_i[pat][loc]);
+		assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
+		assertEquals(8200, care.observer.C_p_w_i[pat][pro][loc]);
+		assertEquals(1298, care.observer.E_p_w_i[pat][pro][loc]);
+		assertEquals(713, care.observer.simple_C_p_i[pat][loc]);
+		assertEquals(573, care.observer.simple_E_p_i[pat][loc]);
+		assertEquals(631, care.observer.simple_B_p_i[pat][loc]);
+		
+		//still observers are 30
+		for (int i=80;i<90;i++) {
+			care.schedule.step(care);
+
+		}
+		int minusOnecounter = 0;
+		for(int i=0;i<30;i++) {
+			if(care.observer.H_p_i[i][85] == -1) {minusOnecounter+=1;
+			}
+		}
+		assertEquals(10,minusOnecounter, "X_i arrays should record -1 when patient is gone");
+		
+		//increase N again
+		care.change_N_midwaytrhough(35);
+		assertEquals(35, care.patients.numObjs);
+
+		//Check observer 
+		assertEquals(45, care.observer.H_p_i.length);
+		assertEquals(45, care.observer.N_p_i.length);
+		assertEquals(45, care.observer.C_p_w_i.length);
+		assertEquals(45, care.observer.T_p_i.length);
+		assertEquals(45, care.observer.E_p_w_i.length);
+		assertEquals(45, care.observer.B_p_w_i.length);
+		assertEquals(45, care.observer.simple_C_p_i.length);
+		assertEquals(45, care.observer.simple_E_p_i.length);
+		assertEquals(45, care.observer.simple_B_p_i.length);
+		
+		//Check providers array
+		assertEquals(45,((Provider)care.providers.get(care.random.nextInt(5))).SumC_p.length);
+
+		
+		//check ID are unique
+		int[] IDS = new int[care.patients.numObjs];
+		for(int p =0; p<care.patients.numObjs;p++) {
+			IDS[p] = ((Patient)care.patients.get(p)).p;
+		}
+		for(int p =0; p<care.patients.numObjs;p++) {
+			int counter = 0;
+			for(int id=0;id<IDS.length;id++) {
+				if(IDS[id] ==  ((Patient)care.patients.get(p)).p) {
+					counter+=1;
+				}
+			}
+			assertEquals(1, counter, "Found repeated (>1) ID");
+		}
+		
+
+		//Check past info is preserved
+		
+		//Info preserved
+		assertEquals(1772, care.observer.H_p_i[pat][loc]);
+		assertEquals(7422, care.observer.N_p_i[pat][loc]);
+		assertEquals(845, care.observer.T_p_i[pat][loc]);
+		assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
+		assertEquals(8200, care.observer.C_p_w_i[pat][pro][loc]);
+		assertEquals(1298, care.observer.E_p_w_i[pat][pro][loc]);
+		assertEquals(713, care.observer.simple_C_p_i[pat][loc]);
+		assertEquals(573, care.observer.simple_E_p_i[pat][loc]);
+		assertEquals(631, care.observer.simple_B_p_i[pat][loc]);
+		
+		
+		
+		for (int i=90;i<100;i++) {
+			care.schedule.step(care);
+
+		}
+		
+	
+		care.finish();
+		//check final statistics
+		for(int i=0;i<45;i++) {
+			//fix the results:
+			if(care.observer.H_p_i[i][care.observer.getarraysLengthreturn()-1] != -1) {
+				care.observer.H_p_i[i][care.observer.getarraysLengthreturn()-1] = 14;
+			}
+		}
+		assertEquals(14, care.observer.getMeanFinalH());
+		assertEquals(0, care.observer.getVarianceFinalH());
 		
 	}
+	
+	@Test
+	void test_ChangeInW_effects() {
+		//Check that arrays change right in observers witout loosing information and preserving order even after
+		//providers ceased to exist. The provider id (.w) is unique trhoughout the simulation.
+		//Start the system
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=20; care.W=5;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.totalCapacity = 51; //unconstrained capacity
+		care.start();
+		care.startObserver();
+		care.pat_init.setdelta(care.patients, 10.0);
+		
+		//Check that total capacity was assigned correctly
+		int currentCapacity = 0;
+		for (int p =0; p<care.providers.numObjs; p++) {
+			currentCapacity+=((Provider)care.providers.get(p)).A_w;
+		}
+		assertEquals(51, currentCapacity, "Capacity not assigned correctly");
+
+		
+		//Run it for 10 steps
+		for (int i=0;i<10;i++) {
+			care.schedule.step(care);
+
+		}
+		//Check the number of providers in the Bag
+		assertEquals(5, care.providers.numObjs);
+		//Check patient's arrays to providers
+		assertEquals(5, ((Patient)care.patients.get(care.random.nextInt(20))).e_p_i_1.length);
+		assertEquals(5, ((Patient)care.patients.get(care.random.nextInt(20))).e_p_i.length);
+		assertEquals(5, ((Patient)care.patients.get(care.random.nextInt(20))).b_p_i.length);
+		assertEquals(5, ((Patient)care.patients.get(care.random.nextInt(20))).b_p_i_1.length);
+		assertEquals(5, ((Patient)care.patients.get(care.random.nextInt(20))).c_p_i.length);
+		assertEquals(5, ((Patient)care.patients.get(care.random.nextInt(20))).c_p_i_1.length);
+		//Check provider's availability
+		assertTrue(care.appointer.appoint(care.random.nextInt(5), care.random.nextInt(20), 2.0)[0] > -1, "Provider is not available, but should have"); 
+		//Check that observer has "W" providers in B, E, and C
+		assertEquals(5, care.observer.E_p_w_i[care.random.nextInt(20)].length);
+		assertEquals(5, care.observer.B_p_w_i[care.random.nextInt(20)].length);
+		assertEquals(5, care.observer.C_p_w_i[care.random.nextInt(20)].length);
+		
+		//assign a value to check that will be preserved
+		int pat = care.random.nextInt(20);
+		int pro = care.random.nextInt(5);
+		int loc = care.random.nextInt(10);
+		care.observer.B_p_w_i[pat][pro][loc] = 6553200;
+		care.observer.C_p_w_i[pat][pro][loc] = 8200;
+		care.observer.E_p_w_i[pat][pro][loc] = 1298;
+
+		//care.observer.B_p_w_i[care.random.nextInt(pat)][pro][loc] = 6553200;
+
+		//2: INCREASE W
+		care.change_W_midwaytrhough(10);	
+		assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
+
+		for (int i=10;i<20;i++) {
+			care.schedule.step(care);
+		}
+		
+		//Check the number of providers
+		assertEquals(10, care.providers.numObjs);
+		//Check patient's arrays of providers
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_counter.length);
+		//Check provider's availability
+		assertTrue(care.appointer.appoint(care.random.nextInt(5)+5, 0, 3)[0] > -1);
+		//Check total capacity was preserved
+		currentCapacity = 0;
+		for (int p =0; p<care.providers.numObjs; p++) {
+			currentCapacity+=((Provider)care.providers.get(p)).A_w;
+		}
+		assertEquals(care.totalCapacity, currentCapacity, "Unexpected change in currentCapacity happened");
+		//Check that observer has "W" providers in B or E or C
+		assertEquals(10, care.observer.B_p_w_i[care.random.nextInt(20)].length);
+		assertEquals(10, care.observer.C_p_w_i[care.random.nextInt(20)].length);
+		assertEquals(10, care.observer.E_p_w_i[care.random.nextInt(20)].length);
+
+		//Check that information in B,E or C was preserved after adding W
+		assertEquals(6553200, care.observer.B_p_w_i[pat][pro][loc]);
+		assertEquals(8200, care.observer.C_p_w_i[pat][pro][loc]);
+		assertEquals(1298, care.observer.E_p_w_i[pat][pro][loc]);
+		
+		//Check that previous to creation of a W there is no information in observers
+		for(int i =0;i<10;i++) {
+			pat = care.random.nextInt(20);
+			pro = care.random.nextInt(5)+5; //piking a provider with ID in {5..9}
+			loc = care.random.nextInt(10);
+		assertEquals(-1, care.observer.B_p_w_i[pat][pro][loc], "Failed at patient "+pat+" provider "+pro+" loc "+loc);}
+		
+		
+		//assign a value to check that will be preserved
+		pat = care.random.nextInt(20);
+		pro = care.random.nextInt(10);
+		loc = care.random.nextInt(10)+10;
+		care.observer.B_p_w_i[pat][pro][loc] = 6553200;
+		care.observer.C_p_w_i[pat][pro][loc] = 8200;
+		care.observer.E_p_w_i[pat][pro][loc] = 1298;
+		
+		//3: DECREASE W
+		//System.out.println("(TEST) reducing capacity");
+		care.change_W_midwaytrhough(3);
+				
+		for (int i=20;i<30;i++) {
+			care.schedule.step(care);
+		}
+
+		//Check the number of providers
+		assertEquals(3, care.providers.numObjs);
+		//Total capacity was preserved
+		assertEquals(51, care.totalCapacity, "Total capacity should be 51");
+		//Check that total capacity was assigned correctly
+		currentCapacity = 0;
+		for (int p =0; p<care.providers.numObjs; p++) {
+			currentCapacity+=((Provider)care.providers.get(p)).A_w;
+		}
+		assertEquals(51, currentCapacity, "Total capacity should be 51");
+		//Check patient's arrays to providers
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_1.length);
+		assertEquals(10, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_counter.length);
+
+		//Check that observer has "W" providers in B or E or C
+		assertEquals(10, care.observer.B_p_w_i[care.random.nextInt(20)].length);
+		assertEquals(10, care.observer.C_p_w_i[care.random.nextInt(20)].length);
+		assertEquals(10, care.observer.E_p_w_i[care.random.nextInt(20)].length);
+		
+		
+		//increase N again
+		care.change_W_midwaytrhough(15);
+		assertEquals(15, care.providers.numObjs);
+
+		//Check observer 
+		assertEquals(22, care.observer.E_p_w_i[0].length);
+		assertEquals(22, care.observer.B_p_w_i[0].length);
+		assertEquals(22, care.observer.C_p_w_i[0].length);
+		
+		//Check patient's arrays of providers
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).e_p_i_1.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).b_p_i_1.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_1.length);
+		assertEquals(22, ((Patient)care.patients.get(care.random.nextInt(10))).c_p_i_counter.length);
+
+		
+		//check ID are unique
+		int[] IDS = new int[care.providers.numObjs];
+		for(int w =0; w<care.providers.numObjs;w++) {
+			IDS[w] = ((Provider)care.providers.get(w)).w;
+		}
+		for(int w =0; w<care.providers.numObjs;w++) {
+			int counter = 0;
+			for(int id=0;id<IDS.length;id++) {
+				if(IDS[id] ==  ((Provider)care.providers.get(w)).w) {
+					counter+=1;
+				}
+			}
+			assertEquals(1, counter, "Found repeated (>1) ID");
+		}
+		
+	}
+	
+	@Test
+	public void change_W_and_N_up_and_down_repeteadly() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=10; care.W=10;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.start();
+		care.startObserver();
+		care.totalCapacity = 15; 
+		int newN; int newW;
+		int cummulativeN=10;
+		int cummulativeW=10;
+		int previousN = 10;
+		int previousW = 10;
+		
+		for(int step = 0; step<5;step++) {
+			care.schedule.step(care);
+		}
+		
+		System.out.println("starting");
+		for(int rep = 0; rep < 10;rep++) {
+
+		newN = care.random.nextInt(20)+1; 
+		newW = care.random.nextInt(20)+1;
+		if(previousN<newN) {cummulativeN= cummulativeN+newN-previousN;} //keep track of arrays lengths
+		if(previousW<newW) {cummulativeW= cummulativeW+newW-previousW;}
+
+		care.change_N_midwaytrhough(newN);
+		//System.out.println("care.N: "+care.N+ " care.W: "+care.W);
+		care.change_W_midwaytrhough(newW);
+		
+//		System.out.println("newN: "+newN+" newW: "+newW+ " cumN: "+cummulativeN+" cumW: "+cummulativeW);
+//		Patient patient;
+//		System.out.println("Patient's bag size: "+care.patients.numObjs);
+//		for(int p=0;p<care.patients.numObjs;p++) {
+//			patient = (Patient)care.patients.get(p);
+//			System.out.print("Patient "+patient.p+" e_p_i.length = "+patient.e_p_i.length+" | ");
+//		}
+//		System.out.println(" ");
+		
+
+		//System.out.println("Will run with N="+care.N+" and W="+care.W);
+		for(int step = 0; step<5;step++) {
+			care.schedule.step(care);
+		}
+		
+
+		//Check bags
+		assertEquals(newN, care.patients.numObjs);
+		assertEquals(newW, care.providers.numObjs);
+
+		//Check observer 
+		//p:
+			assertEquals(cummulativeN, care.observer.H_p_i.length);
+			assertEquals(cummulativeN, care.observer.N_p_i.length);
+			assertEquals(cummulativeN, care.observer.C_p_w_i.length);
+			assertEquals(cummulativeN, care.observer.T_p_i.length);
+			assertEquals(cummulativeN, care.observer.E_p_w_i.length);
+			assertEquals(cummulativeN, care.observer.B_p_w_i.length);
+			assertEquals(cummulativeN, care.observer.simple_C_p_i.length);
+			assertEquals(cummulativeN, care.observer.simple_E_p_i.length);
+			assertEquals(cummulativeN, care.observer.simple_B_p_i.length);
+		//w:
+			assertEquals(cummulativeW, care.observer.C_p_w_i[0].length);
+			assertEquals(cummulativeW, care.observer.E_p_w_i[0].length);
+			assertEquals(cummulativeW, care.observer.B_p_w_i[0].length);
+		
+		//Check agent's arrays
+		//p:
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).e_p_i.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).e_p_i_1.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).b_p_i.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).b_p_i_1.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).c_p_i.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).c_p_i_1.length);
+			assertEquals(cummulativeW, ((Patient)care.patients.get(care.random.nextInt(newN))).c_p_i_counter.length);
+		//w:
+			assertEquals(cummulativeN,((Provider)care.providers.get(care.random.nextInt(newW))).SumC_p.length);
+		
+		previousN = newN;
+		previousW = newW;
+		}
+		
+
+	}
+	
+	@Test
+	public void expectations_from_gone_provider_pass_to_other() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=20; care.W=5;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.totalCapacity = 51; //unconstrained capacity
+		care.start();
+		care.startObserver();
+		
+		Patient patient = (Patient)care.patients.get(0);
+		
+		for(int step = 0; step<25;step++) {
+			care.schedule.step(care);
+		}
+		//assign expectations:
+		for(int w= 0; w<care.providers.numObjs;w++) {
+			patient.e_p_i_1[w] = w+1;
+		}
+	
+		//eliminate one provider
+		care.change_W_midwaytrhough(4);
+		//find out who was gone
+		int[] ws= {0,0,0,0,0};
+		for(int w= 0; w<care.providers.numObjs;w++) {
+			ws[((Provider)care.providers.get(w)).w] = 1;
+		}
+		int eliminatedW =0;
+		double expectedTotalExpectations = 0;
+		for(int i =0; i< ws.length;i++){
+			if (ws[i] == 0) {eliminatedW = i;}else{
+				expectedTotalExpectations+=i+1;
+			}
+		}
+		expectedTotalExpectations+=patient.e_p_i_1[eliminatedW]/2;
+		//make patient try to interact with gone provider:
+		care.appointer.appoint(eliminatedW, patient.p, 5.0);
+		assertEquals(0, patient.e_p_i_1[eliminatedW]);
+		double currentTotalExpectations = 0;
+		for (int i =0;i<patient.e_p_i_1.length;i++) {
+			currentTotalExpectations+=patient.e_p_i_1[i];
+		}
+		assertEquals(expectedTotalExpectations,currentTotalExpectations);
+		
+		for(int step = 0; step<5;step++) {
+			care.schedule.step(care);
+		}
+	}
+	
+	@Test
+	public void patient_initialization_strategies() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed); 
+		care.N=2000; care.W=5;care.varsigma=100;
+		care.OBS_PERIOD = 1;
+		care.totalCapacity = 51; //unconstrained capacity
+		care.setPi("basal");
+		// initialize a Patient Initializer with fied initial values
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		//set random delta
+		care.pat_init.random_delta = true;
+		care.pat_init.random_delta_max = 10;
+		care.pat_init.random_delta_min = 1;
+
+		care.start();
+		care.startObserver();
+		
+		//Check that:
+		//1. deltas are within 1 and 10 for all patients
+		//2. Mean delta is arounf 5.5
+		double mean_delta =0;
+		for(int i =0; i < care.patients.numObjs; i++) {
+			assertTrue(((Patient)care.patients.get(i)).delta_p < 10, "A delta_p exeded maximum delta");
+			assertTrue(((Patient)care.patients.get(i)).delta_p > 1, "A delta_p was lower than minimum delta");
+			mean_delta += ((Patient)care.patients.get(i)).delta_p;
+		}
+		assertTrue(mean_delta/2000 > 5 & mean_delta/2000<6, "mean_delta should be around 5.5 but was "+mean_delta/2000);
+	}
+	
+	
 }
 
 

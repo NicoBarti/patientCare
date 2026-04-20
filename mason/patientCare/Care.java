@@ -6,11 +6,10 @@ import java.util.HashMap;
 import sim.engine.*;
 import sim.util.*;
 
-/**
- * Main class that holds all the agents and context.
- */
-/**
- * 
+
+
+/** Main class that holds all the agents and context
+ * STEPS: Step 0 is for the observer. Step 1 for the providers. From step 2 onwards all patients. An anonymus agents is scheduled last that shcedules all patients.
  */
 public class Care extends SimState {
 	private static final long serialVersionUID = 1L;
@@ -69,13 +68,30 @@ public class Care extends SimState {
 		storedSeed = seed;
 	}
 	
+	
+	/** 
+	 * Generates an observer for the specified variables and scheddules it with priority 0
+	 * @param obsH
+	 * @param obsN
+	 * @param obsC
+	 * @param obsT
+	 * @param obsE
+	 * @param obsB
+	 * @param simpleC
+	 * @param simpleE
+	 * @param simpleB
+	 */
 	public void startObserver(boolean obsH, boolean obsN, boolean obsC, 
-			boolean obsT, boolean obsE, boolean obsB, boolean simpleC, boolean simpleE, boolean simpleB) {
-		observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB);
+			boolean obsT, boolean obsE, boolean obsB, boolean simpleC, boolean simpleE, boolean simpleB,
+			boolean disease, boolean expNoise, boolean instExp, boolean delta, boolean performance, boolean maxExp) {
+		observer=new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB, disease, expNoise, instExp, delta, performance, maxExp);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
 	}
 
 	
+	/**
+	 * Generate an observer for all state variables and scheddule it with priority 0
+	 */
 	public void startObserver() {
 		observer = new ObserveCare(this, OBS_PERIOD);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
@@ -113,20 +129,29 @@ public class Care extends SimState {
 		// create and initialize providers
 		for(int i =0;i<W;i++) {
 			provider = new Provider();
-			provider.w = i;
 			prov_init.initialize(provider);
 			providers.add(provider);
-	schedule.scheduleRepeating(schedule.EPOCH,1,provider); //providers are stepped first thing at each step
+			schedule.scheduleRepeating(schedule.EPOCH,1,provider); //providers are stepped first thing at each step
 		}
+		// assure capacity is exact
+		prov_init.adjustCapacity(providers, totalCapacity);
 		
 		// create and initialize patients
 		for (int i = 0; i < N; i++) {
 			patient = new Patient();
-			patient.p = i;
 			pat_init.initialize(patient);
 			patients.add(patient);
-	schedule.scheduleOnce(schedule.EPOCH, prioritize.hat_o(patient), patient); //orders 2 to N+2
+	//schedule.scheduleOnce(schedule.EPOCH, prioritize.hat_o(patient), patient); //orders 2 to N+2
 		}
+		//store the maximum severity and capN, used for priority allocation
+		pat_init.computeMaxs(patients);
+		// scheddule patients for the first run: (they allocate themselfes afterwards)
+		for (int i = 0; i< patients.numObjs; i++) {
+			patient = (Patient)patients.get(i);
+			schedule.scheduleOnce(schedule.EPOCH, prioritize.hat_o(patient), patient); //orders 2 to N+2
+
+		}
+		//System.out.println("(Care) Just finished schedduling all patients");
 		
 		//create anonymus agent that scheddules patients wit priority hat_o 
 		//this agent acts at the end of each state ( max_priority+3)
@@ -163,7 +188,21 @@ public class Care extends SimState {
 	public int getvarsigma() {return varsigma;}
 	public void setW(int val) {W = val;}
 	public int getW() {return W;}
-	public void setPi(String val) {Pi = val;}
+	
+	/** Sets the assignation policy. Must be a policy contained in Prioritizator
+	 * @param val basal, H_segmented, patient_centred, risk, need, risk_need
+	 */
+	public void setPi(String val) { 
+		// TODO: implement string comparison
+		//Pi = val;
+	  if(val.equals("basal") || val.equals("H_segmented") || val.equals("patient_centred") || val.equals("risk") || val.equals("need") || val.equals("risk_need")){
+			Pi = val;
+		} else {
+			System.out.println("(Java CARE) Error! Unexistant policy: "+val);
+			System.exit(0);
+		}
+		}
+	
 	public String getPi() {return Pi;}
 	public void setPROVIDER_INIT(String val) {PROVIDER_INIT = val;}
 	public String getPROVIDER_INIT() {return PROVIDER_INIT;}
@@ -211,21 +250,99 @@ public class Care extends SimState {
 	}
 
 	
+	public void change_N_midwaytrhough(int newN) {
+		if (newN == N) {return;}
+		//1:
+		//method to increase
+		if(newN>N) {
+		//add n patients, and initialize them with PATIENT_INIT
+		//patients.resize(N-newN);
+		for (int i=N;i<newN;i++) {
+			patient = new Patient();
+			pat_init.initialize(patient);
+			patients.add(patient);
+			schedule.scheduleOnce(patient, prioritize.hat_o(patient)); //orders 2 to N+2
+		}
+		//modify the observer
+		observer.increaseNmidway(newN-N);
+		//modify the provider's memory of interaction
+		for(int p = 0;p<providers.numObjs;p++) {
+			((Provider)providers.get(p)).increaseNmidway(newN-N);
+		}
+		}
+		//2:
+		//method to decrease
+		if(N>newN) {
+		//eliminate patients at random
+		patients.shuffle(random);
+		
+		for(int i =0;i<N-newN;i++) {
+			patient = (Patient)patients.pop();
+			observer.unobservePatient(patient.p);
+
+		}
+		}
+		//finally, update N
+		N = newN;
+	}
+	
+	public void change_W_midwaytrhough(int newW) {
+		if (newW == W) {return;}
+		//1. Method to increase
+		if(newW>W) {
+		//add n providers, and initialize them with PROVIDER_INIT
+		//providers.resize(W-newW);
+		for(int i =W;i<newW;i++) {
+		provider = new Provider();
+		prov_init.initialize(provider);
+		providers.add(provider);
+		schedule.scheduleRepeating(provider,1); //providers are stepped first thing at each step
+		}
+		prov_init.adjustCapacity(providers, totalCapacity);
+
+		observer.increaseWmidway(newW-W);
+		for(int p=0; p<patients.numObjs;p++) {
+			((Patient)patients.get(p)).increaseWmidway(newW-W);
+		}
+		
+		}
+		//2. Method to decrease
+		if(newW<W) {
+			//eliminate providers at random
+			providers.shuffle(random);
+			//System.out.print("(Care cange_w_midway) elminated providers:");
+			for (int i = 0; i < W - newW; i++) {
+				provider = (Provider)providers.pop();
+			//	System.out.print(" "+provider.w+ " - ");
+				observer.unobserveProvider(provider.w);
+			//	System.out.println("(Care) Observer contains: observer.B_p_w_i[5][goneProdiver][25]"+observer.B_p_w_i[5][provider.w][25]);
+			}
+			//System.out.println();
+			prov_init.adjustCapacity(providers, totalCapacity);
+
+		}
+		W = newW;
+		
+	}
+	
 	//testing:
 	boolean testing = false;
 	long[] order;
 	int patientOrder = 0;
 	double[] H_at_Order;
 	double[] NE_at_Order;
+	double[] N_at_Order;
 	
 	/**
 	 * Special method only used for testing. A bit convoluted.
 	 * Only way I came up with to see the order that the scheduler assigned to agents with same priority.
+	 * You need to restart patientOrder to 0 before each step (from testing class)
 	 */
 	public void test_registerOrder(int p, double H, double N, double E) {
 		order[p] = patientOrder;
 		H_at_Order[p] = H;
 		NE_at_Order[p] = N-E;
+		N_at_Order[p] = N;
 		patientOrder+=1;
 	}
 }

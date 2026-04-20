@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * 
+ */
 public class RunWithParams {
 	Care simulation;
 	JSONObject params;
@@ -27,17 +30,23 @@ public class RunWithParams {
 	String PATIENT_INIT = "default";
 	String PROVIDER_INIT = "default";
 	String pi = "basal";
-	Boolean obsH= false;
-	Boolean obsN= false;
-	Boolean obsC= false;
-	Boolean obsT= false;
-	Boolean obsE= false;
-	Boolean obsB= false;
-	Boolean simpleC = false;
-	Boolean simpleE = false;
-	Boolean simpleB = false;
-	Boolean configure_pathfinder = false; // configure simulation via pathfinder
-	Boolean reproduce_line = false; // configure reproduce line
+	boolean obsH= false;
+	boolean obsN= false;
+	boolean obsC= false;
+	boolean obsT= false;
+	boolean obsE= false;
+	boolean obsB= false;
+	boolean simpleC = false;
+	boolean simpleE = false;
+	boolean simpleB = false;
+	boolean configure_pathfinder = false; // configure simulation via pathfinder
+	boolean reproduce_line = false; // configure reproduce line
+	boolean obsDisease = false;
+	boolean obsDelta = false;
+	boolean obsExpNoise = false;
+	boolean obsInstExp = false;
+	boolean obsPerformance = false;
+	boolean obsMaxExp = false;
 	
 	//Patient initializers
 	double fixed_delta;
@@ -47,6 +56,28 @@ public class RunWithParams {
 	float fixed_kappa;
 	double fixed_capE;
 	double fixed_psi;
+	
+	private boolean random_delta = false;
+	/** Only specify if want random delta among patients
+	 * The minimum delta
+	 */
+	double random_delta_min;
+	
+	/** Only specify if want random delta among patients
+	 * The maximum delta
+	 */
+	double random_delta_max;
+	
+	/** For fixing h at the bgining to all patients
+	 * True for fixing the initial value
+	 */
+	
+	private boolean initial_h = false;
+	
+	/** The inivial value of h
+	 * 
+	 */
+	public double h0_value = 0;
 	
 	//Provider initializers
 	double fixed_lambda;
@@ -82,7 +113,7 @@ public class RunWithParams {
 //					simpleC, simpleE, simpleB, delta);
 //		} else {
 		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB, 
-				simpleC, simpleE, simpleB);
+				simpleC, simpleE, simpleB, obsDisease, obsExpNoise, obsInstExp, obsDelta, obsPerformance, obsMaxExp);
 		//}
 	}
 	
@@ -122,6 +153,13 @@ public class RunWithParams {
 				simulation.pat_init.fixed_kappa = fixed_kappa;
 				simulation.pat_init.fixed_capE = fixed_capE;
 				simulation.pat_init.fixed_psi = fixed_psi;
+				if(initial_h) { 
+					simulation.pat_init.initial_h = true;
+					simulation.pat_init.h0_value= h0_value;}
+				if(random_delta) {
+					simulation.pat_init.random_delta = true;
+					simulation.pat_init.random_delta_min = random_delta_min;
+					simulation.pat_init.random_delta_max = random_delta_max;}
 				
 		simulation.prov_init = new ProviderInitializer(simulation, "applyFixed");
 				simulation.setPROVIDER_INIT("applyFixed");
@@ -233,6 +271,36 @@ public class RunWithParams {
 			case "Pi":
 				pi = a.getString(0);
 				break;
+			case "obsDisease":
+				obsDisease = true;
+				break;
+			case "obsDelta":
+				obsDelta = true;
+				break;
+			case "obsExpNoise":
+				obsExpNoise = true;
+				break;
+			case "obsInstExp":
+				obsInstExp = true;
+				break;
+			case "initial_h":
+				initial_h = true;
+				h0_value = a.getDouble(0);
+				break;
+			case "random_delta_min":
+				random_delta = true;
+				random_delta_min = a.getDouble(0);
+				break;
+			case "random_delta_max":
+				random_delta = true;
+				random_delta_max = a.getDouble(0);
+				break;
+			case "obsPerformance":
+				obsPerformance = true;
+				break;
+			case "obsMaxExp":
+				obsMaxExp = true;
+			
 		}}	
 	}
 	
@@ -253,6 +321,17 @@ public class RunWithParams {
 		params.put("obsSimpleC", Boolean.toString(simpleC));
 		params.put("obsSimpleE", Boolean.toString(simpleE));
 		params.put("obsSimpleB", Boolean.toString(simpleB));
+		params.put("obsDisease", Boolean.toString(obsDisease));
+		params.put("obsDelta", Boolean.toString(obsDelta));
+		params.put("obsPerformance", Boolean.toString(obsPerformance));
+		params.put("obsMaxExp", Boolean.toString(obsMaxExp));
+
+		params.put("obsExpNoise", Boolean.toString(obsExpNoise));
+		params.put("obsInstExp", Boolean.toString(obsInstExp));
+		if(random_delta) {
+			params.put("random_delta_min", Double.toString(random_delta_min));
+			params.put("random_delta_max", Double.toString(random_delta_max));
+		}
 		
 
 		JSONObject response = new JSONObject(params);

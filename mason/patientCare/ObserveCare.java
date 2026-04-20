@@ -7,10 +7,21 @@ import sim.engine.Steppable;
 
 /**
  * This is an "agent" that stores the state variables at given intervals (windows).
+
  * Should be initialized from Care, after calling care.start() with the care.startObserver() method.
- * The observer agent is scheduled at the beginning of each time step, before any other agent.
- * The observer should be called at the end of the simulation from care.finish() to store the final state.
- * The window = 0 is for initial conditions 
+ * The observer agent is scheduled at the beginning of each time step, before any other agent, so it has priority = 0.
+ * The observer should be called at the end of the simulation from care.finish() to store the final state of the system.
+ * The window = 0 is for initial conditions.
+ * 
+ * The X_"p" arrays capture patient states. If a patient is no longer part of the system, -1 are recorded from the time it was no longer seen, but previous information is preserved. 
+ * Note that an X_p array is agnostic of the global state of the system. For instance, a patient might still have expectations E_p_w for a provider that doesn't exist.
+ * 
+ */
+/**
+ * 
+ */
+/**
+ * 
  */
 public class ObserveCare implements Steppable{
 	private static final long serialVersionUID = 1L;
@@ -50,17 +61,53 @@ public class ObserveCare implements Steppable{
 	 * Average expectation across providers for patient p at window i
 	 */
 	double[][] simple_E_p_i;
-	/**
-	 * Delta for patient p 
+	
+	/** The instantaneous expectation formation for each patient
+	 * 
+	 */
+	double[][] instExp_p_i;
+
+	/** The disease Bernoulli process
+	 * 
+	 */
+	double[][] disease_p_i;
+	
+	/** The expectation noise Gaussian process
+	 * 
+	 */
+	double[][] expNoise_p_i;
+	
+	/** The disease severity (delta)
+	 * 
 	 */
 	double[][] delta_p_i;
+	
+	/**
+	 * The performance at every timestep: average treatments delivered by appointment.
+	 */
+	double[] performance_i;
+	
+	/** The maximum expectation per patient
+	 * 
+	 */
+	double[][] maxExp_p_i;
+	
+	
+	
 	
 	//internals
 	int arraysLength;
 	int period;
 	int counter = 0;
-	int windowNumber = 0;
-	int[] windows; // array to export the timestep of each window
+	/**
+	 * The window for current observation. Window 0 is for initial conditions
+	 */
+	int windowNumber = 0; 
+	
+	/**
+	 * Array that exports the timestep that corresponds to each window (for plotting with matplotlib)
+	 */
+	int[] windows;
 
 	boolean obsH = false;
 	boolean obsN = false;
@@ -72,6 +119,11 @@ public class ObserveCare implements Steppable{
 	boolean obsSimpleE = false;
 	boolean obsSimpleB = false;
 	boolean obsDelta = false;
+	boolean obsDisease = false;
+	boolean obsExpNoise = false;
+	boolean obsInstExp = false;
+	boolean obsPerformance = false;
+	boolean obsMaxExp = false;
 	
 	Care care;
 	Patient patient;
@@ -79,25 +131,57 @@ public class ObserveCare implements Steppable{
 	boolean testing = false;
 	
 	int simple_sum_i;
-	double mean_exp;
+	double sum_exp;
 	
 	
-	//this constructor for observing everything
-	public ObserveCare(Care sim, int value) {
+	/** Create the observer with this constructor to observe  everything
+	 * @param sim
+	 * @param obsPeriod
+	 */
+	public ObserveCare(Care sim, int obsPeriod) {
+		obsH = true;obsN = true;obsC = true;obsT = true;obsE = true;obsB = true;
+		obsSimpleC = true;obsSimpleE = true;obsSimpleB = true;
 		care = sim;
-		set_arrays_length(value);
+		set_arrays_length(obsPeriod);
 		H_p_i = new double[care.N][arraysLength];obsH=true;obsH = true;
 		simple_C_p_i = new int[care.N][arraysLength];obsSimpleC=true;
 		simple_B_p_i = new int[care.N][arraysLength];obsSimpleB=true;
 		N_p_i = new double[care.N][arraysLength];obsN=true;
 		T_p_i = new double[care.N][arraysLength];obsT=true;
 		simple_E_p_i = new double[care.N][arraysLength];obsSimpleE=true;
+		E_p_w_i = new double[care.N][care.W][arraysLength];
+		B_p_w_i = new int[care.N][care.W][arraysLength];
+		C_p_w_i = new int[care.N][care.W][arraysLength];
+		disease_p_i = new double[care.N][arraysLength]; obsDisease = true;
+		expNoise_p_i = new double[care.N][arraysLength]; obsExpNoise = true;
+		instExp_p_i = new double[care.N][arraysLength]; obsInstExp=true;
+		delta_p_i = new double[care.N][arraysLength]; obsDelta=true;
+		performance_i = new double[arraysLength]; obsPerformance = true;
+		maxExp_p_i = new double[care.N][arraysLength]; obsMaxExp = true;
 	}
 	
-	//this constructor for observing only the specified state variables
-	public ObserveCare(Care sim, int value, Boolean H, Boolean N, Boolean C, 
-			Boolean T, Boolean E, Boolean B, Boolean simple_C, Boolean simple_E,
-			Boolean simple_B) {
+	/** Create the observer with this constructor to observe only the specified variables
+	 * @param sim
+	 * @param value
+	 * @param H
+	 * @param N
+	 * @param C
+	 * @param T
+	 * @param E
+	 * @param B
+	 * @param simple_C
+	 * @param simple_E
+	 * @param simple_B
+	 * @param disease
+	 * @param expNoise
+	 * @param instExp
+	 * @param obsDelta
+	 */
+	public ObserveCare(Care sim, int value, boolean H, boolean N, boolean C, 
+			boolean T, boolean E, boolean B, boolean simple_C, boolean simple_E,
+			boolean simple_B, boolean disease, boolean expNoise, boolean instExp,
+			boolean Delta, boolean Performance, boolean maxExp) {
+		
 		care = sim;
 		set_arrays_length(value);
 		if(H) {obsH = true; H_p_i = new double[care.N][arraysLength];}
@@ -110,27 +194,13 @@ public class ObserveCare implements Steppable{
 		if(simple_C) {obsSimpleC = true; simple_C_p_i = new int[care.N][arraysLength];}
 		if(simple_E) {obsSimpleE = true; simple_E_p_i = new double[care.N][arraysLength];}
 		if(simple_B) {obsSimpleB = true; simple_B_p_i = new int[care.N][arraysLength];}
-	}
-
-	//provisional constructor, exporting delta per patient. For a class example
-	//this constructor for observing only the specified state variables
-	public ObserveCare(Care sim, int value, Boolean H, Boolean N, Boolean C, 
-			Boolean T, Boolean E, Boolean B, Boolean simple_C, Boolean simple_E,
-			Boolean simple_B, Boolean delta) {
-		care = sim;
-		set_arrays_length(value);
-		if(H) {obsH = true; H_p_i = new double[care.N][arraysLength];}
-		if(N) {obsN = true; N_p_i = new double[care.N][arraysLength];}
-		if(C) {obsC = true; C_p_w_i = new int[care.N][care.W][arraysLength];}
-		if(T) {obsT = true; T_p_i = new double[care.N][arraysLength];}
-		if(E) {obsE = true; E_p_w_i = new double[care.N][care.W][arraysLength];}
-		if(B) {obsB = true; B_p_w_i = new int[care.N][care.W][arraysLength];}
 		
-		if(simple_C) {obsSimpleC = true; simple_C_p_i = new int[care.N][arraysLength];}
-		if(simple_E) {obsSimpleE = true; simple_E_p_i = new double[care.N][arraysLength];}
-		if(simple_B) {obsSimpleB = true; simple_B_p_i = new int[care.N][arraysLength];}
-		
-		if(delta) {obsDelta = true; delta_p_i =  new double[care.N][arraysLength];} 
+		if(disease) {disease_p_i = new double[care.N][arraysLength]; obsDisease = true;}
+		if(expNoise) {expNoise_p_i = new double[care.N][arraysLength]; obsExpNoise = true;}
+		if(instExp) {instExp_p_i = new double[care.N][arraysLength]; obsInstExp=true;}
+		if(Delta) {delta_p_i = new double[care.N][arraysLength]; obsDelta=true;}
+		if(Performance) {performance_i = new double[arraysLength]; obsPerformance=true;}
+		if(maxExp) {maxExp_p_i = new double[care.N][arraysLength]; obsMaxExp = true;}
 	}
 	
 	
@@ -144,6 +214,12 @@ public class ObserveCare implements Steppable{
 		windows = new int[arraysLength];
 	}
 	
+	/**
+	 * Records state variables. 
+	 * First, records initial conditions
+	 * At each spep checks if its time to observe (obs_peridod).
+	 * Once simulation is over gets called by care.finish() to record final states.
+	 */
 	public void step(SimState state) {
 		if(counter == 0) { //record initial conditions
 			observe(windowNumber,(Care)state);
@@ -155,7 +231,12 @@ public class ObserveCare implements Steppable{
 			counter=0;
 		}
 		counter+=1;
+	//TODO: add a observe in all windows here for calculation of performance
+		// maybe not, just run a ObsPerfoemance with period 1
+	
 	}
+	
+	
 	
 	public void observe(int loc, Care state) {
 		windows[loc] =(int)care.schedule.getSteps();
@@ -169,8 +250,13 @@ public class ObserveCare implements Steppable{
 		if(obsSimpleC) {observeSimpleC(loc);}
 		if(obsSimpleE) {observeSimpleE(loc);}
 		if(obsSimpleB) {observeSimpleB(loc);}
-		if(obsDelta) {obsDelta(loc);}
-
+		if(obsDisease) {observeDisease(loc);}
+		if(obsExpNoise) {observeExpNoise(loc);}
+		if(obsInstExp) {observeInstExp(loc);}
+		if(obsDelta) {observeDelta(loc);}
+		if(obsPerformance) {observePerformance(loc);}
+		if(obsMaxExp) {observeMaxExpect(loc);}
+		
 	}
 	
 	
@@ -178,90 +264,191 @@ public class ObserveCare implements Steppable{
 		observe(windowNumber, state);
 	}
 	
+	
+	
+	/**
+	 * Populates C_p_w_i by observing the internal representation of p (if p exists)
+	 * @param loc the windowNumber
+	 */
 	public void observeC(int loc){
-		for(int p = 0; p<care.N;p++) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
-			for(int w = 0; w<care.W;w++) {
+			for(int w = 0; w<patient.c_p_i_1.length;w++) {
 				C_p_w_i[patient.p][w][loc] = patient.c_p_i_1[w];
 			}}
 	}
 	
+	/**
+	 * Populates simple_C_p_i: the sum of contacts across providers for each patient. Only for patients that exist. 
+	 * 
+	 * @param loc the windowNumber
+	 */
 	public void observeSimpleC(int loc) {
-		for(int p = 0; p<care.N;p++) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
 			simple_sum_i = 0;
-			for(int w = 0; w<care.W;w++) {
-				simple_sum_i += patient.c_p_i_counter[w];
+			for(int w = 0; w<patient.c_p_i_counter.length;w++) {
+				simple_sum_i += patient.c_p_i_1[w];
 			}
 			simple_C_p_i[p][loc] = simple_sum_i;
 			}
 	}
-	
+
+	/**
+	 * Populates H_p_i by observing the internal representation of p (if p exists)
+	 * @param loc the windowNumber
+	 */
 	public void observeH(int loc) {
-		for(int p = 0; p<care.N;p++) {
+		for(int p = 0; p<care.patients.numObjs ;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
 			H_p_i[patient.p][loc] = patient.h_p_i_1;
 	}}
 	
+	/**
+	 * Populates N_p_i by observing the internal representation of p (if p exists)
+	 * @param loc the windowNumber
+	 */
 	public void observeN(int loc) {
-		for(int p = 0; p<care.N;p++) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
-			N_p_i[patient.p][loc] = patient.n_p_i;
-	}}
+			N_p_i[patient.p][loc] = patient.n_p_i;}
+	}
 	
+	/**
+	 * Populates T_p_i by observing the internal representation of p (if p exists)
+	 * @param loc the windowNumber
+	 */
 	public void observeT(int loc) {
-		for(int p = 0; p<care.N;p++) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
-			T_p_i[patient.p][loc] = patient.t_p_i_1;
-	}}
+			T_p_i[patient.p][loc] = patient.t_p_i_1;}
+	}
 	
+	/**
+	 * Populates E_p_w_i by observing the internal representation of p (if p exists)
+	 * @param loc the windowNumber
+	 */
 	public void observeE(int loc){
-		for(int p = 0; p<care.N;p++) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
-			for(int w = 0; w<care.W;w++) {
-				E_p_w_i[patient.p][w][loc] = patient.e_p_i_1[w];
-			}}
-	}
-	
-	public void observeSimpleE(int loc){
-		//gives the mean expectation across providers for a given patient
-		for(int p = 0; p<care.N;p++) {
-			patient = ((Patient)care.patients.objs[p]);
-			mean_exp=0;
-			for(int w = 1; w<care.W;w++) {
-				mean_exp+=patient.e_p_i_1[w];
-			}
-			simple_E_p_i[patient.p][loc] = mean_exp/care.W;
+			for(int w = 0; w<patient.e_p_i_1.length;w++) {
+				E_p_w_i[patient.p][w][loc] = patient.e_p_i_1[w];}
 			}
 	}
-
 	
+	/**
+	 * Populates B_p_w_i by observing the internal representation of p (if p exists)
+	 * @param loc the windowNumber
+	 */
 	public void observeB(int loc){
-		for(int p = 0; p<care.N;p++) {
+		for(int p = 0; p<care.patients.numObjs;p++) {
 			patient = ((Patient)care.patients.objs[p]);
-			for(int w = 0; w<care.W;w++) {
+			for(int w = 0; w<patient.b_p_i_1.length;w++) {
 				B_p_w_i[patient.p][w][loc] = patient.b_p_i_1[w];
 			}}
 	}
 	
+	/** Populates simple_E_p_i: the sum of expectations across providers for each patient. Only for patients that exist. 
+	 * 
+	 * @param loc the windowNumber
+	 */
+	public void observeSimpleE(int loc){
+		for(int p = 0; p<care.patients.numObjs;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+				sum_exp=0;
+				for(int w = 0; w<patient.e_p_i_1.length;w++) {
+					sum_exp+=patient.e_p_i_1[w];
+				}
+			simple_E_p_i[patient.p][loc] = sum_exp;
+			} 		
+	}
+	
+	/** Observes the instantaneous change in expectations (expectation formation) at the patient level.
+	 * It can be computed from observeE, but that observer is heavy in memory.
+	 * @param loc
+	 */
+	public void observeInstExp(int loc) {
+		for(int p = 0; p<care.patients.numObjs;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+				//sum_exp=0;
+				//for(int w = 0; w<patient.e_p_i_1.length;w++) {
+				//	sum_exp+=patient.instExp;
+				//}
+				instExp_p_i[patient.p][loc] = patient.instExp;
+			} 	
+		
+	}
+
+	/** Populates simple_B_p_i:  the sum of seeking-behaviour across providers for each patient. Only for patients that exist. 
+	 * 
+	 * @param loc the windowNumber
+	 */
 	public void observeSimpleB(int loc){
-		for(int p = 0; p<care.N;p++) {
+		for(int p = 0; p<care.patients.numObjs;p++) {
 			patient = ((Patient)care.patients.objs[p]);
 			simple_sum_i=0;
-			for(int w = 0; w<care.W;w++) {
+			for(int w = 0; w<patient.b_p_i_1.length;w++) {
 				simple_sum_i += patient.b_p_i_1[w];
 			}
 			simple_B_p_i[patient.p][loc] = simple_sum_i;
 			}
 	}
 	
-	public void obsDelta(int loc) {
-		for(int p=0;p<care.N;p++) {
+	/** Observe disease Bernoulli process for existing patients.
+	 * @param loc the observation window
+	 */
+	public void observeDisease(int loc) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
-			delta_p_i[patient.p][loc] = patient.delta_p;
-		}
-		
+			disease_p_i[patient.p][loc] = patient.Bernoulli;}
 	}
+	
+	/** Observe disease severity for existing patients.
+	 * @param loc the observation window
+	 */
+	public void observeDelta(int loc) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
+			patient = ((Patient)care.patients.objs[p]);
+			delta_p_i[patient.p][loc] = patient.getdelta();}
+	}
+	
+	/** Observe expectation noise Gaussian process for existing patients
+	 * @param loc
+	 */
+	public void observeExpNoise(int loc) {
+		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
+			patient = ((Patient)care.patients.objs[p]);
+			expNoise_p_i[patient.p][loc] = patient.Gaussian;}
+	}
+	
+	/** Observes the Max expectation, the one used by the patient to motivate its behaviour.
+	 * Populates maxExp
+	 * @param loc
+	 */
+	public void observeMaxExpect(int loc) {
+		for(int p=0; p<care.patients.numObjs;p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			maxExp_p_i[patient.p][loc] = patient.e_p_i_1[patient.wMaxExpectation];
+		}
+	}
+	
+	public void observePerformance(int loc) {
+		double all_non_zero_T = 0;
+		int treated_patients = 0;
+		for(int p = 0; p < care.patients.numObjs; p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			if(patient.t_p_i_1 !=0) {
+				all_non_zero_T +=patient.t_p_i_1;
+				treated_patients +=1;
+			} 
+		}
+		if (treated_patients > 0) {
+			performance_i[loc] =  all_non_zero_T/treated_patients;
+		} else {
+			performance_i[loc] = 0;
+		}
+	}
+	
 	
 	public int[][][] getC(){return C_p_w_i;}
 	public double[][] getH(){return H_p_i;}
@@ -272,35 +459,299 @@ public class ObserveCare implements Steppable{
 	public double[][] getSimpleE(){return simple_E_p_i;}
 	public int[][] getSimpleC(){return simple_C_p_i;}
 	public int[][] getSimpleB(){return simple_B_p_i;}
+	public double[][] getDisease(){return disease_p_i;}
+	public double [][] getExpNoise(){return expNoise_p_i;} 
+	public double[][] getInstExp(){return instExp_p_i;}
 	public double[][] getDelta(){return delta_p_i;} 
+	public double[] getPerformance() {return performance_i;}
+	public double[][] getMaxExp(){return maxExp_p_i;}
 
 	
 	public int getarraysLengthreturn() {return arraysLength;}
 	public int[] getWindows() {return windows;};
 	
-	public double getMeanFinalH() {
-		double FinalH = 0;
-		for (int p = 0; p< care.N; p++) {
-			FinalH += (H_p_i[p][arraysLength-1])/care.N;
+	public double[] getFinalH() {
+		double result[] = new double[H_p_i.length];
+		for(int p = 0;p< H_p_i.length;p++) {
+			result[p] = H_p_i[p][arraysLength-1];
 		}
-		return FinalH;
+		return result;
+	}
+	
+	public double getMeanFinalH() {
+		double sumH = 0;
+		for (int p = 0; p< care.patients.numObjs; p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			sumH += (H_p_i[patient.p][arraysLength-1]);
+		}
+		return sumH/care.patients.numObjs;
 	}
 	
 	public double getVarianceFinalH() {
 		double FinalVarH = 0;
 		double FinalMeanH = getMeanFinalH();
-		for (int p = 0; p< care.N; p++) {
-			FinalVarH += ((H_p_i[p][arraysLength-1] - FinalMeanH) * (H_p_i[p][arraysLength-1] - FinalMeanH))/care.N;
+		for (int p = 0; p< care.patients.numObjs; p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			FinalVarH += ((H_p_i[patient.p][arraysLength-1] - FinalMeanH) * (H_p_i[patient.p][arraysLength-1] - FinalMeanH));
 		}
-		return FinalVarH;
+		return FinalVarH/care.patients.numObjs;
 	}
 	
 	public double getSlopeHFinal() {
 		double anteFinalH = 0;
-		for (int p = 0; p< care.N; p++) {
-			anteFinalH += (H_p_i[p][arraysLength-2])/care.N;
+		for (int p = 0; p< care.patients.numObjs; p++) {
+			patient = ((Patient)care.patients.objs[p]);
+			anteFinalH += (H_p_i[patient.p][arraysLength-2]);
 		}
+		anteFinalH = anteFinalH/care.patients.numObjs;
 		return (getMeanFinalH()-anteFinalH)/period;
 	}
 	
+	
+	/** Reset the observer arrays to accomodate more patients.Find which arrays need modification (which is being observed).Copy the info from the old arrays.
+	 * @param N_increase The number of patients to be added
+	 */
+	public void increaseNmidway(int N_increase) {
+		
+		if (obsH) {
+			double[][] newH_p_i = increaseDual_newArr(H_p_i, N_increase);
+			H_p_i = newH_p_i.clone();
+		}
+		if(obsN) {
+			double[][] newN_p_i = increaseDual_newArr(N_p_i, N_increase);
+			N_p_i = newN_p_i.clone();
+		}
+		if(obsC) {
+			//if(C_p_w_i.length < newN) {
+			int[][][] newC_p_w_i = increaseTriple_newArr(C_p_w_i, N_increase);
+			C_p_w_i = 	newC_p_w_i.clone();
+		}
+		if(obsT) {
+			//if(T_p_i.length < newN) {
+			double[][] newT_p_i = increaseDual_newArr(T_p_i, N_increase);
+			T_p_i = newT_p_i.clone();
+		}
+		if(obsE) {
+			//if(E_p_w_i.length < newN) {
+			double[][][] newE_p_w_i = increaseTriple_newArr(E_p_w_i, N_increase);
+			E_p_w_i = newE_p_w_i.clone();
+		}
+		if(obsB) {
+			//if(B_p_w_i.length < newN) {
+			int[][][] newB_p_w_i = increaseTriple_newArr(B_p_w_i, N_increase);
+			B_p_w_i = newB_p_w_i.clone();
+		}
+		if(obsSimpleC) {
+			//if(simple_C_p_i.length < newN) {
+			int[][] newsimple_C_p_i = increaseDual_newArr(simple_C_p_i, N_increase);
+			simple_C_p_i = newsimple_C_p_i.clone();
+			
+		}
+		if(obsSimpleE) {
+			//if(simple_E_p_i.length < newN) {
+			double[][] newsimple_E_p_i = increaseDual_newArr(simple_E_p_i, N_increase);
+			simple_E_p_i = newsimple_E_p_i.clone();
+		}
+		if(obsSimpleB) {
+			//if(simple_B_p_i.length < newN) {
+			int[][] newsimple_B_p_i = increaseDual_newArr(simple_B_p_i, N_increase);
+			simple_B_p_i = newsimple_B_p_i.clone();
+		}
+		if (obsDisease) {
+			double[][] newDisease_p_i = increaseDual_newArr(disease_p_i, N_increase);
+			disease_p_i = newDisease_p_i.clone();
+		}
+		if (obsDelta) {
+			double[][] newdelta_p_i = increaseDual_newArr(delta_p_i, N_increase);
+			delta_p_i = newdelta_p_i.clone();
+		}
+		if (obsExpNoise) {
+			double[][] newExpNoise = increaseDual_newArr(expNoise_p_i, N_increase);
+			expNoise_p_i = newExpNoise.clone();
+		}
+		if (obsInstExp) {
+			double[][] newInstExp = increaseDual_newArr(instExp_p_i, N_increase);
+			instExp_p_i = newInstExp.clone();
+		}
+		if (obsMaxExp) {
+			double[][] newMaxExp = increaseDual_newArr(maxExp_p_i, N_increase);
+			maxExp_p_i = newMaxExp.clone();
+		}
+	}
+	
+	/** Reset the observer arrays to accomodate more providers
+	 * @param newN The new (increased) number of patients
+	 */
+	public void increaseWmidway(int W_increase) {
+
+
+		if(obsC) {
+			int[][][] newC_p_w_i = increaseTriple_newW(C_p_w_i, W_increase);
+			C_p_w_i = newC_p_w_i.clone();
+		}
+		if(obsE) {
+			double[][][] newE_p_w_i = increaseTriple_newW(E_p_w_i, W_increase);
+			E_p_w_i = newE_p_w_i.clone();
+		}
+		if(obsB) {
+			int[][][] newB_p_w_i = increaseTriple_newW(B_p_w_i, W_increase);
+			B_p_w_i = newB_p_w_i.clone();
+		}
+	}
+
+	protected double[][] increaseDual_newArr(double[][] oldArr_p_i, int N_increase) {
+		double[][] newArr_p_i = new double[oldArr_p_i.length+N_increase][arraysLength];
+		//copy previous information
+		for(int p = 0; p< oldArr_p_i.length;p++) {
+			for(int i=0; i< oldArr_p_i[0].length; i++ ) {
+				newArr_p_i[p][i] = oldArr_p_i[p][i];
+			}
+		}
+		//delete information previous to creation
+		for(int p =  oldArr_p_i.length; p< newArr_p_i.length;p++) {
+			for(int i=0; i< windowNumber; i++ ) {
+				newArr_p_i[p][i] = -1;
+			}
+		}
+		return newArr_p_i;
+	}
+	
+	protected int[][] increaseDual_newArr(int[][] oldArr_p_i, int N_increase) {
+		int[][] newArr_p_i = new int[oldArr_p_i.length+N_increase][arraysLength];
+		for(int p = 0; p< oldArr_p_i.length;p++) {
+			for(int i=0; i< oldArr_p_i[0].length; i++ ) {
+				newArr_p_i[p][i] = oldArr_p_i[p][i];
+			}
+		}
+		//delete information previous to creation
+		for(int p =  oldArr_p_i.length; p< newArr_p_i.length;p++) {
+			for(int i=0; i< windowNumber; i++ ) {
+				newArr_p_i[p][i] = -1;
+			}
+		}
+		return newArr_p_i;
+	}
+	
+	protected double[][][] increaseTriple_newArr(double[][][] oldArr_p_i, int N_increase) {
+		double[][][] newArr_p_w_i = new double[oldArr_p_i.length+N_increase][oldArr_p_i[0].length][arraysLength];
+		//copy old array into new
+		for(int p = 0; p< oldArr_p_i.length;p++) {
+			for(int w = 0; w<oldArr_p_i[0].length; w++) {
+				for(int i=0; i< oldArr_p_i[0][0].length; i++ ) {
+					newArr_p_w_i[p][w][i] = oldArr_p_i[p][w][i];
+				}
+			}
+		}
+		//populate backwards with -1s
+		for(int p = oldArr_p_i.length; p< newArr_p_w_i.length;p++) {
+			for(int w = 0; w<oldArr_p_i[0].length; w++) {
+				for(int i=0; i< windowNumber; i++ ) {
+					newArr_p_w_i[p][w][i] = -1;
+				}
+			}
+		}
+		return newArr_p_w_i;
+	}
+	
+	protected int[][][] increaseTriple_newArr(int[][][] oldArr_p_i, int N_increase) {
+		int[][][] newArr_p_w_i = new int[oldArr_p_i.length+N_increase][oldArr_p_i[0].length][arraysLength];
+		//copy old array into new
+		for(int p = 0; p< oldArr_p_i.length;p++) {
+			for(int w = 0; w<oldArr_p_i[0].length; w++) {
+				for(int i=0; i< oldArr_p_i[0][0].length; i++ ) {
+					newArr_p_w_i[p][w][i] = oldArr_p_i[p][w][i];
+				}
+			}
+		}
+		//populate backwards with -1s
+		for(int p = oldArr_p_i.length; p< newArr_p_w_i.length;p++) {
+			for(int w = 0; w<oldArr_p_i[0].length; w++) {
+				for(int i=0; i< windowNumber; i++ ) {
+					newArr_p_w_i[p][w][i] = -1;
+				}
+			}
+		}
+		return newArr_p_w_i;
+	}
+	
+	protected double[][][] increaseTriple_newW(double[][][] oldArr_p_w_i, int W_increase){
+		double[][][] newArr_p_w_i = new double[oldArr_p_w_i.length][oldArr_p_w_i[0].length+W_increase][arraysLength];
+		//copy information from old array into new
+		for(int p = 0; p< oldArr_p_w_i.length;p++) {
+			for(int w = 0; w<oldArr_p_w_i[0].length; w++) {
+				for(int i=0; i< windowNumber; i++ ) {
+					newArr_p_w_i[p][w][i] = oldArr_p_w_i[p][w][i];
+				}
+			}
+		}
+		//populate the new W´s backwards with -1s
+		for(int p = 0; p< oldArr_p_w_i.length;p++) {
+			for(int w = oldArr_p_w_i[0].length; w<oldArr_p_w_i[0].length+W_increase; w++) {
+				for(int i=0; i< windowNumber; i++ ) {
+					newArr_p_w_i[p][w][i] = -1;
+				}
+			}
+		}
+		return newArr_p_w_i;
+	}
+	
+	protected int[][][] increaseTriple_newW(int[][][] oldArr_p_w_i, int W_increase){
+		int[][][] newArr_p_w_i = new int[oldArr_p_w_i.length][oldArr_p_w_i[0].length+W_increase][arraysLength];
+		//copy information from old array into new
+		for(int p = 0; p< oldArr_p_w_i.length;p++) {
+			for(int w = 0; w<oldArr_p_w_i[0].length; w++) {
+				for(int i=0; i< windowNumber; i++ ) {
+					newArr_p_w_i[p][w][i] = oldArr_p_w_i[p][w][i];
+				}
+			}
+		}
+		//populate the new W´s backwards with -1s
+		for(int p = 0; p< oldArr_p_w_i.length;p++) {
+			for(int w = oldArr_p_w_i[0].length; w<oldArr_p_w_i[0].length+W_increase; w++) {
+				for(int i=0; i< windowNumber; i++ ) {
+					newArr_p_w_i[p][w][i] = -1;
+				}
+			}
+		}
+		return newArr_p_w_i;
+	}
+	
+	/**
+	 * Records that a patient is gone from the system by setting all future observations to -1 in X_p arrays
+	 * @param id
+	 */
+	public void unobservePatient(int id) {
+		// Double arrays
+			for(int i = windowNumber; i< arraysLength; i++) {
+				if(obsH) {H_p_i[id][i] = -1;}
+				if(obsN) {N_p_i[id][i] = -1;}
+				if(obsT) {T_p_i[id][i] = -1;}
+				if(obsSimpleB) {simple_B_p_i[id][i] = -1;}
+				if(obsSimpleC) {simple_C_p_i[id][i] = -1;}
+				if(obsSimpleE) {simple_E_p_i[id][i] = -1;}
+				if(obsDisease) {disease_p_i[id][i] = -1;}
+				if(obsExpNoise) {expNoise_p_i[id][i] = -1;}
+				if(obsInstExp) {instExp_p_i[id][i] = -1;}
+				if(obsDelta) {delta_p_i[id][i] = -1;}
+				if(obsMaxExp) {maxExp_p_i[id][i]=-1;}
+
+		}
+		// Triple arrays
+			for(int w = 0; w<B_p_w_i[id].length ; w++) {
+				for(int i = windowNumber; i< arraysLength; i++) {
+					if(obsB) {B_p_w_i[id][w][i] = -1;}
+					if(obsC) {C_p_w_i[id][w][i] = -1;}
+					if(obsE) {E_p_w_i[id][w][i] = -1;}
+				}
+			}
+	}
+	
+	/**
+	 * To be implemented. Not needed. Not observing the provider's perspective so far (there aren't any X_w arrays)
+	 * @param w
+	 */
+	public void unobserveProvider(int w) {}
+	
+	
+
 }

@@ -33,7 +33,15 @@ public class JSONResponse {
 
 			buildResults_json("windows", simulation.observer.getWindows());
 			
-			buildResults_json("delta", simulation.observer.getDelta());
+			buildResults_json("Disease", simulation.observer.getDisease());
+			buildResults_json("ExpNoise", simulation.observer.getExpNoise());
+			buildResults_json("InstExp", simulation.observer.getInstExp());
+			
+			buildResults_json("Delta", simulation.observer.getDelta());
+			buildResults_json("Performance", simulation.observer.getPerformance());
+			buildResults_json("MaxExp", simulation.observer.getMaxExp());
+
+			
 	}
 	
 	private JSONObject buildResults_json(String name, Object array) {
