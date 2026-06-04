@@ -39,7 +39,7 @@ public class Prioritizator implements Steppable {
 		}}
 	
 	
-	/** Assigns a priority to a patient. The maximum priority (minimum integer) should be 2.
+	/** Returns the priority of a patient. The maximum priority (minimum integer) should be 2.
 	 * @param patient
 	 * @return priority
 	 */
@@ -71,7 +71,7 @@ public class Prioritizator implements Steppable {
 		return priority;
 		}
 	
-	/** Gives the max priority. This is used to assure that other agents, for instance the observer, come into the simulation after all patients.
+	/** Returns the max priority. This is used to assure that other agents, for instance the observer, come into the simulation after all patients.
 	 * @return
 	 */
 	public int maxPriority() {

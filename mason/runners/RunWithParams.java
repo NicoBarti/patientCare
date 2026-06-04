@@ -68,10 +68,31 @@ public class RunWithParams {
 	 */
 	double random_delta_max;
 	
+
+	
+	private boolean random_eta = false;
+	/** Only specify if want random delta among patients
+	 * The minimum eta
+	 */
+	double random_eta_min;
+	/** Only specify if want random delta among patients
+	 * The maximum eta
+	 */
+	double random_eta_max;
+	
+	private boolean random_rho = false;
+	/** Only specify if want random delta among patients
+	 * The minimum rho
+	 */
+	double random_rho_min;
+	/** Only specify if want random delta among patients
+	 * The maximum rho
+	 */
+	double random_rho_max;
+	
 	/** For fixing h at the bgining to all patients
 	 * True for fixing the initial value
 	 */
-	
 	private boolean initial_h = false;
 	
 	/** The inivial value of h
@@ -134,6 +155,10 @@ public class RunWithParams {
 		simulation.setPi(pi); //this allows to change a pathfinder line's pi (and we could add other params)
 	}
 	
+	/** Main method for running simulation with specified parameters
+	 * Uses the 'applyFixed' patient initializer to set patient initial conditions. "applyFixed" sets every value as passed.
+	 * Uses the 'applyFixed' provider initializer
+	 */
 	protected void reproduceLine() {
 		simulation.setOBS_PERIOD(OBS_PERIOD);
 		simulation.setvarsigma(varsigma);
@@ -160,6 +185,16 @@ public class RunWithParams {
 					simulation.pat_init.random_delta = true;
 					simulation.pat_init.random_delta_min = random_delta_min;
 					simulation.pat_init.random_delta_max = random_delta_max;}
+				if(random_eta) {
+					simulation.pat_init.random_eta = true;
+					simulation.pat_init.random_eta_min = random_eta_min;
+					simulation.pat_init.random_eta_max = random_eta_max;
+				}
+				if(random_rho) {
+					simulation.pat_init.random_rho = true;
+					simulation.pat_init.random_rho_min = random_rho_min;
+					simulation.pat_init.random_rho_max = random_rho_max;
+				}
 				
 		simulation.prov_init = new ProviderInitializer(simulation, "applyFixed");
 				simulation.setPROVIDER_INIT("applyFixed");
@@ -295,6 +330,22 @@ public class RunWithParams {
 				random_delta = true;
 				random_delta_max = a.getDouble(0);
 				break;
+			case "random_eta_min":
+				random_eta = true;
+				random_eta_min = a.getDouble(0);
+				break;
+			case "random_eta_max":
+				random_eta = true;
+				random_eta_max = a.getDouble(0);
+				break;
+			case "random_rho_min":
+				random_rho = true;
+				random_rho_min = a.getDouble(0);
+				break;
+			case "random_rho_max":
+				random_rho = true;
+				random_rho_max = a.getDouble(0);
+				break;
 			case "obsPerformance":
 				obsPerformance = true;
 				break;
@@ -332,6 +383,17 @@ public class RunWithParams {
 			params.put("random_delta_min", Double.toString(random_delta_min));
 			params.put("random_delta_max", Double.toString(random_delta_max));
 		}
+		if(random_eta) {
+			params.put("random_eta_min", Double.toString(random_eta_min));
+			params.put("random_eta_max", Double.toString(random_eta_max));
+
+		}
+		if(random_rho) {
+			params.put("random_rho_min", Double.toString(random_rho_min));
+			params.put("random_rho_max", Double.toString(random_rho_max));
+
+		}
+		
 		
 
 		JSONObject response = new JSONObject(params);
