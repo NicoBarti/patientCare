@@ -118,7 +118,7 @@ public class Patient implements Steppable {
 				instExp =  rho_p ;
 				//e_p_i[w] = e_p_i_1[w] +instExp;
 			} else
-			// CASE 2 didn't get the visit with provider but wanted provider w
+			// CASE 2 didn't get the visit with provider w, but wanted provider w
 			if(b_p_i_1[w] == 1 & c_p_i_1[w] == 0) {
 				instExp =  - eta_p ;
 				//e_p_i[w] = e_p_i_1[w] - instExp;
