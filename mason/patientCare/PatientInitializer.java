@@ -23,13 +23,26 @@ public class PatientInitializer implements Steppable {
 	public boolean initial_h = false;
 	public double h0_value = 0;
 	
-	/** Starts patients with random deltas
+	/** Starts patients with random delta
 	 * Then, specify min, max. Deltas will be assigned by a continuous uniform [min,max]
 	 */
 	public boolean random_delta = false;
 	public double random_delta_min;
 	public double random_delta_max;
 	
+	/** Starts patients with random eta
+	 * Then, specify min, max. Etas will be assigned by a continuous uniform [min,max]
+	 */
+	public boolean random_eta = false;
+	public double random_eta_min;
+	public double random_eta_max;
+	
+	/** Starts patients with random rho
+	 * Then, specify min, max. Rhos will be assigned by a continuous uniform [min,max]
+	 */
+	public boolean random_rho = false;
+	public double random_rho_min;
+	public double random_rho_max;
 	
 	//Used by Prioritizator for assignation of priorities:
 	public double max_delta;
@@ -37,6 +50,11 @@ public class PatientInitializer implements Steppable {
 	
 	public void step(SimState state) {}
 	
+	/** Initialize all patients
+	 * @param _care
+	 * @param _strategy "random-basal": all random; "sensitivity_1": a specific set of values;
+	 *  "fixed_capacity": Limits max provider appointments to 200
+	 */
 	public PatientInitializer(Care _care, String _strategy) {
 		//TODO: Total capacity should be sorted out at Care (or "general initializer", 
 		//TODO: the params could be randomized only when the haven't been initialized (are -1 for instance)
@@ -156,7 +174,7 @@ public class PatientInitializer implements Steppable {
 		ID+=1;
 	}
 	
-	/** Gives the maximum ID created so far. Useluf to add new patients middle way through the simulation.
+	/** Returns the maximum ID created so far. Useluf to add new patients middle way through the simulation.
 	 * @return the last ID created (an integer)
 	 */
 	public int getMaxID() {
@@ -279,6 +297,10 @@ public class PatientInitializer implements Steppable {
 			break;
 		default: 
 			patient.rho_p = .5;}
+		
+		if(random_rho == true) {
+			patient.rho_p = (care.random.nextDouble(true,true) * (random_rho_max-random_rho_min)) + random_rho_min;
+		}
 	}
 	
 	public void eta_p(Patient patient) {
@@ -291,6 +313,11 @@ public class PatientInitializer implements Steppable {
 			break;
 		default: 
 			patient.eta_p = .5;}
+	
+		if(random_eta == true) {
+			patient.eta_p = (care.random.nextDouble(true,true) * (random_eta_max - random_eta_min)) + random_eta_min;
+		}
+		
 	}
 	
 	public void capE_p(Patient patient) {

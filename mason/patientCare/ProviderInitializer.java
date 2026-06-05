@@ -149,6 +149,11 @@ public class ProviderInitializer implements Steppable{
 		}
 	}
 	
+	
+	/** Adjust totalCapacity, to avoid missing appointments from totalCapacity/number providers
+	 * @param providers the Bag of providers
+	 * @param totalCapacity the total desired capacity
+	 */
 	public void adjustCapacity(Bag providers, int totalCapacity) {
 
 		//a. reassign truncated average capacity
