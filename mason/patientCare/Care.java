@@ -195,7 +195,7 @@ public class Care extends SimState {
 	public void setPi(String val) { 
 		// TODO: implement string comparison
 		//Pi = val;
-	  if(val.equals("basal") || val.equals("H_segmented") || val.equals("patient_centred") || val.equals("risk") || val.equals("need") || val.equals("risk_need")){
+	  if(val.equals("basal") || val.equals("H_segmented") || val.equals("patient_centred") || val.equals("risk") || val.equals("need") || val.equals("need2") || val.equals("risk_need")){
 			Pi = val;
 		} else {
 			System.out.println("(Java CARE) Error! Unexistant policy: "+val);

@@ -10,6 +10,7 @@ public class Prioritizator implements Steppable {
 	//internals
 	private int order_basal_policy = 10;
 	private int priority;
+	private int granularity = 10;
 	
 	public void step(SimState state) {};
 	
@@ -30,6 +31,9 @@ public class Prioritizator implements Steppable {
 			break;
 		case "need":
 			policy = "need";
+			break;
+		case "need2":
+			policy = "need2";
 			break;
 		case "risk_need":
 			policy = "risk_need";
@@ -60,6 +64,9 @@ public class Prioritizator implements Steppable {
 		case "need":
 			priority = need(patient);
 			break;
+		case "need2":
+			priority = need2(patient);
+			break;
 		case "risk_need":
 			priority = risk_need(patient);
 			break;
@@ -86,6 +93,9 @@ public class Prioritizator implements Steppable {
 			return 6;
 		case "need":
 			return (int)((care.pat_init.max_capN *1000)+2);
+		case "need2":
+			int M_max = care.patients != null ? care.patients.numObjs : 0;
+			return M_max + 2;
 		case "risk_need":
 			return (int)((care.pat_init.max_capN + care.pat_init.max_delta)*1000+2);
 		}
@@ -94,6 +104,18 @@ public class Prioritizator implements Steppable {
 
 	public void changePolicy(String p) {
 		policy =p;
+	}
+	
+	public int getGranularity() {
+		return granularity;
+	}
+	
+	public void setGranularity(int g) {
+		if (g >= 0 && g <= 10) {
+			granularity = g;
+		} else {
+			System.out.println("Java (Prioritizator) Granularity must be between 0 and 10");
+		}
 	}
 	
 	public String getPolicy() {return policy;}
@@ -157,6 +179,33 @@ public class Prioritizator implements Steppable {
 	
 	private int risk_need(Patient patient) {
 		return (int)((care.pat_init.max_capN + 2 - patient.n_p_i + care.pat_init.max_delta - patient.delta_p)*1000);
+	}
+	
+	private int need2(Patient patient) {
+		if (granularity == 0) {
+			return 2;
+		}
+		
+		double max_capN = care.pat_init.max_capN;
+		int M = care.patients != null ? care.patients.numObjs : 0;
+		if (M <= 0) {
+			return 2;
+		}
+		
+		double binnedNeed;
+		if (granularity == 10) {
+			binnedNeed = patient.n_p_i;
+		} else {
+			double binSize = max_capN / granularity;
+			binnedNeed = Math.floor(patient.n_p_i / binSize) * binSize;
+			if (binnedNeed > max_capN) {
+				binnedNeed = max_capN;
+			}
+		}
+		
+		double normalizedNeed = max_capN > 0 ? binnedNeed / max_capN : 0.0;
+		int range = Math.max(1, M - 1);
+		return 2 + (int)((1.0 - normalizedNeed) * range);
 	}
 	
 }

@@ -922,8 +922,63 @@ public class Tests {
 					assertTrue( care.N_at_Order[p+1] <= care.N_at_Order[p], "Patient "+p+" has N_at_Order "+care.N_at_Order[p]+" and order " + care.order[p] +
 							" but patient " + p+1 + " that has N_at_Order " +care.N_at_Order[p+1]+" has order " +care.order[p+1] +" seed "+currentSeed+" at iteration "+i);
 				}
-			}
 		}
+	}
+}
+	@Test
+	void check_POLICY_need2() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);
+		int N = 100; int W = 4; int varsigma = 10;
+		care.setW(W);
+		care.setN(N);
+		care.setPi("need2");
+		care.setvarsigma(varsigma);
+		
+		care.pat_init = new PatientInitializer(care, "applyFixed");
+		care.pat_init.fixed_capN = 10;
+		care.pat_init.fixed_lambda = 5;
+		care.pat_init.fixed_tau = 2;
+		care.pat_init.fixed_rho = 1;
+		care.pat_init.fixed_eta = 1;
+		care.pat_init.fixed_kappa = 1;
+		care.pat_init.fixed_capE = 10;
+		care.pat_init.fixed_psi = 0.5;
+		
+		care.start();
+		// Set granularity to 0
+		care.prioritize.setGranularity(0);
+		
+		// Verify all patients have priority 2
+		for (int p = 0; p < care.patients.numObjs; p++) {
+			Patient patient = (Patient)care.patients.objs[p];
+			assertEquals(2, care.prioritize.hat_o(patient), "With granularity 0, all priorities must be 2");
+		}
+		
+		// Set granularity to 10
+		care.prioritize.setGranularity(10);
+		// With granularity 10, priority should decrease (increase numerically) as need decreases.
+		Patient pLowNeed = (Patient)care.patients.objs[0];
+		Patient pHighNeed = (Patient)care.patients.objs[1];
+		pLowNeed.n_p_i = 1.0;
+		pHighNeed.n_p_i = 9.0;
+		int prioLow = care.prioritize.hat_o(pLowNeed);
+		int prioHigh = care.prioritize.hat_o(pHighNeed);
+		assertTrue(prioHigh < prioLow, "Higher need must have higher priority (smaller integer value)");
+		assertTrue(prioHigh >= 2 && prioHigh <= N + 1, "Priority must be between 2 and N+1");
+		assertTrue(prioLow >= 2 && prioLow <= N + 1, "Priority must be between 2 and N+1");
+		
+		// Set granularity to 5 (binSize = 10.0 / 5 = 2.0)
+		care.prioritize.setGranularity(5);
+		// Needs 1.1 and 1.9 should fall into the same bin [0, 2) (binned need 0), thus receiving same priority.
+		pLowNeed.n_p_i = 1.1;
+		pHighNeed.n_p_i = 1.9;
+		assertEquals(care.prioritize.hat_o(pLowNeed), care.prioritize.hat_o(pHighNeed), "Needs 1.1 and 1.9 must receive the same priority at granularity 5");
+		
+		// Need 2.1 should fall into bin [2, 4) (binned need 2), which is higher need than 1.9, so it should have higher priority (smaller integer).
+		Patient pNeed2 = (Patient)care.patients.objs[2];
+		pNeed2.n_p_i = 2.1;
+		assertTrue(care.prioritize.hat_o(pNeed2) < care.prioritize.hat_o(pLowNeed), "Need 2.1 must have higher priority than need 1.9 at granularity 5");
 	}
 
 	void check_POLICY_risk_need() {
