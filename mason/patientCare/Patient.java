@@ -193,6 +193,18 @@ public class Patient implements Steppable {
 		return delta_p;
 	}
 
+	public double getcapN() {
+		return capN_p;
+	}
+
+	public double getcapE() {
+		return capE_p;
+	}
+
+	public double getpsi() {
+		return psi_p;
+	}
+
 	//protected void inactivatePatient() {
 	//	active = false;
 	//}
