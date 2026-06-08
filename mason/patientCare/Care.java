@@ -104,6 +104,12 @@ public class Care extends SimState {
 				false, false);
 	}
 
+	public void startObserver(boolean obsH, boolean obsN, boolean obsC,
+			boolean obsT, boolean obsE, boolean obsB, boolean simpleC, boolean simpleE, boolean simpleB) {
+		startObserver(obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB, false, false, false, false,
+				false, false);
+	}
+
 	/**
 	 * Generate an observer for all state variables and scheddule it with priority 0
 	 */
