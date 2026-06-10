@@ -1,5 +1,9 @@
 package runners;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.stream.IntStream;
+
 public class ResponseProtocol {
     private static final int WAITING = 0;
     private static final int PARAMCHECK = 1;
@@ -15,6 +19,9 @@ public class ResponseProtocol {
 
 	
 	public String comunicate(String com) {
+		if (com != null && com.startsWith("[")) {
+			return executeBatch(com);
+		}
 		if(com.equals("NextCall")) {
 			status = WAITING;
 			return "Done";
@@ -39,5 +46,46 @@ public class ResponseProtocol {
 			return results;
 		}
 	return "error";
+	}
+
+	private String executeBatch(String com) {
+		try {
+			JSONArray batchArray = new JSONArray(com);
+			int length = batchArray.length();
+			JSONObject[] resultsList = new JSONObject[length];
+
+			// Run all simulations in parallel using ForkJoinPool
+			IntStream.range(0, length).parallel().forEach(i -> {
+				try {
+					JSONObject runParams = batchArray.getJSONObject(i);
+					RunWithParams runInstance = new RunWithParams(runParams.toString());
+					runInstance.runSimulation();
+					
+					JSONResponse responseFetcher = new JSONResponse(runInstance.getSimulation());
+					JSONObject resultJson = responseFetcher.results_json;
+					
+					// Inject resolved parameters (such as the actual random seed used)
+					resultJson.put("resolved_params", new JSONObject(runInstance.getParams()));
+					
+					resultsList[i] = resultJson;
+				} catch (Exception e) {
+					e.printStackTrace();
+					JSONObject errorJson = new JSONObject();
+					errorJson.put("error", e.getMessage() != null ? e.getMessage() : "Unknown simulation error");
+					resultsList[i] = errorJson;
+				}
+			});
+
+			JSONArray finalResults = new JSONArray();
+			for (JSONObject res : resultsList) {
+				if (res != null) {
+					finalResults.put(res);
+				}
+			}
+			return finalResults.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "{\"error\": \"Failed to parse or execute batch: " + e.getMessage() + "\"}";
+		}
 	}
 }

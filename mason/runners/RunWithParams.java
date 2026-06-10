@@ -181,7 +181,8 @@ public class RunWithParams {
 		params = new JSONObject(par);
 		readParameters();
 		if (seed == 0) {
-			simulation = new Care(System.currentTimeMillis());
+			long uniqueSeed = Math.abs(System.currentTimeMillis() ^ (Thread.currentThread().getId() << 16) ^ System.nanoTime());
+			simulation = new Care(uniqueSeed);
 		} else {
 			simulation = new Care(seed);
 			System.out.println("JAVA (RunWithParams.java) started with seed " + seed);
