@@ -30,6 +30,11 @@ public class PatientInitializer implements Steppable {
 	public double random_delta_min;
 	public double random_delta_max;
 	
+	/** Starts patients with random delta using loc-scale normal distribution */
+	public boolean loc_scale_delta = false;
+	public double loc_delta;
+	public double scale_delta;
+	
 	/** Starts patients with random eta
 	 * Then, specify min, max. Etas will be assigned by a continuous uniform [min,max]
 	 */
@@ -268,6 +273,10 @@ public class PatientInitializer implements Steppable {
 			break;}
 		if (random_delta == true) {
 			patient.delta_p = (care.random.nextDouble(true,true) * (random_delta_max-random_delta_min)) + random_delta_min;
+		}
+		if (loc_scale_delta == true) {
+			double val = (care.random.nextGaussian() * scale_delta) + loc_delta;
+			patient.delta_p = Math.max(0.0, Math.min(52.0, val));
 		}
 	}
 	

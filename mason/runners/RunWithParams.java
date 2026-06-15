@@ -133,6 +133,15 @@ public class RunWithParams {
 	/** The maximum randomized severity (delta) boundary for patients. */
 	double random_delta_max;
 
+	/** Flag enabling randomized severity parameters among patients using loc-scale normal distribution. */
+	private boolean loc_scale_delta = false;
+
+	/** The location parameter (mean) for randomized severity (delta) distribution. */
+	double loc_delta;
+
+	/** The scale parameter (std dev) for randomized severity (delta) distribution. */
+	double scale_delta;
+
 	/** Flag enabling randomized expectations decay rate parameters among patients. */
 	private boolean random_eta = false;
 
@@ -265,6 +274,11 @@ public class RunWithParams {
 			simulation.pat_init.random_delta = true;
 			simulation.pat_init.random_delta_min = random_delta_min;
 			simulation.pat_init.random_delta_max = random_delta_max;
+		}
+		if (loc_scale_delta) {
+			simulation.pat_init.loc_scale_delta = true;
+			simulation.pat_init.loc_delta = loc_delta;
+			simulation.pat_init.scale_delta = scale_delta;
 		}
 		if (random_eta) {
 			simulation.pat_init.random_eta = true;
@@ -430,7 +444,31 @@ public class RunWithParams {
 					break;
 				case "obsMaxExp":
 					obsMaxExp = true;
+					break;
+				case "loc_delta":
+					loc_scale_delta = true;
+					loc_delta = a.getDouble(0);
+					break;
+				case "scale_delta":
+					loc_scale_delta = true;
+					scale_delta = a.getDouble(0);
+					break;
 			}
+		}
+
+		boolean hasUniformDeltaMin = params.has("random_delta_min");
+		boolean hasUniformDeltaMax = params.has("random_delta_max");
+		boolean hasLocDelta = params.has("loc_delta");
+		boolean hasScaleDelta = params.has("scale_delta");
+
+		if ((hasUniformDeltaMin || hasUniformDeltaMax) && (hasLocDelta || hasScaleDelta)) {
+			throw new IllegalArgumentException("Configuration error: Cannot mix uniform delta parameters (random_delta_min, random_delta_max) with loc-scale delta parameters (loc_delta, scale_delta).");
+		}
+		if (hasUniformDeltaMin != hasUniformDeltaMax) {
+			throw new IllegalArgumentException("Configuration error: Must specify both random_delta_min and random_delta_max as a pair.");
+		}
+		if (hasLocDelta != hasScaleDelta) {
+			throw new IllegalArgumentException("Configuration error: Must specify both loc_delta and scale_delta as a pair.");
 		}
 	}
 
@@ -466,6 +504,10 @@ public class RunWithParams {
 		if (random_delta) {
 			params.put("random_delta_min", Double.toString(random_delta_min));
 			params.put("random_delta_max", Double.toString(random_delta_max));
+		}
+		if (loc_scale_delta) {
+			params.put("loc_delta", Double.toString(loc_delta));
+			params.put("scale_delta", Double.toString(scale_delta));
 		}
 		if (random_eta) {
 			params.put("random_eta_min", Double.toString(random_eta_min));

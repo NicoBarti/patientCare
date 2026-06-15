@@ -175,6 +175,62 @@ public class TestRunWithParams {
 	}
 
 	@Test
+	void testLocScaleDeltaInitialization() {
+		String jsonParams = "{"
+				+ "\"N\": [10],"
+				+ "\"reproduce_line\": [true],"
+				+ "\"loc_delta\": [5.5],"
+				+ "\"scale_delta\": [1.5],"
+				+ "\"initial_h\": [6.5]"
+				+ "}";
+
+		RunWithParams runner = new RunWithParams(jsonParams);
+		Care sim = runner.getSimulation();
+
+		assertNotNull(sim);
+		assertNotNull(sim.pat_init);
+		assertTrue(sim.pat_init.loc_scale_delta);
+		assertFalse(sim.pat_init.random_delta);
+		assertEquals(5.5, sim.pat_init.loc_delta);
+		assertEquals(1.5, sim.pat_init.scale_delta);
+
+		String response = runner.getParams();
+		assertNotNull(response);
+		assertTrue(response.contains("\"loc_delta\":\"5.5\""));
+		assertTrue(response.contains("\"scale_delta\":\"1.5\""));
+	}
+
+	@Test
+	void testConfigurationValidationMixedAndIncomplete() {
+		// Mixed case
+		String jsonMixed = "{"
+				+ "\"N\": [10],"
+				+ "\"reproduce_line\": [true],"
+				+ "\"random_delta_min\": [2.0],"
+				+ "\"random_delta_max\": [8.0],"
+				+ "\"loc_delta\": [5.5],"
+				+ "\"scale_delta\": [1.5]"
+				+ "}";
+		assertThrows(IllegalArgumentException.class, () -> new RunWithParams(jsonMixed));
+
+		// Incomplete uniform case (missing max)
+		String jsonIncompleteUniform = "{"
+				+ "\"N\": [10],"
+				+ "\"reproduce_line\": [true],"
+				+ "\"random_delta_min\": [2.0]"
+				+ "}";
+		assertThrows(IllegalArgumentException.class, () -> new RunWithParams(jsonIncompleteUniform));
+
+		// Incomplete loc-scale case (missing scale)
+		String jsonIncompleteLocScale = "{"
+				+ "\"N\": [10],"
+				+ "\"reproduce_line\": [true],"
+				+ "\"loc_delta\": [5.5]"
+				+ "}";
+		assertThrows(IllegalArgumentException.class, () -> new RunWithParams(jsonIncompleteLocScale));
+	}
+
+	@Test
 	void testObservationFlagsConfiguration() {
 		String jsonParams = "{"
 				+ "\"N\": [5],"

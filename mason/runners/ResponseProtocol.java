@@ -1,5 +1,8 @@
 package runners;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class ResponseProtocol {
     private static final int WAITING = 0;
     private static final int PARAMCHECK = 1;
@@ -13,8 +16,10 @@ public class ResponseProtocol {
 	RunWithParams run;
 	JSONResponse resutlsFetcher;
 
-	
 	public String comunicate(String com) {
+		if (com != null && com.startsWith("[")) {
+			return executeBatch(com);
+		}
 		if(com.equals("NextCall")) {
 			status = WAITING;
 			return "Done";
@@ -38,6 +43,47 @@ public class ResponseProtocol {
 		if(status == CHUNKING) {
 			return results;
 		}
-	return "error";
+		return "error";
+	}
+
+	private String executeBatch(String com) {
+		try {
+			JSONArray batchArray = new JSONArray(com);
+			int length = batchArray.length();
+			JSONObject[] responseObjects = new JSONObject[length];
+
+			java.util.stream.IntStream.range(0, length).parallel().forEach(i -> {
+				try {
+					JSONObject singleParams = batchArray.getJSONObject(i);
+					RunWithParams singleRun = new RunWithParams(singleParams.toString());
+					singleRun.runSimulation();
+					JSONResponse singleFetcher = new JSONResponse(singleRun.getSimulation());
+					JSONObject singleResults = singleFetcher.results_json;
+					
+					singleResults.put("resolved_params", new JSONObject(singleRun.getParams()));
+					responseObjects[i] = singleResults;
+				} catch (Exception e) {
+					e.printStackTrace();
+					JSONObject errorObj = new JSONObject();
+					try {
+						errorObj.put("error", e.getMessage() != null ? e.getMessage() : "Unknown simulation error");
+					} catch (Exception ex) {
+						// ignore
+					}
+					responseObjects[i] = errorObj;
+				}
+			});
+
+			JSONArray resultsArray = new JSONArray();
+			for (JSONObject obj : responseObjects) {
+				if (obj != null) {
+					resultsArray.put(obj);
+				}
+			}
+			return resultsArray.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "error: " + e.getMessage();
+		}
 	}
 }
