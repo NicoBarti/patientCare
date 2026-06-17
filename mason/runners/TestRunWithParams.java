@@ -181,6 +181,8 @@ public class TestRunWithParams {
 				+ "\"reproduce_line\": [true],"
 				+ "\"loc_delta\": [5.5],"
 				+ "\"scale_delta\": [1.5],"
+				+ "\"random_delta_min\": [2.0],"
+				+ "\"random_delta_max\": [8.0],"
 				+ "\"initial_h\": [6.5]"
 				+ "}";
 
@@ -193,25 +195,27 @@ public class TestRunWithParams {
 		assertFalse(sim.pat_init.random_delta);
 		assertEquals(5.5, sim.pat_init.loc_delta);
 		assertEquals(1.5, sim.pat_init.scale_delta);
+		assertEquals(2.0, sim.pat_init.random_delta_min);
+		assertEquals(8.0, sim.pat_init.random_delta_max);
 
 		String response = runner.getParams();
 		assertNotNull(response);
 		assertTrue(response.contains("\"loc_delta\":\"5.5\""));
 		assertTrue(response.contains("\"scale_delta\":\"1.5\""));
+		assertTrue(response.contains("\"random_delta_min\":\"2.0\""));
+		assertTrue(response.contains("\"random_delta_max\":\"8.0\""));
 	}
 
 	@Test
 	void testConfigurationValidationMixedAndIncomplete() {
-		// Mixed case
-		String jsonMixed = "{"
+		// Incomplete Gaussian case (missing uniform delta bounds)
+		String jsonIncompleteGaussian = "{"
 				+ "\"N\": [10],"
 				+ "\"reproduce_line\": [true],"
-				+ "\"random_delta_min\": [2.0],"
-				+ "\"random_delta_max\": [8.0],"
 				+ "\"loc_delta\": [5.5],"
 				+ "\"scale_delta\": [1.5]"
 				+ "}";
-		assertThrows(IllegalArgumentException.class, () -> new RunWithParams(jsonMixed));
+		assertThrows(IllegalArgumentException.class, () -> new RunWithParams(jsonIncompleteGaussian));
 
 		// Incomplete uniform case (missing max)
 		String jsonIncompleteUniform = "{"

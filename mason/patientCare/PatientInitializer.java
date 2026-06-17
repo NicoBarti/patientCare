@@ -276,7 +276,7 @@ public class PatientInitializer implements Steppable {
 		}
 		if (loc_scale_delta == true) {
 			double val = (care.random.nextGaussian() * scale_delta) + loc_delta;
-			patient.delta_p = Math.max(0.0, Math.min(52.0, val));
+			patient.delta_p = Math.max(random_delta_min, Math.min(random_delta_max, val));
 		}
 	}
 	

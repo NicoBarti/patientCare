@@ -180,6 +180,11 @@ public class RunWithParams {
 	 */
 	double prioritization_granularity = -1;
 
+	double add_proportion = 0.0;
+	double remove_proportion = 0.0;
+	int flow_period = 1;
+	double dropout_severity = 0.0;
+
 	/**
 	 * Constructs a RunWithParams instance and initializes a MASON simulation (Care)
 	 * with parameters parsed from a JSON string.
@@ -226,6 +231,10 @@ public class RunWithParams {
 		simulation.setOBS_PERIOD(OBS_PERIOD);
 		simulation.setPi(pi);
 		simulation.prioritization_granularity = prioritization_granularity;
+		simulation.add_proportion = add_proportion;
+		simulation.remove_proportion = remove_proportion;
+		simulation.flow_period = flow_period;
+		simulation.dropout_severity = dropout_severity;
 	}
 
 	/**
@@ -254,6 +263,10 @@ public class RunWithParams {
 		simulation.N = N;
 		simulation.setPi(pi);
 		simulation.prioritization_granularity = prioritization_granularity;
+		simulation.add_proportion = add_proportion;
+		simulation.remove_proportion = remove_proportion;
+		simulation.flow_period = flow_period;
+		simulation.dropout_severity = dropout_severity;
 
 		simulation.pat_init = new PatientInitializer(simulation, "applyFixed");
 		simulation.setPATIENT_INIT("applyFixed");
@@ -279,6 +292,8 @@ public class RunWithParams {
 			simulation.pat_init.loc_scale_delta = true;
 			simulation.pat_init.loc_delta = loc_delta;
 			simulation.pat_init.scale_delta = scale_delta;
+			simulation.pat_init.random_delta_min = random_delta_min;
+			simulation.pat_init.random_delta_max = random_delta_max;
 		}
 		if (random_eta) {
 			simulation.pat_init.random_eta = true;
@@ -453,6 +468,18 @@ public class RunWithParams {
 					loc_scale_delta = true;
 					scale_delta = a.getDouble(0);
 					break;
+				case "add_proportion":
+					add_proportion = a.getDouble(0);
+					break;
+				case "remove_proportion":
+					remove_proportion = a.getDouble(0);
+					break;
+				case "flow_period":
+					flow_period = a.getInt(0);
+					break;
+				case "dropout_severity":
+					dropout_severity = a.getDouble(0);
+					break;
 			}
 		}
 
@@ -461,14 +488,23 @@ public class RunWithParams {
 		boolean hasLocDelta = params.has("loc_delta");
 		boolean hasScaleDelta = params.has("scale_delta");
 
-		if ((hasUniformDeltaMin || hasUniformDeltaMax) && (hasLocDelta || hasScaleDelta)) {
-			throw new IllegalArgumentException("Configuration error: Cannot mix uniform delta parameters (random_delta_min, random_delta_max) with loc-scale delta parameters (loc_delta, scale_delta).");
-		}
-		if (hasUniformDeltaMin != hasUniformDeltaMax) {
-			throw new IllegalArgumentException("Configuration error: Must specify both random_delta_min and random_delta_max as a pair.");
-		}
-		if (hasLocDelta != hasScaleDelta) {
-			throw new IllegalArgumentException("Configuration error: Must specify both loc_delta and scale_delta as a pair.");
+		if (hasLocDelta && hasScaleDelta) {
+			loc_scale_delta = true;
+			random_delta = false;
+			if (!hasUniformDeltaMin || !hasUniformDeltaMax) {
+				throw new IllegalArgumentException("Configuration error: When using loc-scale delta parameters (loc_delta, scale_delta), you must also specify both random_delta_min and random_delta_max as bounds.");
+			}
+		} else {
+			if (hasLocDelta != hasScaleDelta) {
+				throw new IllegalArgumentException("Configuration error: Must specify both loc_delta and scale_delta as a pair.");
+			}
+			if (hasUniformDeltaMin != hasUniformDeltaMax) {
+				throw new IllegalArgumentException("Configuration error: Must specify both random_delta_min and random_delta_max as a pair.");
+			}
+			if (hasUniformDeltaMin && hasUniformDeltaMax) {
+				random_delta = true;
+				loc_scale_delta = false;
+			}
 		}
 	}
 
@@ -482,6 +518,10 @@ public class RunWithParams {
 		HashMap<String, String> params = simulation.getParams();
 		params.put("pathfinder", Boolean.toString(configure_pathfinder));
 		params.put("reproduce_line", Boolean.toString(reproduce_line));
+		params.put("add_proportion", Double.toString(add_proportion));
+		params.put("remove_proportion", Double.toString(remove_proportion));
+		params.put("flow_period", Integer.toString(flow_period));
+		params.put("dropout_severity", Double.toString(dropout_severity));
 
 		params.put("PATIENT_INIT", PATIENT_INIT);
 		params.put("PROVIDER_INIT", PROVIDER_INIT);
@@ -508,6 +548,8 @@ public class RunWithParams {
 		if (loc_scale_delta) {
 			params.put("loc_delta", Double.toString(loc_delta));
 			params.put("scale_delta", Double.toString(scale_delta));
+			params.put("random_delta_min", Double.toString(random_delta_min));
+			params.put("random_delta_max", Double.toString(random_delta_max));
 		}
 		if (random_eta) {
 			params.put("random_eta_min", Double.toString(random_eta_min));
