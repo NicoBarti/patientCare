@@ -737,13 +737,23 @@ public class ObserveCare implements Steppable{
 
 		}
 		// Triple arrays
-			for(int w = 0; w<B_p_w_i[id].length ; w++) {
+		if (B_p_w_i != null || C_p_w_i != null || E_p_w_i != null) {
+			int wLength = 0;
+			if (B_p_w_i != null) {
+				wLength = B_p_w_i[id].length;
+			} else if (C_p_w_i != null) {
+				wLength = C_p_w_i[id].length;
+			} else if (E_p_w_i != null) {
+				wLength = E_p_w_i[id].length;
+			}
+			for(int w = 0; w < wLength; w++) {
 				for(int i = windowNumber; i< arraysLength; i++) {
-					if(obsB) {B_p_w_i[id][w][i] = -1;}
-					if(obsC) {C_p_w_i[id][w][i] = -1;}
-					if(obsE) {E_p_w_i[id][w][i] = -1;}
+					if(obsB && B_p_w_i != null) {B_p_w_i[id][w][i] = -1;}
+					if(obsC && C_p_w_i != null) {C_p_w_i[id][w][i] = -1;}
+					if(obsE && E_p_w_i != null) {E_p_w_i[id][w][i] = -1;}
 				}
 			}
+		}
 	}
 	
 	/**

@@ -44,6 +44,10 @@ public class Care extends SimState {
 	 * How patients are initialized
 	 */
 	public String PATIENT_INIT = "random";
+	public double add_proportion = 0.0;
+	public double remove_proportion = 0.0;
+	public int flow_period = 1;
+	public double dropout_severity = 0.0;
 
 	// internals
 	/**
@@ -207,6 +211,9 @@ public class Care extends SimState {
 		});
 
 		appointer = new Appointer(this);
+		if (add_proportion > 0.0 || remove_proportion > 0.0 || dropout_severity > 0.0) {
+			schedule.scheduleRepeating(schedule.EPOCH, 0, new PatientFlowManager(this, add_proportion, remove_proportion, flow_period, dropout_severity));
+		}
 		// FOR CONSISTENCY AMONG IMPLEMENTATIONS, THE SEED IS RESET AFTER
 		// INITIALIZING AGENTS, BEFORE STEPPING THE SIMULATION
 		this.random.setSeed(storedSeed);
@@ -298,6 +305,38 @@ public class Care extends SimState {
 		return storedSeed;
 	}
 
+	public void setAdd_proportion(double val) {
+		add_proportion = val;
+	}
+
+	public double getAdd_proportion() {
+		return add_proportion;
+	}
+
+	public void setRemove_proportion(double val) {
+		remove_proportion = val;
+	}
+
+	public double getRemove_proportion() {
+		return remove_proportion;
+	}
+
+	public void setFlow_period(int val) {
+		flow_period = val;
+	}
+
+	public int getFlow_period() {
+		return flow_period;
+	}
+
+	public void setDropout_severity(double val) {
+		dropout_severity = val;
+	}
+
+	public double getDropout_severity() {
+		return dropout_severity;
+	}
+
 	// to access the observer
 	// public
 
@@ -306,6 +345,10 @@ public class Care extends SimState {
 		HashMap<String, String> params = new HashMap();
 		// Care level
 		params.put("N", Integer.toString(getN()));
+		params.put("add_proportion", Double.toString(add_proportion));
+		params.put("remove_proportion", Double.toString(remove_proportion));
+		params.put("flow_period", Integer.toString(flow_period));
+		params.put("dropout_severity", Double.toString(dropout_severity));
 		params.put("varsigma", Integer.toString(getvarsigma()));
 		params.put("W", Integer.toString(getW()));
 		params.put("totalCapacity", Integer.toString(totalCapacity));
