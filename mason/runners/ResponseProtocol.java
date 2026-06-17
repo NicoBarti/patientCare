@@ -2,6 +2,7 @@ package runners;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.stream.IntStream;
 
 public class ResponseProtocol {
     private static final int WAITING = 0;
@@ -50,40 +51,44 @@ public class ResponseProtocol {
 		try {
 			JSONArray batchArray = new JSONArray(com);
 			int length = batchArray.length();
-			JSONObject[] responseObjects = new JSONObject[length];
+			JSONObject[] resultsList = new JSONObject[length];
 
-			java.util.stream.IntStream.range(0, length).parallel().forEach(i -> {
+			// Run all simulations in parallel using ForkJoinPool
+			IntStream.range(0, length).parallel().forEach(i -> {
 				try {
-					JSONObject singleParams = batchArray.getJSONObject(i);
-					RunWithParams singleRun = new RunWithParams(singleParams.toString());
-					singleRun.runSimulation();
-					JSONResponse singleFetcher = new JSONResponse(singleRun.getSimulation());
-					JSONObject singleResults = singleFetcher.results_json;
+					JSONObject runParams = batchArray.getJSONObject(i);
+					RunWithParams runInstance = new RunWithParams(runParams.toString());
+					runInstance.runSimulation();
 					
-					singleResults.put("resolved_params", new JSONObject(singleRun.getParams()));
-					responseObjects[i] = singleResults;
+					JSONResponse responseFetcher = new JSONResponse(runInstance.getSimulation());
+					JSONObject resultJson = responseFetcher.results_json;
+					
+					// Inject resolved parameters (such as the actual random seed used)
+					resultJson.put("resolved_params", new JSONObject(runInstance.getParams()));
+					
+					resultsList[i] = resultJson;
 				} catch (Exception e) {
 					e.printStackTrace();
-					JSONObject errorObj = new JSONObject();
+					JSONObject errorJson = new JSONObject();
 					try {
-						errorObj.put("error", e.getMessage() != null ? e.getMessage() : "Unknown simulation error");
+						errorJson.put("error", e.getMessage() != null ? e.getMessage() : "Unknown simulation error");
 					} catch (Exception ex) {
 						// ignore
 					}
-					responseObjects[i] = errorObj;
+					resultsList[i] = errorJson;
 				}
 			});
 
-			JSONArray resultsArray = new JSONArray();
-			for (JSONObject obj : responseObjects) {
-				if (obj != null) {
-					resultsArray.put(obj);
+			JSONArray finalResults = new JSONArray();
+			for (JSONObject res : resultsList) {
+				if (res != null) {
+					finalResults.put(res);
 				}
 			}
-			return resultsArray.toString();
+			return finalResults.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "error: " + e.getMessage();
+			return "{\"error\": \"Failed to parse or execute batch: " + e.getMessage() + "\"}";
 		}
 	}
 }

@@ -2,3 +2,4 @@
 mason/.classpath
 .gitignore
 .classpath
+*.class
