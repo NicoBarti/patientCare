@@ -102,6 +102,9 @@ public class RunWithParams {
 	/** Flag to enable observing maximum expectation values. */
 	boolean obsMaxExp = false;
 
+	/** Flag to enable observing step-by-step performance ratio (treatment/interactions). */
+	boolean obsStepPerformance = false;
+
 	// Patient initializers
 	/** The fixed severity (delta) assigned to all patient agents. */
 	double fixed_delta;
@@ -236,6 +239,7 @@ public class RunWithParams {
 		simulation.remove_proportion = remove_proportion;
 		simulation.flow_period = flow_period;
 		simulation.dropout_severity = dropout_severity;
+		simulation.obsStepPerformance = obsStepPerformance;
 	}
 
 	/**
@@ -268,6 +272,7 @@ public class RunWithParams {
 		simulation.remove_proportion = remove_proportion;
 		simulation.flow_period = flow_period;
 		simulation.dropout_severity = dropout_severity;
+		simulation.obsStepPerformance = obsStepPerformance;
 
 		simulation.pat_init = new PatientInitializer(simulation, "applyFixed");
 		simulation.setPATIENT_INIT("applyFixed");
@@ -461,6 +466,9 @@ public class RunWithParams {
 				case "obsMaxExp":
 					obsMaxExp = true;
 					break;
+				case "stepPerformance":
+					obsStepPerformance = true;
+					break;
 				case "loc_delta":
 					loc_scale_delta = true;
 					loc_delta = a.getDouble(0);
@@ -539,6 +547,7 @@ public class RunWithParams {
 		params.put("obsDelta", Boolean.toString(obsDelta));
 		params.put("obsPerformance", Boolean.toString(obsPerformance));
 		params.put("obsMaxExp", Boolean.toString(obsMaxExp));
+		params.put("obsStepPerformance", Boolean.toString(obsStepPerformance));
 
 		params.put("obsExpNoise", Boolean.toString(obsExpNoise));
 		params.put("obsInstExp", Boolean.toString(obsInstExp));

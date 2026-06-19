@@ -223,7 +223,6 @@ public class PatientInitializer implements Steppable {
 	public void c(Patient patient) {
 		patient.c_p_i_1 = new int[care.prov_init.getArrayLenght()];
 		patient.c_p_i = new int[care.prov_init.getArrayLenght()];
-		patient.c_p_i_counter = new int[care.prov_init.getArrayLenght()];
 
 		switch(strategy) {
 		case "random-basal": 

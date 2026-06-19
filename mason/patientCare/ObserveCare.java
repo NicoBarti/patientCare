@@ -92,6 +92,10 @@ public class ObserveCare implements Steppable{
 	 */
 	double[][] maxExp_p_i;
 	
+	// Step-by-step metrics
+	public double[] stepTreatmentDelivered;
+	public int[] stepInteractions;
+	
 	
 	
 	
@@ -158,6 +162,8 @@ public class ObserveCare implements Steppable{
 		delta_p_i = new double[care.N][arraysLength]; obsDelta=true;
 		performance_i = new double[arraysLength]; obsPerformance = true;
 		maxExp_p_i = new double[care.N][arraysLength]; obsMaxExp = true;
+		stepTreatmentDelivered = new double[care.varsigma + 1];
+		stepInteractions = new int[care.varsigma + 1];
 	}
 	
 	/** Create the observer with this constructor to observe only the specified variables
@@ -201,6 +207,8 @@ public class ObserveCare implements Steppable{
 		if(Delta) {delta_p_i = new double[care.N][arraysLength]; obsDelta=true;}
 		if(Performance) {performance_i = new double[arraysLength]; obsPerformance=true;}
 		if(maxExp) {maxExp_p_i = new double[care.N][arraysLength]; obsMaxExp = true;}
+		stepTreatmentDelivered = new double[care.varsigma + 1];
+		stepInteractions = new int[care.varsigma + 1];
 	}
 	
 	
@@ -287,7 +295,7 @@ public class ObserveCare implements Steppable{
 		for(int p = 0; p<care.patients.numObjs;p++) { //observe only existing patients
 			patient = ((Patient)care.patients.objs[p]);
 			simple_sum_i = 0;
-			for(int w = 0; w<patient.c_p_i_counter.length;w++) {
+			for(int w = 0; w<patient.c_p_i_1.length;w++) {
 				simple_sum_i += patient.c_p_i_1[w];
 			}
 			simple_C_p_i[p][loc] = simple_sum_i;
@@ -762,6 +770,29 @@ public class ObserveCare implements Steppable{
 	 */
 	public void unobserveProvider(int w) {}
 	
-	
+	public synchronized void recordInteraction(int step, double treatmentAmount) {
+		stepTreatmentDelivered[step] += treatmentAmount;
+		stepInteractions[step] += 1;
+	}
 
+	public double[] getStepTreatmentDelivered() {
+		return stepTreatmentDelivered;
+	}
+
+	public int[] getStepInteractions() {
+		return stepInteractions;
+	}
+
+	public double[] getStepPerformance() {
+		double[] stepPerformance = new double[care.varsigma];
+		for (int i = 0; i < stepPerformance.length; i++) {
+			int interactions = stepInteractions[i];
+			if (interactions > 0) {
+				stepPerformance[i] = stepTreatmentDelivered[i] / interactions;
+			} else {
+				stepPerformance[i] = 0.0;
+			}
+		}
+		return stepPerformance;
+	}
 }

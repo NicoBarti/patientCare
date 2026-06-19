@@ -48,6 +48,7 @@ public class Care extends SimState {
 	public double remove_proportion = 0.0;
 	public int flow_period = 1;
 	public double dropout_severity = 0.0;
+	public boolean obsStepPerformance = false;
 
 	// internals
 	/**
@@ -372,6 +373,8 @@ public class Care extends SimState {
 		params.put("fixed_tau", Double.toString(prov_init.fixed_tau));
 		// hyperparams
 		params.put("seed", Long.toString(storedSeed));
+
+		params.put("obsStepPerformance", Boolean.toString(obsStepPerformance));
 
 		return params;
 	}

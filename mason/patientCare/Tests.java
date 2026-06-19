@@ -1527,7 +1527,6 @@ public class Tests {
 		assertEquals(10, ((Patient) care.patients.get(care.random.nextInt(10))).b_p_i_1.length);
 		assertEquals(10, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i.length);
 		assertEquals(10, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i_1.length);
-		assertEquals(10, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i_counter.length);
 		// Check provider's availability
 		assertTrue(care.appointer.appoint(care.random.nextInt(5) + 5, 0, 3)[0] > -1);
 		// Check total capacity was preserved
@@ -1588,7 +1587,6 @@ public class Tests {
 		assertEquals(10, ((Patient) care.patients.get(care.random.nextInt(10))).b_p_i_1.length);
 		assertEquals(10, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i.length);
 		assertEquals(10, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i_1.length);
-		assertEquals(10, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i_counter.length);
 
 		// Check that observer has "W" providers in B or E or C
 		assertEquals(10, care.observer.B_p_w_i[care.random.nextInt(20)].length);
@@ -1611,7 +1609,6 @@ public class Tests {
 		assertEquals(22, ((Patient) care.patients.get(care.random.nextInt(10))).b_p_i_1.length);
 		assertEquals(22, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i.length);
 		assertEquals(22, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i_1.length);
-		assertEquals(22, ((Patient) care.patients.get(care.random.nextInt(10))).c_p_i_counter.length);
 
 		// check ID are unique
 		int[] IDS = new int[care.providers.numObjs];
@@ -1712,7 +1709,6 @@ public class Tests {
 			assertEquals(cummulativeW, ((Patient) care.patients.get(care.random.nextInt(newN))).b_p_i_1.length);
 			assertEquals(cummulativeW, ((Patient) care.patients.get(care.random.nextInt(newN))).c_p_i.length);
 			assertEquals(cummulativeW, ((Patient) care.patients.get(care.random.nextInt(newN))).c_p_i_1.length);
-			assertEquals(cummulativeW, ((Patient) care.patients.get(care.random.nextInt(newN))).c_p_i_counter.length);
 			// w:
 			assertEquals(cummulativeN, ((Provider) care.providers.get(care.random.nextInt(newW))).SumC_p.length);
 
@@ -1814,6 +1810,80 @@ public class Tests {
 		}
 		assertTrue(mean_delta / 2000 > 5 & mean_delta / 2000 < 6,
 				"mean_delta should be around 5.5 but was " + mean_delta / 2000);
+	}
+
+	@Test
+	public void testStepByStepMetrics() {
+		long currentSeed = System.currentTimeMillis();
+		care = new Care(currentSeed);
+		care.N = 100;
+		care.W = 2;
+		care.varsigma = 10;
+		care.OBS_PERIOD = 100; // Set OBS_PERIOD high to prove step-by-step metrics ignore it
+		
+		care.pat_init = new PatientInitializer(care, "basal");
+		care.pat_init.initial_h = true;
+		care.pat_init.h0_value = 5.0;
+		
+		care.prov_init = new ProviderInitializer(care, "basal");
+		
+		care.start();
+		care.startObserver();
+		
+		// Run simulation
+		for (int i = 0; i < 10; i++) {
+			care.schedule.step(care);
+		}
+		care.finish();
+		
+		double[] treatment = care.observer.getStepTreatmentDelivered();
+		int[] interactions = care.observer.getStepInteractions();
+		
+		assertEquals(11, treatment.length);
+		assertEquals(11, interactions.length);
+		
+		double totalTreatment = 0;
+		int totalInteractions = 0;
+		for (int i = 0; i <= 10; i++) {
+			totalTreatment += treatment[i];
+			totalInteractions += interactions[i];
+		}
+		
+		assertTrue(totalInteractions > 0, "There should be at least one patient-doctor interaction recorded");
+		assertTrue(totalTreatment > 0.0, "There should be a non-zero amount of treatment delivered");
+	}
+
+	@Test
+	public void testRunWithParamsStepPerformance() {
+		// Create a JSON parameter string with stepPerformance enabled and reproduce_line to initialize correctly
+		String jsonParams = "{"
+				+ "\"N\": [100],"
+				+ "\"W\": [2],"
+				+ "\"varsigma\": [10],"
+				+ "\"reproduce_line\": [true],"
+				+ "\"fixed_delta\": [3.0],"
+				+ "\"fixed_capN\": [5.0],"
+				+ "\"fixed_rho\": [1.0],"
+				+ "\"fixed_eta\": [1.0],"
+				+ "\"fixed_kappa\": [0.1],"
+				+ "\"fixed_capE\": [5.0],"
+				+ "\"fixed_psi\": [0.5],"
+				+ "\"fixed_lambda\": [1.0],"
+				+ "\"fixed_tau\": [2.0],"
+				+ "\"initial_h\": [5.0],"
+				+ "\"stepPerformance\": [true],"
+				+ "\"seed\": [12345]"
+				+ "}";
+		
+		runners.RunWithParams runner = new runners.RunWithParams(jsonParams);
+		runner.runSimulation();
+		
+		runners.JSONResponse responseFetcher = new runners.JSONResponse(runner.getSimulation());
+		org.json.JSONObject resultJson = new org.json.JSONObject(responseFetcher.result());
+		
+		assertTrue(resultJson.has("stepPerformance"), "JSON response should contain 'stepPerformance' key");
+		org.json.JSONArray stepPerfArray = resultJson.getJSONArray("stepPerformance");
+		assertEquals(10, stepPerfArray.length(), "stepPerformance array should have length equal to varsigma");
 	}
 
 }

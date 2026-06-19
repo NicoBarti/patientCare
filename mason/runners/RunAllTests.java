@@ -16,7 +16,8 @@ public class RunAllTests {
                 selectClass(patientCare.Tests.class),
                 selectClass(runners.TestRunWithParams.class),
                 selectClass(runners.TestPathFinder.class),
-                selectClass(patientCare.TestPatientFlowManager.class)
+                selectClass(patientCare.TestPatientFlowManager.class),
+                selectClass(patientCare.TestPatientInitializer.class)
             )
             .build();
 

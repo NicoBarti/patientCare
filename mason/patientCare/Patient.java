@@ -10,7 +10,6 @@ public class Patient implements Steppable {
 	double t_p_i;	double t_p_i_1;
 	double[] e_p_i;	double[] e_p_i_1;
 	int[] c_p_i;	int[] c_p_i_1;
-	int[] c_p_i_counter;
 	int[] b_p_i_counter;
 	int[] b_p_i;	int[] b_p_i_1;
 	double n_p_i;	
@@ -82,7 +81,9 @@ public class Patient implements Steppable {
 			} else {
 				c_p_i[(int)interaction[0]] = 1; //w or another available provider
 				t_p_i = interaction[1];
-				c_p_i_counter[w] +=1;
+				if (care.observer != null) {
+					care.observer.recordInteraction((int)state.schedule.getSteps(), interaction[1]);
+				}
 				}
 			}
 		
@@ -215,7 +216,6 @@ public class Patient implements Steppable {
 	    for(int i=0; i< e_p_i.length; i++) {
 			e_p_i[i] = -1; e_p_i_1[i] = -1;
 			c_p_i[i] = -1; c_p_i_1[i] = -1;
-			c_p_i_counter[i] = -1;
 			b_p_i_counter[i] = -1;
 			b_p_i[i] = -1;	 b_p_i_1[i]= -1;
 	    }
@@ -250,10 +250,6 @@ public class Patient implements Steppable {
 			int[] new_b_p_i_1 = increaseSingle_newW(b_p_i_1, W_increase);
 			b_p_i_1 = new_b_p_i_1.clone();// assign (clone) to array
 		
-			//create a new transitory array to copy info
-			int[] new_c_p_i_counter = increaseSingle_newW(c_p_i_counter, W_increase);
-			c_p_i_counter = new_c_p_i_counter.clone();// assign (clone) to array
-			
 			//create a new transitory array to copy info
 			int[] new_b_p_i_counter = increaseSingle_newW(b_p_i_counter, W_increase);
 			b_p_i_counter = new_b_p_i_counter.clone();// assign (clone) to array

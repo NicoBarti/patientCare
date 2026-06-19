@@ -40,8 +40,10 @@ public class JSONResponse {
 			buildResults_json("Delta", simulation.observer.getDelta());
 			buildResults_json("Performance", simulation.observer.getPerformance());
 			buildResults_json("MaxExp", simulation.observer.getMaxExp());
-
 			
+			if (simulation.obsStepPerformance) {
+				buildResults_json("stepPerformance", simulation.observer.getStepPerformance());
+			}
 	}
 	
 	private JSONObject buildResults_json(String name, Object array) {
