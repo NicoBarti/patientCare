@@ -1826,6 +1826,7 @@ public class Tests {
 		care.pat_init.h0_value = 5.0;
 		
 		care.prov_init = new ProviderInitializer(care, "basal");
+		care.obsStepPerformance = true;
 		
 		care.start();
 		care.startObserver();

@@ -81,7 +81,7 @@ public class Patient implements Steppable {
 			} else {
 				c_p_i[(int)interaction[0]] = 1; //w or another available provider
 				t_p_i = interaction[1];
-				if (care.observer != null) {
+				if (care.observer != null && care.obsStepPerformance) {
 					care.observer.recordInteraction((int)state.schedule.getSteps(), interaction[1]);
 				}
 				}

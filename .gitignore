@@ -4,3 +4,5 @@ mason/.classpath
 .classpath
 *.class
 *.jar
+mason/testingTrash/
+*.csv
