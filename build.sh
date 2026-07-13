@@ -4,7 +4,7 @@ set -e
 echo "Starting build process..."
 
 # Define library paths (as defined in your .classpath file)
-LIBS_DIR="/Users/Nico/eclipse-workspace/sim13/libraries"
+LIBS_DIR="/Users/nicolasbarticevic/eclipse-workspace/sim13/libraries"
 MASON_JAR="$LIBS_DIR/mason.22.jar"
 OPENCSV_JAR="$LIBS_DIR/opencsv-5.9.jar"
 PORTFOLIO_JAR="$LIBS_DIR/portfolio.jar"

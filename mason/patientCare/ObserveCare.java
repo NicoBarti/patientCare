@@ -88,6 +88,18 @@ public class ObserveCare implements Steppable {
 	double[][] delta_p_i;
 
 	/**
+	 * The expectations growth rate (rho)
+	 * 
+	 */
+	double[][] rho_p_i;
+
+	/**
+	 * The expectations decay rate (eta)
+	 * 
+	 */
+	double[][] eta_p_i;
+
+	/**
 	 * The performance at every timestep: average treatments delivered by
 	 * appointment.
 	 */
@@ -102,6 +114,7 @@ public class ObserveCare implements Steppable {
 	// Step-by-step metrics
 	public double[] stepTreatmentDelivered;
 	public int[] stepInteractions;
+	public double[] stepCapacity;
 
 	// internals
 	int arraysLength;
@@ -128,6 +141,8 @@ public class ObserveCare implements Steppable {
 	boolean obsSimpleE = false;
 	boolean obsSimpleB = false;
 	boolean obsDelta = false;
+	boolean obsRho = false;
+	boolean obsEta = false;
 	boolean obsDisease = false;
 	boolean obsExpNoise = false;
 	boolean obsInstExp = false;
@@ -184,6 +199,10 @@ public class ObserveCare implements Steppable {
 		obsInstExp = true;
 		delta_p_i = new double[care.N][arraysLength];
 		obsDelta = true;
+		rho_p_i = new double[care.N][arraysLength];
+		obsRho = true;
+		eta_p_i = new double[care.N][arraysLength];
+		obsEta = true;
 		performance_i = new double[arraysLength];
 		obsPerformance = true;
 		maxExp_p_i = new double[care.N][arraysLength];
@@ -191,6 +210,7 @@ public class ObserveCare implements Steppable {
 		if (care.obsStepPerformance) {
 			stepTreatmentDelivered = new double[care.varsigma + 1];
 			stepInteractions = new int[care.varsigma + 1];
+			stepCapacity = new double[care.varsigma + 1];
 		}
 	}
 
@@ -218,6 +238,13 @@ public class ObserveCare implements Steppable {
 			boolean T, boolean E, boolean B, boolean simple_C, boolean simple_E,
 			boolean simple_B, boolean disease, boolean expNoise, boolean instExp,
 			boolean Delta, boolean Performance, boolean maxExp) {
+		this(sim, value, H, N, C, T, E, B, simple_C, simple_E, simple_B, disease, expNoise, instExp, Delta, Performance, maxExp, false, false);
+	}
+
+	public ObserveCare(Care sim, int value, boolean H, boolean N, boolean C,
+			boolean T, boolean E, boolean B, boolean simple_C, boolean simple_E,
+			boolean simple_B, boolean disease, boolean expNoise, boolean instExp,
+			boolean Delta, boolean Performance, boolean maxExp, boolean Rho, boolean Eta) {
 
 		care = sim;
 		set_arrays_length(value);
@@ -275,6 +302,14 @@ public class ObserveCare implements Steppable {
 			delta_p_i = new double[care.N][arraysLength];
 			obsDelta = true;
 		}
+		if (Rho) {
+			rho_p_i = new double[care.N][arraysLength];
+			obsRho = true;
+		}
+		if (Eta) {
+			eta_p_i = new double[care.N][arraysLength];
+			obsEta = true;
+		}
 		if (Performance) {
 			performance_i = new double[arraysLength];
 			obsPerformance = true;
@@ -286,6 +321,7 @@ public class ObserveCare implements Steppable {
 		if (care.obsStepPerformance) {
 			stepTreatmentDelivered = new double[care.varsigma + 1];
 			stepInteractions = new int[care.varsigma + 1];
+			stepCapacity = new double[care.varsigma + 1];
 		}
 	}
 
@@ -307,6 +343,16 @@ public class ObserveCare implements Steppable {
 	 * Once simulation is over gets called by care.finish() to record final states.
 	 */
 	public void step(SimState state) {
+		if (care.obsStepPerformance) {
+			int currentStep = (int) state.schedule.getSteps();
+			if (currentStep < stepCapacity.length) {
+				double capacity = 0;
+				for (int w = 0; w < care.providers.numObjs; w++) {
+					capacity += ((Provider) care.providers.objs[w]).A_w;
+				}
+				stepCapacity[currentStep] = capacity;
+			}
+		}
 		if (counter == 0) { // record initial conditions
 			observe(windowNumber, (Care) state);
 			windowNumber += 1;
@@ -363,6 +409,12 @@ public class ObserveCare implements Steppable {
 		}
 		if (obsDelta) {
 			observeDelta(loc);
+		}
+		if (obsRho) {
+			observeRho(loc);
+		}
+		if (obsEta) {
+			observeEta(loc);
 		}
 		if (obsPerformance) {
 			observePerformance(loc);
@@ -550,6 +602,30 @@ public class ObserveCare implements Steppable {
 	}
 
 	/**
+	 * Observe expectations growth rate (rho) for existing patients.
+	 * 
+	 * @param loc the observation window
+	 */
+	public void observeRho(int loc) {
+		for (int p = 0; p < care.patients.numObjs; p++) { // observe only existing patients
+			patient = ((Patient) care.patients.objs[p]);
+			rho_p_i[patient.p][loc] = patient.getrho();
+		}
+	}
+
+	/**
+	 * Observe expectations decay rate (eta) for existing patients.
+	 * 
+	 * @param loc the observation window
+	 */
+	public void observeEta(int loc) {
+		for (int p = 0; p < care.patients.numObjs; p++) { // observe only existing patients
+			patient = ((Patient) care.patients.objs[p]);
+			eta_p_i[patient.p][loc] = patient.geteta();
+		}
+	}
+
+	/**
 	 * Observe expectation noise Gaussian process for existing patients
 	 * 
 	 * @param loc
@@ -642,6 +718,14 @@ public class ObserveCare implements Steppable {
 
 	public double[][] getDelta() {
 		return delta_p_i;
+	}
+
+	public double[][] getRho() {
+		return rho_p_i;
+	}
+
+	public double[][] getEta() {
+		return eta_p_i;
 	}
 
 	public double[] getPerformance() {
@@ -757,6 +841,14 @@ public class ObserveCare implements Steppable {
 		if (obsDelta) {
 			double[][] newdelta_p_i = increaseDual_newArr(delta_p_i, N_increase);
 			delta_p_i = newdelta_p_i.clone();
+		}
+		if (obsRho) {
+			double[][] newrho_p_i = increaseDual_newArr(rho_p_i, N_increase);
+			rho_p_i = newrho_p_i.clone();
+		}
+		if (obsEta) {
+			double[][] neweta_p_i = increaseDual_newArr(eta_p_i, N_increase);
+			eta_p_i = neweta_p_i.clone();
 		}
 		if (obsExpNoise) {
 			double[][] newExpNoise = increaseDual_newArr(expNoise_p_i, N_increase);
@@ -949,6 +1041,12 @@ public class ObserveCare implements Steppable {
 			if (obsDelta) {
 				delta_p_i[id][i] = -1;
 			}
+			if (obsRho) {
+				rho_p_i[id][i] = -1;
+			}
+			if (obsEta) {
+				eta_p_i[id][i] = -1;
+			}
 			if (obsMaxExp) {
 				maxExp_p_i[id][i] = -1;
 			}
@@ -1002,12 +1100,16 @@ public class ObserveCare implements Steppable {
 		return stepInteractions;
 	}
 
+	public double[] getStepCapacity() {
+		return stepCapacity;
+	}
+
 	public double[] getStepPerformance() {
 		double[] stepPerformance = new double[care.varsigma];
 		for (int i = 0; i < stepPerformance.length; i++) {
-			int interactions = stepInteractions[i];
-			if (interactions > 0) {
-				stepPerformance[i] = stepTreatmentDelivered[i] / interactions;
+			double capacity = stepCapacity[i];
+			if (capacity > 0) {
+				stepPerformance[i] = stepTreatmentDelivered[i] / capacity;
 			} else {
 				stepPerformance[i] = 0.0;
 			}

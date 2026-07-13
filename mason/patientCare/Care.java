@@ -89,10 +89,18 @@ public class Care extends SimState {
 	 */
 	public void startObserver(boolean obsH, boolean obsN, boolean obsC,
 			boolean obsT, boolean obsE, boolean obsB, boolean simpleC, boolean simpleE, boolean simpleB,
-			boolean disease, boolean expNoise, boolean instExp, boolean delta, boolean performance, boolean maxExp) {
+			boolean disease, boolean expNoise, boolean instExp, boolean delta, boolean performance, boolean maxExp,
+			boolean rho, boolean eta) {
 		observer = new ObserveCare(this, OBS_PERIOD, obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB,
-				disease, expNoise, instExp, delta, performance, maxExp);
+				disease, expNoise, instExp, delta, performance, maxExp, rho, eta);
 		schedule.scheduleRepeating(schedule.EPOCH, 0, observer);
+	}
+
+	public void startObserver(boolean obsH, boolean obsN, boolean obsC,
+			boolean obsT, boolean obsE, boolean obsB, boolean simpleC, boolean simpleE, boolean simpleB,
+			boolean disease, boolean expNoise, boolean instExp, boolean delta, boolean performance, boolean maxExp) {
+		startObserver(obsH, obsN, obsC, obsT, obsE, obsB, simpleC, simpleE, simpleB, disease, expNoise, instExp, delta,
+				performance, maxExp, false, false);
 	}
 
 	public void startObserver(boolean obsH, boolean obsN, boolean obsC,

@@ -194,6 +194,14 @@ public class Patient implements Steppable {
 		return delta_p;
 	}
 
+	public double getrho() {
+		return rho_p;
+	}
+
+	public double geteta() {
+		return eta_p;
+	}
+
 	public double getcapN() {
 		return capN_p;
 	}

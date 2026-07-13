@@ -249,6 +249,8 @@ public class TestRunWithParams {
 				+ "\"obsSimpleB\": [true],"
 				+ "\"obsDisease\": [true],"
 				+ "\"obsDelta\": [true],"
+				+ "\"obsRho\": [true],"
+				+ "\"obsEta\": [true],"
 				+ "\"obsExpNoise\": [true],"
 				+ "\"obsInstExp\": [true],"
 				+ "\"obsPerformance\": [true],"
@@ -271,6 +273,8 @@ public class TestRunWithParams {
 		assertTrue(response.contains("\"obsSimpleB\":\"true\""));
 		assertTrue(response.contains("\"obsDisease\":\"true\""));
 		assertTrue(response.contains("\"obsDelta\":\"true\""));
+		assertTrue(response.contains("\"obsRho\":\"true\""));
+		assertTrue(response.contains("\"obsEta\":\"true\""));
 		assertTrue(response.contains("\"obsExpNoise\":\"true\""));
 		assertTrue(response.contains("\"obsInstExp\":\"true\""));
 		assertTrue(response.contains("\"obsPerformance\":\"true\""));

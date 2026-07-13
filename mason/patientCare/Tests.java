@@ -1839,19 +1839,35 @@ public class Tests {
 		
 		double[] treatment = care.observer.getStepTreatmentDelivered();
 		int[] interactions = care.observer.getStepInteractions();
+		double[] capacity = care.observer.getStepCapacity();
 		
 		assertEquals(11, treatment.length);
 		assertEquals(11, interactions.length);
+		assertEquals(11, capacity.length);
 		
 		double totalTreatment = 0;
 		int totalInteractions = 0;
+		double totalCapacity = 0;
 		for (int i = 0; i <= 10; i++) {
 			totalTreatment += treatment[i];
 			totalInteractions += interactions[i];
+			totalCapacity += capacity[i];
 		}
 		
 		assertTrue(totalInteractions > 0, "There should be at least one patient-doctor interaction recorded");
 		assertTrue(totalTreatment > 0.0, "There should be a non-zero amount of treatment delivered");
+		assertTrue(totalCapacity > 0.0, "There should be a non-zero amount of capacity recorded");
+
+		// Verify performance ratio is treatment / capacity
+		double[] performance = care.observer.getStepPerformance();
+		assertEquals(10, performance.length);
+		for (int i = 0; i < 10; i++) {
+			if (capacity[i] > 0) {
+				assertEquals(treatment[i] / capacity[i], performance[i], 1e-9);
+			} else {
+				assertEquals(0.0, performance[i], 1e-9);
+			}
+		}
 	}
 
 	@Test
@@ -1885,6 +1901,10 @@ public class Tests {
 		assertTrue(resultJson.has("stepPerformance"), "JSON response should contain 'stepPerformance' key");
 		org.json.JSONArray stepPerfArray = resultJson.getJSONArray("stepPerformance");
 		assertEquals(10, stepPerfArray.length(), "stepPerformance array should have length equal to varsigma");
+
+		assertTrue(resultJson.has("stepCapacity"), "JSON response should contain 'stepCapacity' key");
+		org.json.JSONArray stepCapArray = resultJson.getJSONArray("stepCapacity");
+		assertEquals(10, stepCapArray.length(), "stepCapacity array should have length equal to varsigma");
 	}
 
 }

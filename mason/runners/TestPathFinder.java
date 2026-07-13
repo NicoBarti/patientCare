@@ -9,7 +9,7 @@ import sim.util.Bag;
 
 public class TestPathFinder {
 	
-	String testingPath = "/Users/Nico/AntigrvityRepos/patientCare/mason/testingTrash";
+	String testingPath = "mason/testingTrash";
 	Care care;
 	Patient patient;
 

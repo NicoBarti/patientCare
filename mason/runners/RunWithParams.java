@@ -90,6 +90,12 @@ public class RunWithParams {
 	/** Flag to enable observing severity parameter value distribution. */
 	boolean obsDelta = false;
 
+	/** Flag to enable observing expectations growth rate (rho). */
+	boolean obsRho = false;
+
+	/** Flag to enable observing expectations decay rate (eta). */
+	boolean obsEta = false;
+
 	/** Flag to enable observing expectations noise. */
 	boolean obsExpNoise = false;
 
@@ -219,7 +225,7 @@ public class RunWithParams {
 		}
 		simulation.start();
 		simulation.startObserver(obsH, obsN, obsC, obsT, obsE, obsB,
-				simpleC, simpleE, simpleB, obsDisease, obsExpNoise, obsInstExp, obsDelta, obsPerformance, obsMaxExp);
+				simpleC, simpleE, simpleB, obsDisease, obsExpNoise, obsInstExp, obsDelta, obsPerformance, obsMaxExp, obsRho, obsEta);
 	}
 
 	/**
@@ -426,6 +432,12 @@ public class RunWithParams {
 				case "obsDelta":
 					obsDelta = true;
 					break;
+				case "obsRho":
+					obsRho = true;
+					break;
+				case "obsEta":
+					obsEta = true;
+					break;
 				case "obsExpNoise":
 					obsExpNoise = true;
 					break;
@@ -545,6 +557,8 @@ public class RunWithParams {
 		params.put("obsSimpleB", Boolean.toString(simpleB));
 		params.put("obsDisease", Boolean.toString(obsDisease));
 		params.put("obsDelta", Boolean.toString(obsDelta));
+		params.put("obsRho", Boolean.toString(obsRho));
+		params.put("obsEta", Boolean.toString(obsEta));
 		params.put("obsPerformance", Boolean.toString(obsPerformance));
 		params.put("obsMaxExp", Boolean.toString(obsMaxExp));
 		params.put("obsStepPerformance", Boolean.toString(obsStepPerformance));

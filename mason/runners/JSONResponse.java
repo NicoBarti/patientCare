@@ -38,11 +38,17 @@ public class JSONResponse {
 			buildResults_json("InstExp", simulation.observer.getInstExp());
 			
 			buildResults_json("Delta", simulation.observer.getDelta());
+			buildResults_json("Rho", simulation.observer.getRho());
+			buildResults_json("Eta", simulation.observer.getEta());
 			buildResults_json("Performance", simulation.observer.getPerformance());
 			buildResults_json("MaxExp", simulation.observer.getMaxExp());
 			
 			if (simulation.obsStepPerformance) {
 				buildResults_json("stepPerformance", simulation.observer.getStepPerformance());
+				double[] capacity = simulation.observer.getStepCapacity();
+				double[] slice = new double[simulation.getvarsigma()];
+				System.arraycopy(capacity, 0, slice, 0, simulation.getvarsigma());
+				buildResults_json("stepCapacity", slice);
 			}
 	}
 	
